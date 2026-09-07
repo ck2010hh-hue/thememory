@@ -98,3 +98,48 @@
 .city-row .city-id{ font-size:11px; color:#8a8478; width:70px; overflow:hidden; text-overflow:ellipsis; }
 .city-row input{ flex:1; padding:7px 9px; border:1px solid #d8cfbe; border-radius:6px; font-size:13px; }
 .city-row select{ flex:1; padding:7px 9px; border:1px solid #d8cfbe; border-radius:6px; font-size:13px; }
+
+/* ---------- 移动端适配（手机操作后台） ---------- */
+@media (max-width: 860px){
+  .panel{ flex-direction:column; }
+  .side{
+    position:sticky; top:0; z-index:60; width:100%; height:auto;
+    flex-direction:row; align-items:center; gap:10px;
+    padding:10px 12px; overflow-x:auto; -webkit-overflow-scrolling:touch;
+  }
+  .side-brand{ margin:0; font-size:15px; white-space:nowrap; }
+  .side-brand br{ display:none; }
+  .side-brand span{ display:none; }
+  .side-nav{ display:flex; gap:6px; margin:0; }
+  .side-nav a{ margin:0; padding:9px 13px; font-size:13px; white-space:nowrap; }
+  .side-foot{ margin:0 0 0 auto; flex-direction:row; gap:6px; }
+  .side-foot .btn-link{ padding:8px 10px; font-size:12px; white-space:nowrap; }
+
+  .content{ margin-left:0; padding:16px 14px 72px; max-width:none; }
+  .tab-h{ font-size:21px; margin-bottom:16px; }
+  .tab-head{ flex-direction:column; align-items:stretch; gap:12px; }
+  .tab-head .btn-primary{ width:100%; }
+
+  /* 输入框字号 >=16px，避免 iOS 聚焦时自动放大 */
+  .field input[type=text], .field textarea, .field select,
+  .field-row input, .login-card input{ font-size:16px; }
+
+  /* 触摸目标放大到 44px */
+  .btn-primary{ min-height:44px; padding:12px 18px; }
+  .btn-mini{ min-height:40px; padding:10px 15px; font-size:13px; }
+  .btn-danger{ min-height:38px; padding:9px 14px; font-size:13px; }
+
+  .field-row{ flex-wrap:wrap; gap:8px; }
+  .field-row label{ min-width:auto; }
+  .photo-grid{ grid-template-columns:repeat(3,1fr); gap:8px; }
+  .photo-cell img{ height:74px; }
+
+  .login-card{ width:auto; max-width:340px; margin:0 16px; padding:34px 22px; }
+  #ghBar{ position:sticky; top:0; z-index:55; font-size:12px; }
+}
+@media (max-width: 420px){
+  .photo-grid{ grid-template-columns:repeat(2,1fr); }
+  .content{ padding:14px 11px 72px; }
+  .side{ padding:8px 10px; }
+  .side-brand{ font-size:13px; }
+}
