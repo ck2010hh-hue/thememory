@@ -24,6 +24,7 @@
     if(d.site){
       if(d.site.heroVideo) d.site.heroVideo = abs(d.site.heroVideo, base);
       if(d.site.introAudio) d.site.introAudio = abs(d.site.introAudio, base);
+      if(d.site.bgmList) d.site.bgmList = d.site.bgmList.map(function(u){ return abs(u, base); });
       if(d.site.videos) d.site.videos.forEach(function(v){ v.src = abs(v.src, base); });
     }
     Object.keys(d.albums||{}).forEach(function(k){
@@ -561,15 +562,45 @@
     var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); }, {threshold:0.12});
     els.forEach(function(e){ io.observe(e); });
   }
-  function initAudioToggle(){
-    document.querySelectorAll('.audio-toggle').forEach(function(btn){
-      var src = btn.getAttribute('data-audio'); if(!src) return;
-      var au = new Audio(src); au.loop = true; au.volume = 0.5;
-      btn.addEventListener('click', function(){
-        if(au.paused){ au.play().then(function(){ btn.classList.add('playing'); }).catch(function(){}); }
-        else { au.pause(); btn.classList.remove('playing'); }
-      });
+  /* 背景轻音乐：自动轮播播放，按钮点击开/关；浏览器拦截自动播放时等首次交互再起 */
+  function initBgm(playlist){
+    var btn = document.querySelector('.audio-toggle');
+    if(!btn || !playlist || !playlist.length) return;
+    var au = new Audio(); au.volume = 0.35;
+    var idx = 0, armed = false;
+    var want = localStorage.getItem('tm_bgm') !== 'off';   // 用户关过就不再自动播
+    function start(){
+      if(!au.src) au.src = playlist[idx % playlist.length];
+      au.play().then(function(){ btn.classList.add('playing'); }).catch(function(){ armGesture(); });
+    }
+    function stop(){ au.pause(); btn.classList.remove('playing'); }
+    function onGesture(){
+      document.removeEventListener('pointerdown', onGesture);
+      document.removeEventListener('touchstart', onGesture);
+      document.removeEventListener('scroll', onGesture);
+      document.removeEventListener('keydown', onGesture);
+      if(want) start();
+    }
+    function armGesture(){
+      if(armed) return; armed = true;
+      document.addEventListener('pointerdown', onGesture);
+      document.addEventListener('touchstart', onGesture);
+      document.addEventListener('scroll', onGesture);
+      document.addEventListener('keydown', onGesture);
+    }
+    au.addEventListener('ended', function(){
+      idx = (idx + 1) % playlist.length;   // 轮播：一曲终了自动下一首
+      au.src = playlist[idx];
+      au.play().catch(function(){});
     });
+    btn.addEventListener('click', function(){
+      if(au.paused){
+        want = true; localStorage.setItem('tm_bgm', 'on'); start();
+      } else {
+        want = false; localStorage.setItem('tm_bgm', 'off'); stop();
+      }
+    });
+    if(want) start(); else btn.classList.remove('playing');
   }
   function initCoverSliders(){
     document.querySelectorAll('.cover-slider').forEach(function(slider){
@@ -643,10 +674,11 @@
 
   /* ---------- 启动 ---------- */
   function boot(){
-    initNav(); initReveal(); initAudioToggle();
+    initNav(); initReveal();
     getJSON('data.json').then(function(d){
       DATA = applyCdn(d);
       d = DATA;
+      initBgm(d.site.bgmList);   // 曲库在 data.json，等数据就绪再起音乐
       var p = location.pathname;
       if(p.indexOf('album.html')>-1){
         var id = new URLSearchParams(location.search).get('id') || (d.galleryOrder&&d.galleryOrder[0]) || Object.keys(d.albums)[0];
