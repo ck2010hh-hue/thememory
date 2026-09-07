@@ -7,19 +7,19 @@
     "cdnBase": "https://thememoryhk-1482718043.cos.ap-hongkong.myqcloud.com/",
     "videos": [
       {
-        "src": "media/hero.mp4",
+        "src": "media/albums/thailand2026/vid/VID_20260622_103657.mp4",
         "sub": "Film 01",
-        "title": "泰国 · 2026"
+        "title": "泰国 · 2026.06.22"
       },
       {
-        "src": "media/hero.mp4",
+        "src": "media/albums/thailand2026/vid/VID_20260622_155838.mp4",
         "sub": "Film 02",
-        "title": "海风与晚霞"
+        "title": "泰国 · 2026.06.22"
       },
       {
-        "src": "media/hero.mp4",
+        "src": "media/albums/thailand2026/vid/VID_20260623_133141.mp4",
         "sub": "Film 03",
-        "title": "曼谷的午后"
+        "title": "泰国 · 2026.06.23"
       }
     ]
   },
@@ -1330,7 +1330,33 @@
           "cap": "泰国 · 2026.06.24"
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "src": "media/albums/thailand2026/vid/VID_20260622_103657.mp4",
+          "poster": "media/albums/thailand2026/vid/VID_20260622_103657.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/vid/VID_20260622_155838.mp4",
+          "poster": "media/albums/thailand2026/vid/VID_20260622_155838.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/vid/VID_20260623_133141.mp4",
+          "poster": "media/albums/thailand2026/vid/VID_20260623_133141.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/vid/VID_20260623_202822.mp4",
+          "poster": "media/albums/thailand2026/vid/VID_20260623_202822.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/vid/VID_20260623_202906.mp4",
+          "poster": "media/albums/thailand2026/vid/VID_20260623_202906.jpg",
+          "cap": "泰国 · 2026.06.23"
+        }
+      ],
       "heroThumb": "media/albums/thailand2026/thumb/IMG_20260621_124635.jpg"
     }
   }
