@@ -412,10 +412,17 @@
   function renderOrder(sel, key, label) {
     var wrap = $(sel); wrap.innerHTML = '';
     var order = DATA[key] || (DATA[key] = []);
+    if (key === 'favoritesOrder') {
+      var tip = el('p', 'hint', '首页只显示前 3 个（当前 ' + order.length + ' 个）。'
+        + '用 ↑↓ 调整顺序决定哪 3 个上首页，第 4 个起仅出现在二级页。');
+      tip.style.cssText = 'color:#c8a882;margin:0 0 10px;font-size:12px;line-height:1.7;';
+      wrap.appendChild(tip);
+    }
     order.forEach(function (id, i) {
       var a = DATA.albums[id]; if (!a) return;
       var item = el('div', 'order-item');
-      item.appendChild(el('div', 'oi-title', esc(a.title || id)));
+      var pre = (key === 'favoritesOrder') ? ((i < 3 ? '首页 ' : '隐藏 ') + (i + 1) + '. ') : '';
+      item.appendChild(el('div', 'oi-title', pre + esc(a.title || id)));
       var up = el('button', 'btn-mini', '↑'); up.onclick = function () { swap(order, i, i - 1); renderOrder(sel, key, label); };
       var dn = el('button', 'btn-mini', '↓'); dn.onclick = function () { swap(order, i, i + 1); renderOrder(sel, key, label); };
       var rm = el('button', 'btn-danger', '移出'); rm.onclick = function () { order.splice(i, 1); renderOrder(sel, key, label); };
