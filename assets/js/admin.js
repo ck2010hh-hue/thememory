@@ -112,6 +112,8 @@
 
   /* ---------- 线上版（GH 模式）界面适配 ---------- */
   function ghPanelBar() {
+    // 2026-09-07 用户要求：手机上传提示栏不要了（手机端暂时不操作后台），不再渲染。
+    return;
     if (MODE !== 'gh' || $('#ghBar')) return;
     var panel = $('#panel');
     if (!panel) return;
