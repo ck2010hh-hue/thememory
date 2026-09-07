@@ -414,27 +414,27 @@
           zoom: 7, pitch: 0, scrollwheel: false, baseMap: { type: 'vector' }
         });
         addTMapPoints(TMap, map, pts, function(x){ if(x.url) location.href = x.url; });
-        // 省界高亮：拿行政区划边界，把视野框到该省
+        // 省界高亮：拿行政区划边界，把视野框到该省（本地缓存 7 天，省 WebService 配额）
         try {
-          var svc = new TMap.service.District({ polygon: 1 });
-          svc.search({ keyword: p.name }).then(function(res){
-            var items = (res && res.result) || [];
+          var CK = 'tm_district_' + pk;
+          var cached = null;
+          try { cached = JSON.parse(localStorage.getItem(CK) || 'null'); } catch (e) { cached = null; }
+          var applyBoundary = function (polyStrs) {
             var polys = [], minLat = 90, maxLat = -90, minLng = 180, maxLng = -90;
-            items.forEach(function(it){
-              if(!it || !it.polygon) return;
-              it.polygon.split('|').forEach(function(ring){
-                var ringPts = ring.split(';').map(function(s){
+            polyStrs.forEach(function (pg) {
+              pg.split('|').forEach(function (ring) {
+                var ringPts = ring.split(';').map(function (s) {
                   var xy = s.split(',');
                   var la = parseFloat(xy[0]), ln = parseFloat(xy[1]);
-                  if(isNaN(la) || isNaN(ln)) return null;
-                  if(la < minLat) minLat = la; if(la > maxLat) maxLat = la;
-                  if(ln < minLng) minLng = ln; if(ln > maxLng) maxLng = ln;
+                  if (isNaN(la) || isNaN(ln)) return null;
+                  if (la < minLat) minLat = la; if (la > maxLat) maxLat = la;
+                  if (ln < minLng) minLng = ln; if (ln > maxLng) maxLng = ln;
                   return new TMap.LatLng(la, ln);
                 }).filter(Boolean);
-                if(ringPts.length > 2) polys.push(ringPts);
+                if (ringPts.length > 2) polys.push(ringPts);
               });
             });
-            if(polys.length){
+            if (polys.length) {
               new TMap.MultiPolygon({
                 map: map,
                 styles: { hl: new TMap.FillStyle({
@@ -442,14 +442,30 @@
                   borderColor: '#B99A6F',
                   borderWidth: 3
                 }) },
-                geometries: polys.map(function(g, i){ return { id: 'p' + i, styleId: 'hl', paths: g }; })
+                geometries: polys.map(function (g, i) { return { id: 'p' + i, styleId: 'hl', paths: g }; })
               });
               try {
                 map.fitBounds(new TMap.LatLngBounds(
                   new TMap.LatLng(minLat, minLng), new TMap.LatLng(maxLat, maxLng)));
               } catch (e) {}
             }
-          }).catch(function(){});
+          };
+          if (cached && cached.t && cached.polys && cached.polys.length
+              && (Date.now() - cached.t < 7 * 24 * 3600 * 1000)) {
+            applyBoundary(cached.polys);
+          } else {
+            var svc = new TMap.service.District({ polygon: 1 });
+            svc.search({ keyword: p.name }).then(function (res) {
+              var items = (res && res.result) || [];
+              var polyStrs = items
+                .filter(function (it) { return it && it.polygon; })
+                .map(function (it) { return it.polygon; });
+              if (polyStrs.length) {
+                try { localStorage.setItem(CK, JSON.stringify({ t: Date.now(), polys: polyStrs })); } catch (e) {}
+                applyBoundary(polyStrs);
+              }
+            }).catch(function () {});
+          }
         } catch (e) {}
       }).catch(function(){ sec.style.display = 'none'; });
     }
