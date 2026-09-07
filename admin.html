@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Memory · 管理后台</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-body">
+
+<!-- 登录 -->
+<div id="login" class="login-wrap">
+  <div class="login-card">
+    <div class="login-sub">The Memory</div>
+    <h1 class="login-title">管理后台</h1>
+    <input id="pass" type="password" placeholder="请输入后台密码" autocomplete="off">
+    <button id="loginBtn">登 录</button>
+    <div id="loginErr" class="login-err"></div>
+  </div>
+</div>
+
+<!-- 主面板 -->
+<div id="panel" class="panel hidden">
+  <aside class="side">
+    <div class="side-brand">The Memory<br><span>后台</span></div>
+    <nav class="side-nav">
+      <a data-tab="site" class="active">网站设置</a>
+      <a data-tab="albums">相册管理</a>
+      <a data-tab="fav">首页收藏顺序</a>
+      <a data-tab="gallery">图集顺序</a>
+      <a data-tab="places">地点地图</a>
+    </nav>
+    <div class="side-foot">
+      <button id="saveAll" class="btn-primary">保存全部</button>
+      <button id="logout" class="btn-ghost">退出</button>
+      <a class="btn-link" href="index.html" target="_blank">看网站 ↗</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <!-- 网站设置 -->
+    <section class="tab" data-tab="site">
+      <h2 class="tab-h">网站设置</h2>
+      <div class="field"><label>网站名称</label><input id="s-name" type="text"></div>
+      <div class="field"><label>首页简介（每行一句，自动换行）</label><textarea id="s-intro" rows="4"></textarea></div>
+      <div class="field">
+        <label>首页背景视频</label>
+        <div class="row">
+          <input id="s-hero" type="text" placeholder="media/hero.mp4 或上传">
+          <button class="btn-mini" data-upload="hero">上传视频</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>简介背景音乐</label>
+        <div class="row">
+          <input id="s-audio" type="text" placeholder="assets/media/bgm.wav 或上传">
+          <button class="btn-mini" data-upload="audio">上传音乐</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 相册管理 -->
+    <section class="tab hidden" data-tab="albums">
+      <div class="tab-head">
+        <h2 class="tab-h">相册管理</h2>
+        <button id="newAlbum" class="btn-primary">+ 新建相册</button>
+      </div>
+      <div id="albumList" class="album-list"></div>
+    </section>
+
+    <!-- 收藏顺序 -->
+    <section class="tab hidden" data-tab="fav">
+      <h2 class="tab-h">首页「My Favorites」展示顺序</h2>
+      <p class="hint">上下调整顺序，或把相册加入 / 移出首页收藏区。</p>
+      <div id="favOrder" class="order-list"></div>
+    </section>
+
+    <!-- 图集顺序 -->
+    <section class="tab hidden" data-tab="gallery">
+      <h2 class="tab-h">图集 Gallery 展示顺序</h2>
+      <p class="hint">上下调整顺序，或把相册加入 / 移出图集。</p>
+      <div id="galOrder" class="order-list"></div>
+    </section>
+
+    <!-- 地点 -->
+    <section class="tab hidden" data-tab="places">
+      <h2 class="tab-h">地点地图（国内已点亮 / 国外）</h2>
+      <p class="hint">点击地图上的点会跳转到对应相册。先填写名称，再选择关联相册。</p>
+      <h3 class="sub-h">国内省份</h3>
+      <div id="placeLit" class="place-list"></div>
+      <button class="btn-mini" id="addLit">+ 添加省份</button>
+      <h3 class="sub-h" style="margin-top:24px;">国外</h3>
+      <div id="placeAbroad" class="place-list"></div>
+      <button class="btn-mini" id="addAbroad">+ 添加国家/地区</button>
+    </section>
+  </main>
+</div>
+
+<!-- 隐藏的文件上传器 -->
+<input id="fileInput" type="file" multiple class="hidden">
+<div id="toast" class="toast"></div>
+
+<script src="assets/js/admin.js"></script>
+</body>
+</html>

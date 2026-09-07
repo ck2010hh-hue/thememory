@@ -1,0 +1,50 @@
+{
+  "site": {
+    "name": "The Memory",
+    "intro": "有些风景，走过便成了记忆。\n我把它们留在这里——\n一段段光，一座座远方的城。",
+    "introAudio": "media/bgm.wav",
+    "heroVideo": "media/hero.mp4",
+    "cdnBase": "https://thememoryhk-1482718043.cos.ap-hongkong.myqcloud.com/",
+    "videos": [
+      { "src": "media/hero.mp4", "sub": "Film 01", "title": "泰国 · 2026" },
+      { "src": "media/hero.mp4", "sub": "Film 02", "title": "海风与晚霞" },
+      { "src": "media/hero.mp4", "sub": "Film 03", "title": "曼谷的午后" }
+    ]
+  },
+  "favoritesOrder": ["huangshan"],
+  "galleryOrder": ["huangshan"],
+  "places": {
+    "provinces": {
+      "zhejiang": { "name": "浙江", "cx": 670, "cy": 355, "cities": { "ningbo": { "name": "宁波", "albums": [] }, "hangzhou": { "name": "杭州", "albums": [] } } },
+      "anhui": { "name": "安徽", "cx": 615, "cy": 330, "cities": { "huangshan": { "name": "黄山", "albums": ["huangshan"] } } },
+      "yunnan": { "name": "云南", "cx": 330, "cy": 430, "cities": {} }
+    },
+    "abroad": {
+      "japan": { "name": "日本", "albums": [], "cx": 740, "cy": 260 },
+      "thailand": { "name": "泰国", "albums": [], "cx": 380, "cy": 510 }
+    }
+  },
+  "albums": {
+    "huangshan": {
+      "id": "huangshan",
+      "title": "黄山",
+      "place": "安徽 · 中国",
+      "date": "2026 · 02",
+      "desc": "雪后初晴的黄山，云海在脚下翻涌。两天的徒步，把城市的喧嚣留在了山脚，只带走一囊清冷的空气与几帧不愿遗忘的画面。",
+      "hero": "media/albums/huangshan/IMG_20260218_103450.jpg",
+      "story": [
+        "清晨六点，缆车还未醒，我们已踩着残雪上了山。雾在脚下，松在雾里，偶尔一阵风，把云海掀开一道缝，露出远峰的轮廓。",
+        "这一天走得并不轻松。石阶结着薄冰，呼吸在冷空气里凝成白雾。可每当转过一个弯，看见云瀑从崖边倾泻而下，又觉得一切都值得。",
+        "傍晚宿在山顶，星星亮得不像话。我把镜头对准山谷，想替未来的自己记住——曾有一个冬天，我为一座山早起，并为它心动过。"
+      ],
+      "photos": [
+        { "src": "media/albums/huangshan/IMG_20260218_082134.jpg", "cap": "黄山 · 雪后松枝 · 2026.02" },
+        { "src": "media/albums/huangshan/IMG_20260218_100734.jpg", "cap": "黄山 · 云海初现 · 2026.02" },
+        { "src": "media/albums/huangshan/IMG_20260218_103633.jpg", "cap": "黄山 · 远峰 · 2026.02" },
+        { "src": "media/albums/huangshan/IMG_20260218_105153.jpg", "cap": "黄山 · 山脊 · 2026.02" },
+        { "src": "media/albums/huangshan/IMG_20260218_110854.jpg", "cap": "黄山 · 石阶 · 2026.02" },
+        { "src": "media/albums/huangshan/IMG_20260218_120948.jpg", "cap": "黄山 · 日落 · 2026.02" }
+      ]
+    }
+  }
+}

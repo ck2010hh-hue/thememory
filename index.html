@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Memory</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<nav class="site-nav on-hero">
+  <a class="brand" href="index.html">The Memory</a>
+  <div class="nav-links">
+    <a href="index.html" class="active">Home</a>
+    <a href="#favorites">Favorites</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="place.html">Places</a>
+    <a href="#join">Join</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <video autoplay muted loop playsinline preload="auto">
+    <source src="media/hero.mp4" type="video/mp4">
+  </video>
+  <div class="hero-veil"></div>
+  <div class="hero-center">
+    <div class="hero-sub">A Personal Travel Journal</div>
+    <h1 class="hero-title">The Memory</h1>
+    <a class="enter-btn" href="video.html">Enter</a>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</header>
+
+<section class="intro reveal">
+  <p class="poem"></p>
+  <button class="audio-toggle" data-audio="assets/media/bgm.wav" aria-label="播放背景音乐">
+    <span class="ico"></span>
+  </button>
+  <div class="audio-cap">Sound · 轻音乐</div>
+</section>
+
+<section class="chapter" id="favorites">
+  <div class="chapter-head reveal">
+    <div class="eyebrow">Chapter 01</div>
+    <h2 class="serif-title">My Favorites</h2>
+  </div>
+  <div id="fav-list"></div>
+</section>
+
+<section class="chapter" id="places">
+  <div class="chapter-head reveal">
+    <div class="eyebrow">Chapter 02</div>
+    <h2 class="serif-title">地点 · Places</h2>
+  </div>
+  <div id="place-teaser"></div>
+</section>
+
+<section class="chapter" id="gallery">
+  <div class="chapter-head reveal">
+    <div class="eyebrow">Chapter 03</div>
+    <h2 class="serif-title">图集 · Gallery</h2>
+  </div>
+  <div id="gallery-teaser"></div>
+</section>
+
+<footer id="join">
+  THE MEMORY · 个人旅行日志 &nbsp;—&nbsp; 由 inaka 记录与整理<br>
+  © 2026 &nbsp; Built with light &amp; patience.
+  <br><a href="admin.html" style="color:var(--accent);font-size:11px;letter-spacing:.2em;">管理后台 →</a>
+</footer>
+
+<div class="lightbox" id="lightbox">
+  <span class="lb-close">关闭 ✕</span>
+  <span class="lb-nav lb-prev">‹</span>
+  <img class="lb-img" src="" alt="">
+  <span class="lb-nav lb-next">›</span>
+  <div class="lb-cap"></div>
+  <div class="lb-count" style="position:absolute;bottom:26px;right:34px;color:#fff;font-size:12px;letter-spacing:.2em;"></div>
+</div>
+
+<script src="assets/js/site.js"></script>
+</body>
+</html>
