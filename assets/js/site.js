@@ -81,13 +81,14 @@
       + '<circle cx="11" cy="11" r="7" fill="' + color + '" stroke="#fff" stroke-width="2"/></svg>';
     return { width: 22, height: 22, src: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg) };
   }
+  var MAP_FILTER = 'grayscale(.35) sepia(.22) saturate(.85) brightness(1.03)';
   function mountMapHost(el, id, height){
     var host = el.parentNode;
     var old = document.getElementById(id);
     if(old && old.parentNode) old.parentNode.removeChild(old);
     var div = document.createElement('div');
     div.id = id;
-    div.style.cssText = 'width:100%;height:' + height + ';border-radius:12px;overflow:hidden;filter:saturate(.8);';
+    div.style.cssText = 'width:100%;height:' + height + ';border-radius:12px;overflow:hidden;filter:' + MAP_FILTER + ';';
     el.style.display = 'none';
     host.appendChild(div);
     return div;
@@ -363,11 +364,7 @@
     var sub = document.querySelector('.province-hero .ph-sub');
     if(sub) sub.textContent = 'Province · 中国';
 
-    // 省份装饰图形（背景层，始终保留）
-    var deco = document.querySelector('.prov-shape path');
-    if(deco) deco.setAttribute('d', organicProvinceShape());
-
-    // 省份真实地图：配置 key 时显示独立地图区块，否则整块隐藏
+    // 省份真实地图：独立区块，含省界高亮（需 Key 已启用 WebServiceAPI）
     var mapKey2 = (d.site && d.site.mapKey) || '';
     var sec = document.getElementById('prov-map-sec');
     var pwrap = document.getElementById('prov-map-wrap');
@@ -376,7 +373,7 @@
       pwrap.innerHTML = '';
       var phost = document.createElement('div');
       phost.id = 'prov-map';
-      phost.style.cssText = 'width:100%;height:420px;border-radius:12px;overflow:hidden;filter:saturate(.8);';
+      phost.style.cssText = 'width:100%;height:460px;border-radius:12px;overflow:hidden;filter:' + MAP_FILTER + ';';
       pwrap.appendChild(phost);
       loadTMap(mapKey2).then(function(TMap){
         var citiesAll = p.cities || {};
@@ -389,9 +386,46 @@
         }).filter(function(x){ return x.lng != null && x.lat != null; });
         var map = new TMap.Map(phost, {
           center: new TMap.LatLng(p.lat, p.lng),
-          zoom: 7.5, pitch: 0, scrollwheel: false, baseMap: { type: 'vector' }
+          zoom: 7, pitch: 0, scrollwheel: false, baseMap: { type: 'vector' }
         });
         addTMapPoints(TMap, map, pts, function(x){ if(x.url) location.href = x.url; });
+        // 省界高亮：拿行政区划边界，把视野框到该省
+        try {
+          var svc = new TMap.service.District({ polygon: 1 });
+          svc.search({ keyword: p.name }).then(function(res){
+            var items = (res && res.result) || [];
+            var polys = [], minLat = 90, maxLat = -90, minLng = 180, maxLng = -90;
+            items.forEach(function(it){
+              if(!it || !it.polygon) return;
+              it.polygon.split('|').forEach(function(ring){
+                var ringPts = ring.split(';').map(function(s){
+                  var xy = s.split(',');
+                  var la = parseFloat(xy[0]), ln = parseFloat(xy[1]);
+                  if(isNaN(la) || isNaN(ln)) return null;
+                  if(la < minLat) minLat = la; if(la > maxLat) maxLat = la;
+                  if(ln < minLng) minLng = ln; if(ln > maxLng) maxLng = ln;
+                  return new TMap.LatLng(la, ln);
+                }).filter(Boolean);
+                if(ringPts.length > 2) polys.push(ringPts);
+              });
+            });
+            if(polys.length){
+              new TMap.MultiPolygon({
+                map: map,
+                styles: { hl: new TMap.FillStyle({
+                  color: 'rgba(200,168,130,0.16)',
+                  borderColor: '#B99A6F',
+                  borderWidth: 3
+                }) },
+                geometries: polys.map(function(g, i){ return { id: 'p' + i, styleId: 'hl', paths: g }; })
+              });
+              try {
+                map.fitBounds(new TMap.LatLngBounds(
+                  new TMap.LatLng(minLat, minLng), new TMap.LatLng(maxLat, maxLng)));
+              } catch (e) {}
+            }
+          }).catch(function(){});
+        } catch (e) {}
       }).catch(function(){ sec.style.display = 'none'; });
     }
 
