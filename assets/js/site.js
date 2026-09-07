@@ -184,6 +184,20 @@
       });
       body.innerHTML = s;
     }
+    // 相册视频区（紧跟故事之后）
+    var vbox = document.querySelector('.album-videos');
+    if(vbox){
+      var vs = a.videos || [];
+      vbox.innerHTML = vs.length
+        ? '<div class="eyebrow">Films</div>' + vs.map(function(v){
+            return '<figure class="album-video">'
+              + '<video controls playsinline preload="none" poster="'+esc(v.poster||'')+'">'
+              + '<source src="'+esc(v.src)+'" type="video/mp4"></video>'
+              + (v.cap ? '<figcaption>'+esc(v.cap)+'</figcaption>' : '')
+              + '</figure>';
+          }).join('')
+        : '';
+    }
     var grid = document.querySelector('.grid[data-lightbox]');
     if(grid){
       grid.setAttribute('data-lightbox', id);
