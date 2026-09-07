@@ -322,3 +322,24 @@ footer{ text-align:center; padding:60px 20px; color:var(--ink-soft); font-size:1
   .glist-img{ aspect-ratio:4/3; }
   .glist-info{ padding:28px 24px; }
 }
+
+/* ---------- 相册视频区 ---------- */
+.album-videos:empty{ display:none; }
+.album-videos{
+  max-width:900px; margin:0 auto 56px; padding:0 24px;
+}
+.album-videos .eyebrow{
+  font-family:var(--font-serif, Georgia, "Times New Roman", serif);
+  font-size:13px; letter-spacing:.32em; text-transform:uppercase;
+  color:#a08e76; margin-bottom:22px; text-align:center;
+}
+.album-video{ margin:0 0 34px; }
+.album-video video{
+  width:100%; display:block; background:#0d0c0b; border-radius:2px;
+}
+.album-video figcaption{
+  margin-top:10px; font-size:13px; color:#8d8177; letter-spacing:.06em; text-align:center;
+}
+@media (max-width:640px){
+  .album-videos{ padding:0 16px; margin-bottom:36px; }
+}
