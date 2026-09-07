@@ -76,10 +76,11 @@
     });
     return tmapPromise;
   }
-  function dotIcon(color){
-    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22">'
-      + '<circle cx="11" cy="11" r="7" fill="' + color + '" stroke="#fff" stroke-width="2"/></svg>';
-    return { width: 22, height: 22, src: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg) };
+  function dotIcon(color, size){
+    size = size || 22;
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '">'
+      + '<circle cx="' + size/2 + '" cy="' + size/2 + '" r="' + (size/2 - 4) + '" fill="' + color + '" stroke="#fff" stroke-width="2"/></svg>';
+    return { width: size, height: size, src: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg) };
   }
   var MAP_FILTER = 'grayscale(.35) sepia(.22) saturate(.85) brightness(1.03)';
   function mountMapHost(el, id, height){
@@ -102,9 +103,28 @@
     if(!geos.length) return;
     var mk = new TMap.MultiMarker({
       map: map,
-      styles: { lit: new TMap.MarkerStyle(dotIcon('#C8A882')), dim: new TMap.MarkerStyle(dotIcon('#A79A8E')) },
+      styles: {
+        lit:  new TMap.MarkerStyle(dotIcon('#C8A882')),
+        dim:  new TMap.MarkerStyle(dotIcon('#A79A8E')),
+        hlit: new TMap.MarkerStyle(dotIcon('#B08A55', 32)),
+        hdim: new TMap.MarkerStyle(dotIcon('#857463', 32))
+      },
       geometries: geos
     });
+    /* hover 高亮：悬浮放大加深，移开恢复 */
+    function hoverStyle(gid, hover){
+      for(var i = 0; i < geos.length; i++){
+        if(geos[i].id !== gid) continue;
+        var base = geos[i].styleId === 'lit' || geos[i].styleId === 'hlit' ? 'lit' : 'dim';
+        var target = hover ? (base === 'lit' ? 'hlit' : 'hdim') : base;
+        mk.updateGeometries([{ id: gid, styleId: target, position: geos[i].position }]);
+        var dom = map.getContainer && map.getContainer();
+        if(dom) dom.style.cursor = (hover && base === 'lit') ? 'pointer' : '';
+        return;
+      }
+    }
+    mk.on('mouseover', function(evt){ if(evt.geometry) hoverStyle(evt.geometry.id, true); });
+    mk.on('mouseout',  function(evt){ if(evt.geometry) hoverStyle(evt.geometry.id, false); });
     mk.on('click', function(evt){
       var i = parseInt(String(evt.geometry.id || 'm0').slice(1), 10);
       if(onClick && points[i]) onClick(points[i]);
@@ -363,6 +383,11 @@
     if(h1) h1.textContent = p.name;
     var sub = document.querySelector('.province-hero .ph-sub');
     if(sub) sub.textContent = 'Province · 中国';
+    var intro = document.querySelector('.province-hero .ph-intro');
+    if(intro){
+      if(p.intro){ intro.textContent = p.intro; intro.style.display = ''; }
+      else { intro.textContent = ''; intro.style.display = 'none'; }
+    }
 
     // 省份真实地图：独立区块，含省界高亮（需 Key 已启用 WebServiceAPI）
     var mapKey2 = (d.site && d.site.mapKey) || '';
