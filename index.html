@@ -21,7 +21,7 @@
 
 <header class="hero">
   <video autoplay muted loop playsinline preload="auto">
-    <source src="media/hero.mp4" type="video/mp4">
+    <!-- src 由 site.js 按 data.json 的 cdnBase 填充（媒体在图床，不随仓库部署） -->
   </video>
   <div class="hero-veil"></div>
   <div class="hero-center">
@@ -34,7 +34,7 @@
 
 <section class="intro reveal">
   <p class="poem"></p>
-  <button class="audio-toggle" data-audio="assets/media/bgm.wav" aria-label="播放背景音乐">
+  <button class="audio-toggle" data-audio="media/bgm.wav" aria-label="播放背景音乐">
     <span class="ico"></span>
   </button>
   <div class="audio-cap">Sound · 轻音乐</div>
