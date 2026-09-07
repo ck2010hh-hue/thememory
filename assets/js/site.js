@@ -4,6 +4,10 @@
   var DATA = null;
   var API = 'api/data';
   var TOKEN = localStorage.getItem('tm_token') || '';
+  /* 首页 FAVORITES 最多显示几个（2026-09-07 用户定：只留 3 个）。
+     多余的收藏不会丢，仍按后台顺序保留，只是首页不渲染；
+     想改数量改这个数字即可（想全部显示改成 999）。 */
+  var MAX_FAV = 3;
 
   function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function getJSON(url){ return fetch(url, {headers:{'x-admin-token':TOKEN}}).then(function(r){ return r.json(); }); }
@@ -117,7 +121,7 @@
     var wrap = document.getElementById('fav-list');
     if(wrap){
       var html = '';
-      (d.favoritesOrder||[]).forEach(function(id, i){
+      (d.favoritesOrder||[]).slice(0, MAX_FAV).forEach(function(id, i){
         var a = d.albums[id]; if(!a) return;
         var covers = (a.photos||[]).slice(0, 8).map(function(p){ return p.thumb || p.src; });
         var rev = (i % 2 === 1) ? ' reverse' : '';
