@@ -25,11 +25,13 @@
   },
   "favoritesOrder": [
     "thailand2026",
-    "huangshan"
+    "huangshan",
+    "obj-01"
   ],
   "galleryOrder": [
     "thailand2026",
-    "huangshan"
+    "huangshan",
+    "obj-01"
   ],
   "places": {
     "provinces": {
@@ -1347,6 +1349,11 @@
           "cap": "泰国 · 2026.06.23"
         },
         {
+          "src": "media/albums/thailand2026/vid/VID_20260623_134323.mp4",
+          "poster": "media/albums/thailand2026/vid/VID_20260623_134323.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
           "src": "media/albums/thailand2026/vid/VID_20260623_202822.mp4",
           "poster": "media/albums/thailand2026/vid/VID_20260623_202822.jpg",
           "cap": "泰国 · 2026.06.23"
@@ -1358,6 +1365,103 @@
         }
       ],
       "heroThumb": "media/albums/thailand2026/thumb/IMG_20260621_124635.jpg"
+    },
+    "obj-01": {
+      "id": "obj-01",
+      "title": "25年物品 · 其他",
+      "place": "",
+      "date": "2023 · 10 – 2025 · 07",
+      "desc": "",
+      "hero": "media/albums/obj-01/IMG_20231013_183108_edit_532963628258258.jpg",
+      "heroThumb": "media/albums/obj-01/thumb/IMG_20231013_183108_edit_532963628258258.jpg",
+      "story": [],
+      "photos": [
+        {
+          "src": "media/albums/obj-01/IMG_20231013_183108_edit_532963628258258.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20231013_183108_edit_532963628258258.jpg",
+          "cap": "25年物品 · 其他 · 2023.10.13"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250404_221648_edit_397056906170799.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250404_221648_edit_397056906170799.jpg",
+          "cap": "25年物品 · 其他 · 2025.04.04"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250607_141518_edit_3428359513584012.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250607_141518_edit_3428359513584012.jpg",
+          "cap": "25年物品 · 其他 · 2025.06.07"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250625_085826.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250625_085826.jpg",
+          "cap": "25年物品 · 其他 · 2025.06.25"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250701_071648_edit_303310483842173.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250701_071648_edit_303310483842173.jpg",
+          "cap": "25年物品 · 其他 · 2025.07.01"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250701_071803.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250701_071803.jpg",
+          "cap": "25年物品 · 其他 · 2025.07.01"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250705_144755_edit_540287028926063.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250705_144755_edit_540287028926063.jpg",
+          "cap": "25年物品 · 其他 · 2025.07.05"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250705_144853_edit_538843619464500.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250705_144853_edit_538843619464500.jpg",
+          "cap": "25年物品 · 其他 · 2025.07.05"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250705_145219_edit_540302825492625.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250705_145219_edit_540302825492625.jpg",
+          "cap": "25年物品 · 其他 · 2025.07.05"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250713_172133.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250713_172133.jpg",
+          "cap": "25年物品 · 其他 · 2025.07.13"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250715_211822_edit_118689427989052.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250715_211822_edit_118689427989052.jpg",
+          "cap": "25年物品 · 其他 · 2025.07.15"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250715_211937_edit_118700933082333.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250715_211937_edit_118700933082333.jpg",
+          "cap": "25年物品 · 其他 · 2025.07.15"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250715_212050_edit_118708267561395.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250715_212050_edit_118708267561395.jpg",
+          "cap": "25年物品 · 其他 · 2025.07.15"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250715_212159_edit_118714801597489.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250715_212159_edit_118714801597489.jpg",
+          "cap": "25年物品 · 其他 · 2025.07.15"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250715_212330_edit_118760820556083.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250715_212330_edit_118760820556083.jpg",
+          "cap": "25年物品 · 其他 · 2025.07.15"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250715_212438_edit_118818791108895.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250715_212438_edit_118818791108895.jpg",
+          "cap": "25年物品 · 其他 · 2025.07.15"
+        },
+        {
+          "src": "media/albums/obj-01/IMG_20250716_232309_edit_185007684456088.jpg",
+          "thumb": "media/albums/obj-01/thumb/IMG_20250716_232309_edit_185007684456088.jpg",
+          "cap": "25年物品 · 其他 · 2025.07.16"
+        }
+      ]
     }
   }
 }
