@@ -319,6 +319,7 @@
     $('#s-intro').value = (s.intro || '').replace(/<br>/g, '\n');
     $('#s-hero').value = s.heroVideo || '';
     $('#s-audio').value = s.introAudio || '';
+    if ($('#s-mapkey')) $('#s-mapkey').value = s.mapKey || '';
   }
 
   function renderAlbums() {
@@ -510,6 +511,13 @@
       row.appendChild(el('label', '', 'Y'));
       row.appendChild(inp('number', p.cy || 0, function (v) { p.cy = Number(v); }));
       item.appendChild(row);
+      // 经纬度（真实地图定位用，GCJ-02）
+      var gRow = el('div', 'field-row');
+      gRow.appendChild(el('label', '', '经度'));
+      gRow.appendChild(inp('number', p.lng || '', function (v) { p.lng = parseFloat(v); }));
+      gRow.appendChild(el('label', '', '纬度'));
+      gRow.appendChild(inp('number', p.lat || '', function (v) { p.lat = parseFloat(v); }));
+      item.appendChild(gRow);
       // 城市
       var cities = p.cities || (p.cities = {});
       var cityWrap = el('div', 'city-wrap');
@@ -519,6 +527,12 @@
         cRow.appendChild(el('span', 'city-id', ck));
         var cName = inp('text', c.name || '', function (v) { c.name = v; });
         cRow.appendChild(cName);
+        var cLng = inp('number', c.lng || '', function (v) { c.lng = parseFloat(v); });
+        cLng.style.width = '84px'; cLng.placeholder = '经度';
+        cRow.appendChild(cLng);
+        var cLat = inp('number', c.lat || '', function (v) { c.lat = parseFloat(v); });
+        cLat.style.width = '84px'; cLat.placeholder = '纬度';
+        cRow.appendChild(cLat);
         var cSel = document.createElement('select');
         cSel.innerHTML = albumOptions((c.albums && c.albums[0]) || '');
         cSel.onchange = function () { c.albums = cSel.value ? [cSel.value] : []; };
@@ -560,6 +574,10 @@
       row.appendChild(inp('number', p.cx || 0, function (v) { p.cx = Number(v); }));
       row.appendChild(el('label', '', 'Y'));
       row.appendChild(inp('number', p.cy || 0, function (v) { p.cy = Number(v); }));
+      row.appendChild(el('label', '', '经度'));
+      row.appendChild(inp('number', p.lng || '', function (v) { p.lng = parseFloat(v); }));
+      row.appendChild(el('label', '', '纬度'));
+      row.appendChild(inp('number', p.lat || '', function (v) { p.lat = parseFloat(v); }));
       item.appendChild(row);
       var selRow = el('div', 'field-row');
       selRow.appendChild(el('label', '', '默认相册'));
@@ -614,6 +632,7 @@
       DATA.site.intro = $('#s-intro').value.replace(/\n/g, '<br>');
       DATA.site.heroVideo = $('#s-hero').value;
       DATA.site.introAudio = $('#s-audio').value;
+      if ($('#s-mapkey')) DATA.site.mapKey = ($('#s-mapkey').value || '').trim();
       saveAll();
     };
     $('#newAlbum').onclick = function () {
