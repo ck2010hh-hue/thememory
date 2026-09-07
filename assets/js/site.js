@@ -25,9 +25,22 @@
     Object.keys(d.albums||{}).forEach(function(k){
       var a = d.albums[k];
       if(a.hero) a.hero = abs(a.hero, base);
-      (a.photos||[]).forEach(function(p){ if(p.src) p.src = abs(p.src, base); });
+      (a.photos||[]).forEach(function(p){
+        if(p.src) p.src = abs(p.src, base);
+        if(p.thumb) p.thumb = abs(p.thumb, base);
+      });
+      if(a.heroThumb) a.heroThumb = abs(a.heroThumb, base);
     });
     return d;
+  }
+
+  /* 卡片/列表封面统一用缩略图，灯箱与详情页大图才用原尺寸 */
+  function coverThumb(a){
+    if(a.heroThumb) return a.heroThumb;
+    var p = (a.photos||[])[0];
+    if(p && p.thumb) return p.thumb;
+    if(p && p.src) return p.src;
+    return a.hero || '';
   }
 
   /* ---------- 中国地图：简化轮廓（可替换为精确 GeoJSON/SVG） ---------- */
@@ -106,7 +119,7 @@
       var html = '';
       (d.favoritesOrder||[]).forEach(function(id, i){
         var a = d.albums[id]; if(!a) return;
-        var covers = (a.photos||[]).slice(0, 8).map(function(p){ return p.src; });
+        var covers = (a.photos||[]).slice(0, 8).map(function(p){ return p.thumb || p.src; });
         var rev = (i % 2 === 1) ? ' reverse' : '';
         html += '<article class="album-row reveal'+rev+'">'
           + '<div class="cover-slider" data-imgs=\''+JSON.stringify(covers)+'\'></div>'
@@ -141,7 +154,7 @@
       var gids = (d.galleryOrder||[]).slice(0,6);
       var gcards = gids.map(function(id,i){
         var a = d.albums[id]; if(!a) return '';
-        var cover = a.hero || (a.photos[0] && a.photos[0].src) || '';
+        var cover = coverThumb(a);
         return '<a class="gcard reveal" href="album.html?id='+esc(id)+'&from=gallery">'
           + '<div class="gc-img"><img src="'+esc(cover)+'" alt="'+esc(a.title)+'"></div>'
           + '<div class="gc-info"><div class="gc-no">No.'+('0'+(i+1)).slice(-2)+'</div>'
@@ -175,7 +188,8 @@
     if(grid){
       grid.setAttribute('data-lightbox', id);
       grid.innerHTML = (a.photos||[]).map(function(p){
-        return '<div class="cell"><img data-full="'+esc(p.src)+'" data-cap="'+esc(p.cap||'')+'" src="'+esc(p.src)+'" alt=""></div>';
+        var t = p.thumb || p.src;
+          return '<div class="cell"><img data-full="'+esc(p.src)+'" data-cap="'+esc(p.cap||'')+'" src="'+esc(t)+'" alt="" loading="lazy"></div>';
       }).join('');
     }
     var order = d.galleryOrder && d.galleryOrder.length ? d.galleryOrder : Object.keys(d.albums);
@@ -198,7 +212,7 @@
     var html = '';
     (d.galleryOrder||[]).forEach(function(id, i){
       var a = d.albums[id]; if(!a) return;
-      var cover = a.hero || (a.photos[0] && a.photos[0].src) || '';
+      var cover = coverThumb(a);
       var rev = (i % 2 === 1) ? ' reverse' : '';
       html += '<a class="glist-row reveal'+rev+'" href="album.html?id='+esc(id)+'&from=gallery">'
         + '<div class="glist-img"><img src="'+esc(cover)+'" alt="'+esc(a.title)+'"></div>'
@@ -257,7 +271,7 @@
         var cover = '';
         if(firstAlbum && d.albums[firstAlbum]){
           var a = d.albums[firstAlbum];
-          cover = a.hero || (a.photos[0] && a.photos[0].src) || '';
+          cover = coverThumb(a);
         }
         html += '<a class="city-card reveal" href="'+href+'" '+(firstAlbum?'':'onclick="return false" style="opacity:.55;"')+'>'
           + (cover ? '<div class="city-img"><img src="'+esc(cover)+'" alt="'+esc(c.name)+'"></div>' : '<div class="city-img empty"><span>'+esc(c.name)+'</span></div>')
