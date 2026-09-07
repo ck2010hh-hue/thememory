@@ -6,22 +6,83 @@
     "heroVideo": "media/hero.mp4",
     "cdnBase": "https://thememoryhk-1482718043.cos.ap-hongkong.myqcloud.com/",
     "videos": [
-      { "src": "media/hero.mp4", "sub": "Film 01", "title": "泰国 · 2026" },
-      { "src": "media/hero.mp4", "sub": "Film 02", "title": "海风与晚霞" },
-      { "src": "media/hero.mp4", "sub": "Film 03", "title": "曼谷的午后" }
+      {
+        "src": "media/hero.mp4",
+        "sub": "Film 01",
+        "title": "泰国 · 2026"
+      },
+      {
+        "src": "media/hero.mp4",
+        "sub": "Film 02",
+        "title": "海风与晚霞"
+      },
+      {
+        "src": "media/hero.mp4",
+        "sub": "Film 03",
+        "title": "曼谷的午后"
+      }
     ]
   },
-  "favoritesOrder": ["huangshan"],
-  "galleryOrder": ["huangshan"],
+  "favoritesOrder": [
+    "thailand2026",
+    "huangshan"
+  ],
+  "galleryOrder": [
+    "thailand2026",
+    "huangshan"
+  ],
   "places": {
     "provinces": {
-      "zhejiang": { "name": "浙江", "cx": 670, "cy": 355, "cities": { "ningbo": { "name": "宁波", "albums": [] }, "hangzhou": { "name": "杭州", "albums": [] } } },
-      "anhui": { "name": "安徽", "cx": 615, "cy": 330, "cities": { "huangshan": { "name": "黄山", "albums": ["huangshan"] } } },
-      "yunnan": { "name": "云南", "cx": 330, "cy": 430, "cities": {} }
+      "zhejiang": {
+        "name": "浙江",
+        "cx": 670,
+        "cy": 355,
+        "cities": {
+          "ningbo": {
+            "name": "宁波",
+            "albums": []
+          },
+          "hangzhou": {
+            "name": "杭州",
+            "albums": []
+          }
+        }
+      },
+      "anhui": {
+        "name": "安徽",
+        "cx": 615,
+        "cy": 330,
+        "cities": {
+          "huangshan": {
+            "name": "黄山",
+            "albums": [
+              "huangshan"
+            ]
+          }
+        }
+      },
+      "yunnan": {
+        "name": "云南",
+        "cx": 330,
+        "cy": 430,
+        "cities": {}
+      }
     },
     "abroad": {
-      "japan": { "name": "日本", "albums": [], "cx": 740, "cy": 260 },
-      "thailand": { "name": "泰国", "albums": [], "cx": 380, "cy": 510 }
+      "japan": {
+        "name": "日本",
+        "albums": [],
+        "cx": 740,
+        "cy": 260
+      },
+      "thailand": {
+        "name": "泰国",
+        "albums": [
+          "thailand2026"
+        ],
+        "cx": 380,
+        "cy": 510
+      }
     }
   },
   "albums": {
@@ -38,13 +99,1239 @@
         "傍晚宿在山顶，星星亮得不像话。我把镜头对准山谷，想替未来的自己记住——曾有一个冬天，我为一座山早起，并为它心动过。"
       ],
       "photos": [
-        { "src": "media/albums/huangshan/IMG_20260218_082134.jpg", "cap": "黄山 · 雪后松枝 · 2026.02" },
-        { "src": "media/albums/huangshan/IMG_20260218_100734.jpg", "cap": "黄山 · 云海初现 · 2026.02" },
-        { "src": "media/albums/huangshan/IMG_20260218_103633.jpg", "cap": "黄山 · 远峰 · 2026.02" },
-        { "src": "media/albums/huangshan/IMG_20260218_105153.jpg", "cap": "黄山 · 山脊 · 2026.02" },
-        { "src": "media/albums/huangshan/IMG_20260218_110854.jpg", "cap": "黄山 · 石阶 · 2026.02" },
-        { "src": "media/albums/huangshan/IMG_20260218_120948.jpg", "cap": "黄山 · 日落 · 2026.02" }
+        {
+          "src": "media/albums/huangshan/IMG_20260218_082134.jpg",
+          "cap": "黄山 · 雪后松枝 · 2026.02"
+        },
+        {
+          "src": "media/albums/huangshan/IMG_20260218_100734.jpg",
+          "cap": "黄山 · 云海初现 · 2026.02"
+        },
+        {
+          "src": "media/albums/huangshan/IMG_20260218_103633.jpg",
+          "cap": "黄山 · 远峰 · 2026.02"
+        },
+        {
+          "src": "media/albums/huangshan/IMG_20260218_105153.jpg",
+          "cap": "黄山 · 山脊 · 2026.02"
+        },
+        {
+          "src": "media/albums/huangshan/IMG_20260218_110854.jpg",
+          "cap": "黄山 · 石阶 · 2026.02"
+        },
+        {
+          "src": "media/albums/huangshan/IMG_20260218_120948.jpg",
+          "cap": "黄山 · 日落 · 2026.02"
+        }
       ]
+    },
+    "thailand2026": {
+      "id": "thailand2026",
+      "title": "泰国",
+      "place": "泰国",
+      "date": "2017 · 51 – 2026 · 06",
+      "desc": "六月的泰国，海风、晚霞与街头的夜色。四天里走过的路，都留在了这些光里。",
+      "hero": "media/albums/thailand2026/IMG_20260621_124635.jpg",
+      "story": [],
+      "photos": [
+        {
+          "src": "media/albums/thailand2026/1782017514318.jpg",
+          "thumb": "media/albums/thailand2026/thumb/1782017514318.jpg",
+          "cap": "泰国 · 2017.51.43"
+        },
+        {
+          "src": "media/albums/thailand2026/1782018206303.jpg",
+          "thumb": "media/albums/thailand2026/thumb/1782018206303.jpg",
+          "cap": "泰国 · 2018.20.63"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_124635.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_124635.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_124810.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_124810.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_125741.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_125741.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_135519.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_135519.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_142109.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_142109.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_144850.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_144850.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_150406.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_150406.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_152042.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_152042.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_153424.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_153424.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_153900.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_153900.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_162229.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_162229.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_185459.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_185459.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_185502.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_185502.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_185510.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_185510.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_185518.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_185518.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_190159.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_190159.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_190342.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_190342.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_190509.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_190509.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_190523.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_190523.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_190712.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_190712.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_190848.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_190848.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_191055.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_191055.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_192528.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_192528.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_194039.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_194039.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_195129.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_195129.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_195636.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_195636.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_200108.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_200108.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_200856.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_200856.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_200902.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_200902.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_200905.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_200905.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_200929.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_200929.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_200936.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_200936.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_201255.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_201255.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_201305.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_201305.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_201845.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_201845.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_201851.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_201851.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_205820.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_205820.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260621_225002.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260621_225002.jpg",
+          "cap": "泰国 · 2026.06.21"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_090049.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_090049.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_101335.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_101335.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_103541_edit_522668423535955.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_103541_edit_522668423535955.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_121745.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_121745.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_122309.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_122309.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_155441.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_155441.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_155442.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_155442.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_160522.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_160522.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_160532.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_160532.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_160534.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_160534.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_160647.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_160647.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_160654.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_160654.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_160843.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_160843.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_160847.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_160847.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_165640.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_165640.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_165747.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_165747.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260622_170410.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260622_170410.jpg",
+          "cap": "泰国 · 2026.06.22"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_103937.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_103937.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_104540.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_104540.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_105336.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_105336.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_105342.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_105342.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_105343.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_105343.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_110849.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_110849.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_110857.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_110857.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_112249.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_112249.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_115637.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_115637.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_115642.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_115642.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_115647.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_115647.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_115839.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_115839.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_122857.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_122857.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_122905.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_122905.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_122923.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_122923.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_122957.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_122957.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_123253.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_123253.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_123255.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_123255.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_123259.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_123259.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_123411.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_123411.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_123418.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_123418.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_123423.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_123423.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_123544.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_123544.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_124110.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_124110.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_124113.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_124113.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_124123.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_124123.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_124125.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_124125.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_124357.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_124357.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_124519.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_124519.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_124746.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_124746.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_124849.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_124849.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_125255.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_125255.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_125303.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_125303.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_125308.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_125308.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_125318.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_125318.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_125417.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_125417.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_131529.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_131529.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_131556.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_131556.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_131710.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_131710.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_132335.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_132335.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_132338.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_132338.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_132343.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_132343.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_132431.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_132431.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_132446.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_132446.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_132449.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_132449.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_132451.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_132451.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_132645.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_132645.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_132654.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_132654.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_132704.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_132704.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_132714.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_132714.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_132726.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_132726.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_133139.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_133139.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_134051.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_134051.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_141740.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_141740.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_142008.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_142008.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_142013.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_142013.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_142036.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_142036.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_142622.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_142622.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_142630.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_142630.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_142638.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_142638.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_142806.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_142806.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_142857.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_142857.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_142919.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_142919.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_142923.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_142923.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_142940.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_142940.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143046.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143046.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143053.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143053.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143103.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143103.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143141.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143141.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143151.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143151.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143253.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143253.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143338.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143338.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143338_1.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143338_1.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143434.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143434.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143551.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143551.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143555.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143555.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143623.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143623.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143624.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143624.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143631_edit_633731309643744.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143631_edit_633731309643744.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143632_edit_741658268441251.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143632_edit_741658268441251.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143920.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143920.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143946.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143946.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_143953.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_143953.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_144015_edit_741596504379844.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_144015_edit_741596504379844.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_144143.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_144143.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_144155.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_144155.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_144345.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_144345.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_144348.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_144348.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_144807.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_144807.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_144820.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_144820.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_144916.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_144916.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_144917.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_144917.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_144934.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_144934.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_144938.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_144938.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_144957_edit_904574247147509.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_144957_edit_904574247147509.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_145001.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_145001.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_145011.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_145011.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_145016.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_145016.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_145040.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_145040.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_145044.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_145044.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_145046.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_145046.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_145110.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_145110.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_145548.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_145548.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_145617.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_145617.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_145621.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_145621.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_145822.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_145822.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_145855.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_145855.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_145931.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_145931.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_150248.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_150248.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_150252.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_150252.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_150344.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_150344.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_150801_edit_741404661649219.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_150801_edit_741404661649219.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_150806.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_150806.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_151459.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_151459.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_151554.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_151554.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_151608.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_151608.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_154704_edit_626042772465931.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_154704_edit_626042772465931.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_154712.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_154712.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_154718.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_154718.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_154745_edit_626011237034525.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_154745_edit_626011237034525.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_154748.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_154748.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_154915.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_154915.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_154937.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_154937.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_155443.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_155443.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_155733.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_155733.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_164204.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_164204.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_164214.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_164214.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_165233_edit_625952848539212.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_165233_edit_625952848539212.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_165323_edit_628473622434837.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_165323_edit_628473622434837.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_165335_edit_628517501726556.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_165335_edit_628517501726556.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_182517.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_182517.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_183101_edit_741282751686876.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_183101_edit_741282751686876.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_193439.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_193439.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_193448.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_193448.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_195841.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_195841.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_195849.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_195849.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_201145.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_201145.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_201151.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_201151.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_201155.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_201155.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_201203.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_201203.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_201224.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_201224.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_202345.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_202345.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_202402.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_202402.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_202727.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_202727.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_202739.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_202739.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_202838.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_202838.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_202901.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_202901.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_202930.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_202930.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_202934.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_202934.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_204248.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_204248.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_210453.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_210453.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_210505.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_210505.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_210602.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_210602.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_210607.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_210607.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_210624.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_210624.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_210625.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_210625.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_212859.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_212859.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260623_212902.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260623_212902.jpg",
+          "cap": "泰国 · 2026.06.23"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_104248_edit_741048448547813.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_104248_edit_741048448547813.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_105120.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_105120.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_105939.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_105939.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_114820.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_114820.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_120452_edit_740990292475469.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_120452_edit_740990292475469.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_120505_edit_740935322341719.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_120505_edit_740935322341719.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_120519_edit_740899874186094.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_120519_edit_740899874186094.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_120524_edit_740880338127032.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_120524_edit_740880338127032.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_120529_edit_740843726736251.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_120529_edit_740843726736251.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_131223.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_131223.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_131226.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_131226.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_131232.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_131232.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_131242.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_131242.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_134315.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_134315.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_145242.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_145242.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_145255.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_145255.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_151100.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_151100.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_151119.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_151119.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_151211.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_151211.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_155617.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_155617.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_175646.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_175646.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_175648.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_175648.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_193745.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_193745.jpg",
+          "cap": "泰国 · 2026.06.24"
+        },
+        {
+          "src": "media/albums/thailand2026/IMG_20260624_193749.jpg",
+          "thumb": "media/albums/thailand2026/thumb/IMG_20260624_193749.jpg",
+          "cap": "泰国 · 2026.06.24"
+        }
+      ],
+      "videos": [],
+      "heroThumb": "media/albums/thailand2026/thumb/IMG_20260621_124635.jpg"
     }
   }
 }
