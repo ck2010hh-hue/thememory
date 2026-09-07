@@ -21,7 +21,8 @@
         "sub": "Film 03",
         "title": "曼谷的午后"
       }
-    ]
+    ],
+    "mapKey": ""
   },
   "favoritesOrder": [
     "huangshan"
@@ -38,13 +39,19 @@
         "cities": {
           "ningbo": {
             "name": "宁波",
-            "albums": []
+            "albums": [],
+            "lng": 121.55,
+            "lat": 29.87
           },
           "hangzhou": {
             "name": "杭州",
-            "albums": []
+            "albums": [],
+            "lng": 120.15,
+            "lat": 30.27
           }
-        }
+        },
+        "lng": 120.15,
+        "lat": 29.18
       },
       "anhui": {
         "name": "安徽",
@@ -55,15 +62,21 @@
             "name": "黄山",
             "albums": [
               "huangshan"
-            ]
+            ],
+            "lng": 118.29,
+            "lat": 29.71
           }
-        }
+        },
+        "lng": 117.28,
+        "lat": 31.86
       },
       "yunnan": {
         "name": "云南",
         "cx": 330,
         "cy": 430,
-        "cities": {}
+        "cities": {},
+        "lng": 101.48,
+        "lat": 24.97
       }
     },
     "abroad": {
@@ -71,13 +84,17 @@
         "name": "日本",
         "albums": [],
         "cx": 740,
-        "cy": 260
+        "cy": 260,
+        "lng": 138.0,
+        "lat": 36.2
       },
       "thailand": {
         "name": "泰国",
         "albums": [],
         "cx": 380,
-        "cy": 510
+        "cy": 510,
+        "lng": 100.99,
+        "lat": 15.87
       }
     }
   },
