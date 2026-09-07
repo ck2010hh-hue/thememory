@@ -50,6 +50,66 @@
   function getJSON() { return fetch(BASE + '/api/data').then(function (r) { return r.json(); }); }
 
   // 静态站模式：登录框改成 GitHub Token 入口
+  /* ---------- 匿名直传 COS（手机可用，无需密钥） ----------
+     桶策略限定：匿名只能 PUT 到 media/albums 下 upload- 前缀的新文件；
+     读 / 列 / 删 以及覆盖已有照片全部拒绝。 */
+  var COS_ORIGIN = 'https://thememoryhk-1482718043.cos.ap-hongkong.myqcloud.com';
+
+  function cosPut(key, blob) {
+    var url = COS_ORIGIN + '/' + key.split('/').map(encodeURIComponent).join('/');
+    return fetch(url, { method: 'PUT', body: blob, headers: { 'Content-Type': 'image/jpeg' } })
+      .then(function (r) {
+        if (r.ok) return { ok: true };
+        return r.text().then(function (t) { return { ok: false, msg: 'HTTP ' + r.status }; });
+      });
+  }
+
+  function shrinkImg(file, maxSide, quality) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+        var sc = Math.min(1, maxSide / Math.max(w, h));
+        var cv = document.createElement('canvas');
+        cv.width = Math.max(1, Math.round(w * sc));
+        cv.height = Math.max(1, Math.round(h * sc));
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        cv.toBlob(function (b) {
+          URL.revokeObjectURL(url);
+          if (b) resolve(b); else reject(new Error('图片压缩失败'));
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('无法读取该图片')); };
+      img.src = url;
+    });
+  }
+
+  function stampOf(file) {
+    var d = file.lastModified ? new Date(file.lastModified) : new Date();
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+    return d.getFullYear() + '.' + pad(d.getMonth() + 1) + '.' + pad(d.getDate());
+  }
+
+  // done(item|false)：item = {src, thumb, cap}
+  function phoneUpload(albumId, file, done) {
+    if (!/^image\//.test(file.type || '')) { toast('只支持图片，视频请用电脑导入'); done(false); return; }
+    toast('处理中…' + file.name);
+    var name = 'upload-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7) + '.jpg';
+    var k1 = 'media/albums/' + albumId + '/' + name;
+    var k2 = 'media/albums/' + albumId + '/thumb/' + name;
+    Promise.all([shrinkImg(file, 1600, 0.82), shrinkImg(file, 480, 0.75)])
+      .then(function (bs) {
+        return cosPut(k1, bs[0]).then(function (r) { return r.ok ? cosPut(k2, bs[1]) : r; });
+      })
+      .then(function (r) {
+        if (!r.ok) { toast('上传失败：' + r.msg); done(false); return; }
+        toast('已上传 ✓ 记得点「保存全部」');
+        done({ src: k1, thumb: k2, cap: stampOf(file) });
+      })
+      .catch(function (e) { toast('上传出错：' + e.message); done(false); });
+  }
+
   /* ---------- 线上版（GH 模式）界面适配 ---------- */
   function ghPanelBar() {
     if (MODE !== 'gh' || $('#ghBar')) return;
@@ -59,19 +119,20 @@
     bar.id = 'ghBar';
     bar.style.cssText = 'background:#2a201a;color:#e8ddd2;padding:10px 16px;font-size:13px;'
       + 'line-height:1.7;border-bottom:1px solid #3b2f27;';
-    bar.innerHTML = '<b>线上版</b>　可改：文字 / 标题 / 说明 / 排序 / 增删条目，保存约 1 分钟后生效。'
-      + '<br><span style="color:#d8a08a;">不能做：上传照片和视频</span>——新增素材需在本机用导入脚本（自动压缩后存入图床）。';
+    bar.innerHTML = '<b>线上版</b>　改完记得点「保存全部」，约 1 分钟生效。'
+      + '<br>可改：文字 / 标题 / 说明 / 排序 / 增删条目；<b style="color:#9fd0a8;">可直接从手机相册上传照片</b>（自动压缩）。'
+      + '<br><span style="color:#d8a08a;">视频需电脑导入</span>（体积大，手机传不动）。';
     panel.insertBefore(bar, panel.firstChild);
   }
 
   function disableUploadUI() {
     if (MODE !== 'gh') return;
     Array.prototype.forEach.call(document.querySelectorAll('button'), function (b) {
-      if (!/\u4e0a\u4f20/.test(b.textContent || '')) return;
+      if (!/\u4e0a\u4f20(\u89c6\u9891|\u97f3\u4e50)/.test(b.textContent || '')) return;
       if (b.dataset.ghOff === '1') return;
       b.dataset.ghOff = '1';
       b.disabled = true;
-      b.title = '线上版不能直接传媒体文件，请用本机导入脚本';
+      b.title = '视频/音乐体积大，请用电脑端导入脚本';
       b.style.opacity = '.35';
       b.style.cursor = 'not-allowed';
     });
@@ -260,7 +321,11 @@
     var hi = inp('text', a.hero || '', function (v) { a.hero = v; }); hi.style.flex = '1';
     hr.appendChild(hi);
     var hb = el('button', 'btn-mini', '上传主图');
-    hb.onclick = function () { pickFile(false, function (files) { uploadOne(a.id, files[0], function (path) { a.hero = path; hi.value = path; toast('主图已设'); }); }); };
+    hb.onclick = function () { pickFile(false, function (files) { uploadOne(a.id, files[0], function (r) {
+      if (typeof r === 'string') { a.hero = r; hi.value = r; }
+      else if (r) { a.hero = r.src; a.heroThumb = r.thumb; hi.value = r.src; }
+      toast(r ? '主图已设' : '未设置');
+    }); }); };
     hr.appendChild(hb);
     heroRow.appendChild(hr);
     card.appendChild(heroRow);
@@ -290,9 +355,18 @@
     pmh.appendChild(el('div', null, '<b>相册照片</b>（点击「设为主图」可换满屏大图；可排序/删除）'));
     var upBtn = el('button', 'btn-mini', '上传照片');
     upBtn.onclick = function () { pickFile(true, function (files) {
-      Array.prototype.forEach.call(files, function (f) {
-        uploadOne(a.id, f, function (path) { a.photos = a.photos || []; a.photos.push({ src: path, cap: f.name.replace(/\.[^.]+$/, '') }); renderAlbums(); });
-      });
+      var i = 0;
+      (function next() {
+        if (i >= files.length) { renderAlbums(); return; }
+        var f = files[i++];
+        uploadOne(a.id, f, function (r) {
+          if (r) {
+            a.photos = a.photos || [];
+            a.photos.push(typeof r === 'string' ? { src: r, cap: f.name.replace(/\.[^.]+$/, '') } : r);
+          }
+          next();
+        });
+      })();
     }); };
     pmh.appendChild(upBtn);
     pm.appendChild(pmh);
@@ -462,11 +536,12 @@
   var pending = null;
   function pickFile(multiple, cb) {
     pending = cb;
-    var fi = $('#fileInput'); fi.multiple = multiple; fi.value = '';
+    var fi = $('#fileInput'); fi.multiple = multiple; fi.value = ''; fi.accept = 'image/*';
     fi.onchange = function () { if (fi.files && fi.files.length) cb(fi.files); pending = null; };
     fi.click();
   }
   function uploadOne(albumId, file, done) {
+    if (MODE === 'gh') return phoneUpload(albumId, file, done);
     toast('上传中…' + file.name);
     readFileAsDataURL(file).then(function (dataUrl) {
       return upload(albumId, file.name, dataUrl);
