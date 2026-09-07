@@ -5,6 +5,28 @@
   var TOKEN = localStorage.getItem('tm_token') || '';
   var BASE = ''; // 同域
 
+  /* ---------- GitHub 模式：静态站（GitHub Pages）直接改仓库里的 data.json ---------- */
+  var GH = { owner: 'ck2010hh-hue', repo: 'thememory', branch: 'main', path: 'data.json' };
+  var GH_TOKEN = localStorage.getItem('tm_gh_token') || '';
+  var GH_SHA = '';
+  var isStatic = !/127\.0\.0\.1|localhost/i.test(location.host);
+  var MODE = isStatic ? 'gh' : 'local';
+
+  function ghHeaders(extra) {
+    var h = { 'Accept': 'application/vnd.github+json' };
+    if (GH_TOKEN) h['Authorization'] = 'Bearer ' + GH_TOKEN;
+    if (extra) Object.keys(extra).forEach(function (k) { h[k] = extra[k]; });
+    return h;
+  }
+  function ghApi(method, path, body) {
+    var opt = { method: method, headers: ghHeaders({ 'Content-Type': 'application/json' }) };
+    if (body !== undefined) opt.body = JSON.stringify(body);
+    return fetch('https://api.github.com' + path, opt).then(function (r) {
+      return r.json().then(function (j) { return { ok: r.ok, status: r.status, j: j }; });
+    });
+  }
+  function b64(str) { return btoa(unescape(encodeURIComponent(str))); }
+
   function $(s, r) { return (r || document).querySelector(s); }
   function $all(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
@@ -27,29 +49,73 @@
   }
   function getJSON() { return fetch(BASE + '/api/data').then(function (r) { return r.json(); }); }
 
-  // 云端静态站没有后台服务端，检测到就给出明确提示，避免误以为保存成功
+  // 静态站模式：登录框改成 GitHub Token 入口
   function guardStaticHost() {
-    if (/127\.0\.0\.1|localhost/i.test(location.host)) return;
-    var tip = document.createElement('div');
-    tip.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:999;background:#7a3b2e;color:#fff;'
-      + 'padding:14px 20px;font-size:14px;line-height:1.7;text-align:center;';
-    tip.innerHTML = '当前是在<b>线上静态站</b>打开后台，这里没有服务端，<b>编辑无法保存</b>。'
-      + '请在本机双击 <code>start-server.bat</code> 后，用 <b>http://127.0.0.1:8787/admin.html</b> 打开后台。';
-    document.body.appendChild(tip);
+    if (!isStatic) return;
+    var p = $('#pass');
+    if (p) { p.type = 'text'; p.placeholder = '粘贴 GitHub Token（只需一次）'; }
+    var sub = document.querySelector('.login-sub');
+    if (sub) sub.textContent = 'The Memory · 线上版';
+    var card = document.querySelector('.login-card');
+    if (card && !$('#ghTip')) {
+      var tip = document.createElement('div');
+      tip.id = 'ghTip';
+      tip.style.cssText = 'margin-top:14px;font-size:12px;line-height:1.7;color:#9a8f86;';
+      tip.innerHTML = '线上版通过 GitHub 保存内容，需要一个只授权本仓库的 Token。'
+        + '<br>生成：<a href="https://github.com/settings/personal-access-tokens/new" target="_blank" style="color:#c8a882;">'
+        + 'github.com/settings/personal-access-tokens</a><br>'
+        + 'Repository access 选 <b>Only select repositories → thememory</b>，权限勾 <b>Contents: Read and write</b>。';
+      card.appendChild(tip);
+    }
+    // 已有 token 就直接读内容
+    if (GH_TOKEN) {
+      ghApi('GET', '/repos/' + GH.owner + '/' + GH.repo + '/contents/' + GH.path + '?ref=' + GH.branch)
+        .then(function (res) {
+          if (!res.ok) { localStorage.removeItem('tm_gh_token'); return; }
+          GH_SHA = res.j.sha;
+          enterPanel(JSON.parse(decodeURIComponent(escape(atob(res.j.content.replace(/\n/g, ''))))));
+        });
+    }
+  }
+
+  function enterPanel(d) {
+    DATA = d;
+    $('#login').classList.add('hidden');
+    $('#panel').classList.remove('hidden');
+    renderAll();
   }
 
   function saveAll() {
+    if (MODE === 'gh') {
+      if (!GH_TOKEN) { toast('请先填入 GitHub Token'); return; }
+      toast('正在保存…');
+      var p = '/repos/' + GH.owner + '/' + GH.repo + '/contents/' + GH.path;
+      return ghApi('GET', p + '?ref=' + GH.branch).then(function (g) {
+        if (!g.ok) throw new Error('读取远端失败 ' + g.status);
+        GH_SHA = g.j.sha;
+        return ghApi('PUT', p, {
+          message: 'update data.json via admin',
+          content: b64(JSON.stringify(DATA, null, 2)),
+          sha: GH_SHA,
+          branch: GH.branch
+        });
+      }).then(function (res) {
+        if (res.ok) { GH_SHA = res.j.content && res.j.content.sha; toast('已保存 ✓ 约 1 分钟后生效'); }
+        else toast('保存失败：' + ((res.j && res.j.message) || res.status));
+      }).catch(function (e) { toast('保存出错：' + e.message); });
+    }
     return api('PUT', '/api/data', DATA).then(function (r) {
-      if (r.ok) toast('已保存 ✓ 并同步到云端');
-      else toast('保存失败');
-    }).catch(function () {
-      toast('保存失败：请确认是用本机后台地址打开');
-    });
+      if (r.ok) toast('已保存 ✓ 并同步到云端'); else toast('保存失败');
+    }).catch(function () { toast('保存失败：请确认是用本机后台地址打开'); });
   }
   function upload(albumId, filename, dataUrl) {
+    if (MODE === 'gh') return Promise.resolve({ ok: false, error: '线上版不能直接传照片，请在本机用导入脚本（照片存 COS）' });
     return api('POST', '/api/upload', { albumId: albumId, filename: filename, data: dataUrl });
   }
-  function delMedia(path) { return api('DELETE', '/api/media', { path: path }); }
+  function delMedia(path) {
+    if (MODE === 'gh') return Promise.resolve({ ok: true });
+    return api('DELETE', '/api/media', { path: path });
+  }
 
   function readFileAsDataURL(file) {
     return new Promise(function (resolve, reject) {
@@ -62,7 +128,21 @@
 
   /* ---------- 登录 ---------- */
   function doLogin() {
-    var p = $('#pass').value;
+    var p = ($('#pass').value || '').trim();
+    if (MODE === 'gh') {
+      if (!p) { $('#loginErr').textContent = '请粘贴 GitHub Token'; return; }
+      $('#loginErr').textContent = '验证中…';
+      GH_TOKEN = p;
+      ghApi('GET', '/repos/' + GH.owner + '/' + GH.repo + '/contents/' + GH.path + '?ref=' + GH.branch)
+        .then(function (res) {
+          if (!res.ok) { $('#loginErr').textContent = 'Token 无效或无权访问该仓库（' + res.status + '）'; GH_TOKEN = ''; return; }
+          localStorage.setItem('tm_gh_token', GH_TOKEN);
+          GH_SHA = res.j.sha;
+          try { enterPanel(JSON.parse(decodeURIComponent(escape(atob(res.j.content.replace(/\n/g, '')))))); }
+          catch (e) { $('#loginErr').textContent = 'data.json 解析失败：' + e.message; }
+        });
+      return;
+    }
     fetch(BASE + '/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: p }) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (res) {
@@ -349,7 +429,11 @@
   function bind() {
     $('#loginBtn').onclick = doLogin;
     $('#pass').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
-    $('#logout').onclick = function () { TOKEN = ''; localStorage.removeItem('tm_token'); location.reload(); };
+    $('#logout').onclick = function () {
+      TOKEN = ''; GH_TOKEN = '';
+      localStorage.removeItem('tm_token'); localStorage.removeItem('tm_gh_token');
+      location.reload();
+    };
     $('#saveAll').onclick = function () {
       // 收集网站设置
       DATA.site = DATA.site || {};
