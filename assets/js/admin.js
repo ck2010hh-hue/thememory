@@ -238,6 +238,40 @@
     });
   }
 
+  /* ---------- 上传前压缩（2026-09-07 加）----------
+     原图动辄 5MB，直传会让页面加载极慢。统一压到最长边 1600px / JPEG 82%，
+     与电脑端 import_album.py 的规格一致。非图片（视频等）不压缩，原样上传。 */
+  var UP_MAX = 1600, UP_Q = 0.82;
+  function compressImage(file) {
+    return new Promise(function (resolve) {
+      if (!/^image\//.test(file.type) || /gif|svg/.test(file.type)) { resolve(null); return; }
+      function draw(src) {
+        var w = src.width, h = src.height;
+        var s = Math.min(1, UP_MAX / Math.max(w, h));
+        var cv = document.createElement('canvas');
+        cv.width = Math.round(w * s); cv.height = Math.round(h * s);
+        cv.getContext('2d').drawImage(src, 0, 0, cv.width, cv.height);
+        cv.toBlob(function (b) { resolve(b || null); }, 'image/jpeg', UP_Q);
+      }
+      function fallback() {
+        var fr = new FileReader();
+        fr.onload = function () {
+          var im = new Image();
+          im.onload = function () { draw(im); };
+          im.onerror = function () { resolve(null); };
+          im.src = fr.result;
+        };
+        fr.onerror = function () { resolve(null); };
+        fr.readAsDataURL(file);
+      }
+      if (window.createImageBitmap) {
+        try {
+          createImageBitmap(file, { imageOrientation: 'from-image' }).then(draw).catch(fallback);
+        } catch (e) { fallback(); }
+      } else { fallback(); }
+    });
+  }
+
   /* ---------- 登录 ---------- */
   function doLogin() {
     var p = ($('#pass').value || '').trim();
@@ -551,9 +585,14 @@
   }
   function uploadOne(albumId, file, done) {
     if (MODE === 'gh') return phoneUpload(albumId, file, done);
-    toast('上传中…' + file.name);
-    readFileAsDataURL(file).then(function (dataUrl) {
-      return upload(albumId, file.name, dataUrl);
+    toast('压缩并上传中…' + file.name);
+    Promise.resolve(compressImage(file)).then(function (blob) {
+      if (blob) {
+        var nm = file.name, dot = nm.lastIndexOf('.');
+        nm = (dot > 0 ? nm.slice(0, dot) : nm) + '.jpg';
+        return readFileAsDataURL(blob).then(function (du) { return upload(albumId, nm, du); });
+      }
+      return readFileAsDataURL(file).then(function (du) { return upload(albumId, file.name, du); });
     }).then(function (r) {
       if (r.ok) done(r.path); else toast('上传失败：' + (r.error || ''));
     }).catch(function (e) { toast('上传出错：' + e.message); });
