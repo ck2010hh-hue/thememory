@@ -518,6 +518,14 @@
       gRow.appendChild(el('label', '', '纬度'));
       gRow.appendChild(inp('number', p.lat || '', function (v) { p.lat = parseFloat(v); }));
       item.appendChild(gRow);
+      // 简介（省份页标题下的文字，留空则不显示）
+      var iRow = el('div', 'field-row');
+      iRow.appendChild(el('label', '', '简介'));
+      var iTa = document.createElement('textarea');
+      iTa.rows = 3; iTa.value = p.intro || '';
+      iTa.oninput = function(){ p.intro = iTa.value; };
+      iRow.appendChild(iTa);
+      item.appendChild(iRow);
       // 城市
       var cities = p.cities || (p.cities = {});
       var cityWrap = el('div', 'city-wrap');
