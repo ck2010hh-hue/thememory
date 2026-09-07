@@ -363,12 +363,21 @@
     var sub = document.querySelector('.province-hero .ph-sub');
     if(sub) sub.textContent = 'Province · 中国';
 
-    // 省份地图：配置 key 时用腾讯地图定位真实省份，否则降级为风格化轮廓
+    // 省份装饰图形（背景层，始终保留）
+    var deco = document.querySelector('.prov-shape path');
+    if(deco) deco.setAttribute('d', organicProvinceShape());
+
+    // 省份真实地图：配置 key 时显示独立地图区块，否则整块隐藏
     var mapKey2 = (d.site && d.site.mapKey) || '';
-    var pshape = document.querySelector('.prov-shape svg') || document.querySelector('.prov-shape');
-    if(mapKey2 && p.lng != null && p.lat != null && pshape){
-      var phostId = 'prov-map';
-      var phost = mountMapHost(pshape, phostId, '420px');
+    var sec = document.getElementById('prov-map-sec');
+    var pwrap = document.getElementById('prov-map-wrap');
+    if(mapKey2 && p.lng != null && p.lat != null && sec && pwrap){
+      sec.style.display = '';
+      pwrap.innerHTML = '';
+      var phost = document.createElement('div');
+      phost.id = 'prov-map';
+      phost.style.cssText = 'width:100%;height:420px;border-radius:12px;overflow:hidden;filter:saturate(.8);';
+      pwrap.appendChild(phost);
       loadTMap(mapKey2).then(function(TMap){
         var citiesAll = p.cities || {};
         var pts = Object.keys(citiesAll).map(function(ck){
@@ -383,16 +392,7 @@
           zoom: 7.5, pitch: 0, scrollwheel: false, baseMap: { type: 'vector' }
         });
         addTMapPoints(TMap, map, pts, function(x){ if(x.url) location.href = x.url; });
-      }).catch(function(){
-        pshape.style.display = '';
-        var h = document.getElementById(phostId);
-        if(h && h.parentNode) h.parentNode.removeChild(h);
-        var sp = pshape.querySelector ? pshape.querySelector('path') : null;
-        if(sp) sp.setAttribute('d', organicProvinceShape());
-      });
-    } else if(pshape){
-      var shape = pshape.querySelector ? pshape.querySelector('path') : null;
-      if(shape) shape.setAttribute('d', organicProvinceShape());
+      }).catch(function(){ sec.style.display = 'none'; });
     }
 
     // 城市卡片
