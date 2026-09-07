@@ -50,6 +50,53 @@
   function getJSON() { return fetch(BASE + '/api/data').then(function (r) { return r.json(); }); }
 
   // 静态站模式：登录框改成 GitHub Token 入口
+  /* ---------- 线上版（GH 模式）界面适配 ---------- */
+  function ghPanelBar() {
+    if (MODE !== 'gh' || $('#ghBar')) return;
+    var panel = $('#panel');
+    if (!panel) return;
+    var bar = document.createElement('div');
+    bar.id = 'ghBar';
+    bar.style.cssText = 'background:#2a201a;color:#e8ddd2;padding:10px 16px;font-size:13px;'
+      + 'line-height:1.7;border-bottom:1px solid #3b2f27;';
+    bar.innerHTML = '<b>线上版</b>　可改：文字 / 标题 / 说明 / 排序 / 增删条目，保存约 1 分钟后生效。'
+      + '<br><span style="color:#d8a08a;">不能做：上传照片和视频</span>——新增素材需在本机用导入脚本（自动压缩后存入图床）。';
+    panel.insertBefore(bar, panel.firstChild);
+  }
+
+  function disableUploadUI() {
+    if (MODE !== 'gh') return;
+    Array.prototype.forEach.call(document.querySelectorAll('button'), function (b) {
+      if (!/\u4e0a\u4f20/.test(b.textContent || '')) return;
+      if (b.dataset.ghOff === '1') return;
+      b.dataset.ghOff = '1';
+      b.disabled = true;
+      b.title = '线上版不能直接传媒体文件，请用本机导入脚本';
+      b.style.opacity = '.35';
+      b.style.cursor = 'not-allowed';
+    });
+  }
+
+  function watchUploadUI() {
+    if (MODE !== 'gh' || typeof MutationObserver === 'undefined') { disableUploadUI(); return; }
+    new MutationObserver(disableUploadUI).observe(document.body, { childList: true, subtree: true });
+    disableUploadUI();
+  }
+
+  function pullLatest() {
+    if (!GH_TOKEN) { toast('请先填入 GitHub Token'); return; }
+    toast('拉取中…');
+    ghApi('GET', '/repos/' + GH.owner + '/' + GH.repo + '/contents/' + GH.path + '?ref=' + GH.branch)
+      .then(function (res) {
+        if (!res.ok) { toast('拉取失败 ' + res.status); return; }
+        GH_SHA = res.j.sha;
+        try {
+          DATA = JSON.parse(decodeURIComponent(escape(atob(res.j.content.replace(/\n/g, '')))));
+          renderAll(); toast('已拉取线上最新 ✓');
+        } catch (e) { toast('解析失败：' + e.message); }
+      });
+  }
+
   function guardStaticHost() {
     if (!isStatic) return;
     var p = $('#pass');
@@ -82,6 +129,7 @@
     DATA = d;
     $('#login').classList.add('hidden');
     $('#panel').classList.remove('hidden');
+    ghPanelBar();
     renderAll();
   }
 
@@ -101,6 +149,7 @@
         });
       }).then(function (res) {
         if (res.ok) { GH_SHA = res.j.content && res.j.content.sha; toast('已保存 ✓ 约 1 分钟后生效'); }
+        else if (res.status === 409) toast('线上数据已被改动，请先点「拉取线上最新」再改');
         else toast('保存失败：' + ((res.j && res.j.message) || res.status));
       }).catch(function (e) { toast('保存出错：' + e.message); });
     }
@@ -164,6 +213,7 @@
   function renderAll() {
     renderSite(); renderAlbums(); renderOrder('#favOrder', 'favoritesOrder', '首页收藏');
     renderOrder('#galOrder', 'galleryOrder', '图集'); renderPlaces();
+    disableUploadUI();
   }
 
   function renderSite() {
@@ -488,6 +538,15 @@
 
   bind();
   guardStaticHost();
+  watchUploadUI();
+  if (MODE === 'gh' && $('#saveAll') && !$('#pullLatest')) {
+    var pb = document.createElement('button');
+    pb.id = 'pullLatest'; pb.className = 'btn-primary'; pb.textContent = '拉取线上最新';
+    pb.style.marginLeft = '8px';
+    pb.onclick = pullLatest;
+    var sb = $('#saveAll');
+    sb.parentNode.insertBefore(pb, sb.nextSibling);
+  }
   // 若已有 token，尝试直接进入
   if (TOKEN) {
     fetch(BASE + '/api/data', { headers: { 'x-admin-token': TOKEN } }).then(function (r) {
