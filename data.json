@@ -22,7 +22,13 @@
         "title": "曼谷的午后"
       }
     ],
-    "mapKey": "G5ABZ-QWMC4-U2QUX-KCFCF-GSYH3-5QBDB"
+    "mapKey": "G5ABZ-QWMC4-U2QUX-KCFCF-GSYH3-5QBDB",
+    "bgmList": [
+      "media/bgm/bgm1.mp3",
+      "media/bgm/bgm2.mp3",
+      "media/bgm/bgm3.mp3",
+      "media/bgm/bgm4.mp3"
+    ]
   },
   "favoritesOrder": [
     "huangshan"
