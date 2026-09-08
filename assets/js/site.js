@@ -70,10 +70,12 @@
   var _chinaGeo = null;
   function getChinaGeo(){
     if(_chinaGeo) return Promise.resolve(_chinaGeo);
-    var CK = 'tm_china_geo';
+    var CK = 'tm_china_geo_v2';
     try { var c = localStorage.getItem(CK); if(c){ _chinaGeo = JSON.parse(c); return Promise.resolve(_chinaGeo); } } catch(e){}
-    return fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+    function fetchDataV(){ return fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json').then(function(r){ return r.json(); }); }
+    return fetch('assets/maps/china.json')
       .then(function(r){ return r.json(); })
+      .catch(fetchDataV)
       .then(function(g){ _chinaGeo = g; try{ localStorage.setItem(CK, JSON.stringify(g)); }catch(e){} return g; })
       .catch(function(){ return null; });
   }
@@ -654,10 +656,12 @@
       bindZoom(svg);
     }
 
-    var CK = 'tm_datav_' + p.adcode;
+    var CK = 'tm_datav_v2_' + p.adcode;
     try { var c = localStorage.getItem(CK); if(c){ draw(JSON.parse(c)); return; } } catch(e){}
-    fetch('https://geo.datav.aliyun.com/areas_v3/bound/' + p.adcode + '_full.json')
+    function fetchDataV(){ return fetch('https://geo.datav.aliyun.com/areas_v3/bound/' + p.adcode + '_full.json').then(function(r){ return r.json(); }); }
+    fetch('assets/maps/' + p.adcode + '.json')
       .then(function(r){ return r.json(); })
+      .catch(fetchDataV)
       .then(function(g){ try{ localStorage.setItem(CK, JSON.stringify(g)); }catch(e){} draw(g); })
       .catch(function(){ fallback(); });
   }
