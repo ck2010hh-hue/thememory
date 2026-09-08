@@ -26,6 +26,7 @@
     <div class="side-brand">The Memory<br><span>后台</span></div>
     <nav class="side-nav">
       <a data-tab="site" class="active">网站设置</a>
+      <a data-tab="videos">影片管理</a>
       <a data-tab="albums">相册管理</a>
       <a data-tab="fav">首页收藏顺序</a>
       <a data-tab="gallery">图集顺序</a>
@@ -67,6 +68,16 @@
           <b>ck2010hh-hue.github.io</b>。填完记得点「保存全部」。
         </p>
       </div>
+    </section>
+
+    <!-- 影片管理 -->
+    <section class="tab hidden" data-tab="videos">
+      <div class="tab-head">
+        <h2 class="tab-h">影片管理</h2>
+        <button id="newVideo" class="btn-primary">+ 添加影片</button>
+      </div>
+      <p class="hint">左侧 2/3 播放影片，右侧 1/3 显示说明文字。可改标题、编号、视频文件与说明。</p>
+      <div id="videoList" class="order-list"></div>
     </section>
 
     <!-- 相册管理 -->
