@@ -306,23 +306,36 @@ a{ color:inherit; text-decoration:none; }
 .mapwrap{ max-width:1000px; margin:0 auto; }
 .mapwrap svg{ width:100%; height:auto; overflow:visible; }
 .mapwrap.mini{ max-width:720px; }
-.china-outline{ fill:var(--bg-soft); stroke:var(--line); stroke-width:2; }
+.chapter-map{ padding-left:4vw; padding-right:4vw; }
+.mapwrap-wide{ max-width:none; }
+.mapwrap-wide svg{ max-height:78vh; }
+.china-outline{ fill:#E8E0D0; stroke:#C8BDA8; stroke-width:2; stroke-linejoin:round; }
 .china-outline.mini{ fill:none; stroke:var(--line); stroke-width:1.5; opacity:.7; }
 
 /* 省份/海外地点交互点 */
 .prov-dot{ cursor:pointer; }
-.prov-dot circle{ fill:#D8CFBE; transition:fill .3s, r .3s; }
-.prov-dot text{ fill:#9a9286; font-size:13px; letter-spacing:.15em; text-anchor:middle; transition:fill .3s; }
-.prov-dot:hover circle{ fill:var(--accent); r:13; }
+.prov-dot circle{ fill:#C4B8A3; transition:fill .3s, r .3s; }
+.prov-dot text{ fill:#8A7B5E; font-size:13px; letter-spacing:.15em; text-anchor:middle; transition:fill .3s; }
+.prov-dot:hover circle{ fill:var(--accent); r:14; }
 .prov-dot:hover text{ fill:var(--accent); }
-.prov-dot.lit circle{ fill:var(--accent); }
+.prov-dot.lit circle{ fill:#A68B5B; }
 .prov-dot.lit text{ fill:var(--ink); }
 .prov-dot.mini circle{ r:7; }
 .prov-dot.mini text{ font-size:11px; }
 .prov-dot.mini:hover circle{ r:9; }
-.prov-dot.abroad circle{ fill:#c9b89a; stroke:var(--bg); stroke-width:2; }
+.prov-dot.abroad circle{ fill:#B8AA8C; stroke:var(--bg); stroke-width:2; }
 .prov-dot.abroad text{ fill:#8a7b5e; }
 .map-legend{ text-align:center; margin-top:40px; color:var(--ink-soft); font-size:13px; letter-spacing:.15em; }
+
+/* 省份页抽象地图 */
+.prov-shape-path{ fill:#E8E0D0; stroke:#C8BDA8; stroke-width:2; stroke-linejoin:round; }
+.city-dot{ cursor:pointer; }
+.city-dot circle{ fill:#C4B8A3; transition:fill .3s, r .3s; }
+.city-dot text{ fill:#8A7B5E; font-size:13px; letter-spacing:.12em; text-anchor:middle; transition:fill .3s; }
+.city-dot:hover circle{ fill:var(--accent); r:12; }
+.city-dot:hover text{ fill:var(--accent); }
+.city-dot.lit circle{ fill:#A68B5B; }
+.city-dot.lit text{ fill:var(--ink); }
 
 .gallery-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:22px; max-width:1180px; margin:0 auto; }
 .gcard{ cursor:pointer; background:var(--bg-soft); overflow:hidden; }
