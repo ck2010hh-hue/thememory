@@ -71,22 +71,17 @@
         "cy": 355,
         "shape": "M80,60 L240,80 L300,220 L220,340 L120,300 L60,180 Z",
         "cities": {
-          "ningbo": {
-            "name": "宁波",
-            "albums": [],
-            "lng": 121.55,
-            "lat": 29.87,
-            "sx": 250,
-            "sy": 220
-          },
-          "hangzhou": {
-            "name": "杭州",
-            "albums": [],
-            "lng": 120.15,
-            "lat": 30.27,
-            "sx": 180,
-            "sy": 160
-          }
+          "hangzhou": { "name": "杭州", "albums": [], "lng": 120.15, "lat": 30.27 },
+          "ningbo": { "name": "宁波", "albums": [], "lng": 121.55, "lat": 29.87 },
+          "wenzhou": { "name": "温州", "albums": [], "lng": 120.70, "lat": 28.00 },
+          "jiaxing": { "name": "嘉兴", "albums": [], "lng": 120.76, "lat": 30.75 },
+          "huzhou": { "name": "湖州", "albums": [], "lng": 120.09, "lat": 30.89 },
+          "shaoxing": { "name": "绍兴", "albums": [], "lng": 120.58, "lat": 30.02 },
+          "jinhua": { "name": "金华", "albums": [], "lng": 119.65, "lat": 29.08 },
+          "quzhou": { "name": "衢州", "albums": [], "lng": 118.87, "lat": 28.94 },
+          "zhoushan": { "name": "舟山", "albums": [], "lng": 122.21, "lat": 30.02 },
+          "taizhou": { "name": "台州", "albums": [], "lng": 121.43, "lat": 28.66 },
+          "lishui": { "name": "丽水", "albums": [], "lng": 119.92, "lat": 28.45 }
         },
         "lng": 120.15,
         "lat": 29.18,
@@ -99,16 +94,22 @@
         "cy": 330,
         "shape": "M90,50 L250,70 L300,180 L260,380 L110,360 L60,170 Z",
         "cities": {
-          "huangshan": {
-            "name": "黄山",
-            "albums": [
-              "huangshan"
-            ],
-            "lng": 118.29,
-            "lat": 29.71,
-            "sx": 200,
-            "sy": 300
-          }
+          "hefei": { "name": "合肥", "albums": [], "lng": 117.27, "lat": 31.86 },
+          "wuhu": { "name": "芜湖", "albums": [], "lng": 118.38, "lat": 31.33 },
+          "bengbu": { "name": "蚌埠", "albums": [], "lng": 117.39, "lat": 32.92 },
+          "huainan": { "name": "淮南", "albums": [], "lng": 116.98, "lat": 32.62 },
+          "maanshan": { "name": "马鞍山", "albums": [], "lng": 118.51, "lat": 31.69 },
+          "huaibei": { "name": "淮北", "albums": [], "lng": 116.79, "lat": 33.97 },
+          "tongling": { "name": "铜陵", "albums": [], "lng": 117.81, "lat": 30.94 },
+          "anqing": { "name": "安庆", "albums": [], "lng": 117.04, "lat": 30.51 },
+          "huangshan": { "name": "黄山", "albums": ["huangshan"], "lng": 118.29, "lat": 29.71 },
+          "chuzhou": { "name": "滁州", "albums": [], "lng": 118.31, "lat": 32.30 },
+          "fuyang": { "name": "阜阳", "albums": [], "lng": 115.81, "lat": 32.90 },
+          "suzhou": { "name": "宿州", "albums": [], "lng": 116.97, "lat": 33.63 },
+          "luan": { "name": "六安", "albums": [], "lng": 116.52, "lat": 31.75 },
+          "bozhou": { "name": "亳州", "albums": [], "lng": 115.78, "lat": 33.87 },
+          "chizhou": { "name": "池州", "albums": [], "lng": 117.49, "lat": 30.66 },
+          "xuancheng": { "name": "宣城", "albums": [], "lng": 118.76, "lat": 30.95 }
         },
         "lng": 117.28,
         "lat": 31.86,
