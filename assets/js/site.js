@@ -373,6 +373,57 @@
     if(legend) legend.textContent = '点亮省份 = 已有照片记录 · 点击进入省地图 · 海外地点在轮廓外';
   }
 
+  /* ---------- DataV 省界高亮（免配额、GCJ-02、有审图号） ---------- */
+  function drawProvinceBoundary(TMap, map, p, pk){
+    if(!p.adcode) return;
+    var CK = 'tm_datav_' + p.adcode;
+    var cached = null;
+    try { cached = JSON.parse(localStorage.getItem(CK) || 'null'); } catch (e) { cached = null; }
+    function drawGeo(geo){
+      try {
+        var minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+        var polys = [];
+        (geo.features || []).forEach(function(f){
+          var g = f.geometry; if(!g) return;
+          var list = g.type === 'MultiPolygon' ? g.coordinates : (g.type === 'Polygon' ? [g.coordinates] : []);
+          list.forEach(function(poly){
+            poly.forEach(function(ring){
+              var pts = ring.map(function(c){
+                var ln = c[0], la = c[1];
+                if(isNaN(la) || isNaN(ln)) return null;
+                if(la < minLat) minLat = la; if(la > maxLat) maxLat = la;
+                if(ln < minLng) minLng = ln; if(ln > maxLng) maxLng = ln;
+                return new TMap.LatLng(la, ln);
+              }).filter(Boolean);
+              if(pts.length > 2) polys.push(pts);
+            });
+          });
+        });
+        if(polys.length){
+          new TMap.MultiPolygon({
+            map: map,
+            styles: { hl: new TMap.FillStyle({
+              color: 'rgba(200,168,130,0.16)',
+              borderColor: '#B99A6F',
+              borderWidth: 3
+            }) },
+            geometries: polys.map(function(g, i){ return { id: 'p' + i, styleId: 'hl', paths: g }; })
+          });
+          try {
+            map.fitBounds(new TMap.LatLngBounds(
+              new TMap.LatLng(minLat, minLng), new TMap.LatLng(maxLat, maxLng)));
+          } catch (e) {}
+        }
+      } catch (e) {}
+      try { localStorage.setItem(CK, JSON.stringify({ t: Date.now(), geo: geo })); } catch (e) {}
+    }
+    if(cached && cached.t && cached.geo && (Date.now() - cached.t < 7 * 24 * 3600 * 1000)){
+      drawGeo(cached.geo); return;
+    }
+    var url = 'https://geo.datav.aliyun.com/areas_v3/bound/' + p.adcode + '_full.json';
+    fetch(url).then(function(r){ return r.json(); }).then(drawGeo).catch(function(){});
+  }
+
   /* ---------- 渲染：Province 省地图页 ---------- */
   function renderProvince(d){
     var params = new URLSearchParams(location.search);
@@ -392,7 +443,7 @@
       else { intro.textContent = ''; intro.style.display = 'none'; }
     }
 
-    // 省份真实地图：独立区块，含省界高亮（需 Key 已启用 WebServiceAPI）
+    // 省份真实地图：独立区块，含省界高亮（省界走阿里 DataV，免配额）
     var mapKey2 = (d.site && d.site.mapKey) || '';
     var sec = document.getElementById('prov-map-sec');
     var pwrap = document.getElementById('prov-map-wrap');
@@ -417,59 +468,8 @@
           zoom: 7, pitch: 0, scrollwheel: false, baseMap: { type: 'vector' }
         });
         addTMapPoints(TMap, map, pts, function(x){ if(x.url) location.href = x.url; });
-        // 省界高亮：拿行政区划边界，把视野框到该省（本地缓存 7 天，省 WebService 配额）
-        try {
-          var CK = 'tm_district_' + pk;
-          var cached = null;
-          try { cached = JSON.parse(localStorage.getItem(CK) || 'null'); } catch (e) { cached = null; }
-          var applyBoundary = function (polyStrs) {
-            var polys = [], minLat = 90, maxLat = -90, minLng = 180, maxLng = -90;
-            polyStrs.forEach(function (pg) {
-              pg.split('|').forEach(function (ring) {
-                var ringPts = ring.split(';').map(function (s) {
-                  var xy = s.split(',');
-                  var la = parseFloat(xy[0]), ln = parseFloat(xy[1]);
-                  if (isNaN(la) || isNaN(ln)) return null;
-                  if (la < minLat) minLat = la; if (la > maxLat) maxLat = la;
-                  if (ln < minLng) minLng = ln; if (ln > maxLng) maxLng = ln;
-                  return new TMap.LatLng(la, ln);
-                }).filter(Boolean);
-                if (ringPts.length > 2) polys.push(ringPts);
-              });
-            });
-            if (polys.length) {
-              new TMap.MultiPolygon({
-                map: map,
-                styles: { hl: new TMap.FillStyle({
-                  color: 'rgba(200,168,130,0.16)',
-                  borderColor: '#B99A6F',
-                  borderWidth: 3
-                }) },
-                geometries: polys.map(function (g, i) { return { id: 'p' + i, styleId: 'hl', paths: g }; })
-              });
-              try {
-                map.fitBounds(new TMap.LatLngBounds(
-                  new TMap.LatLng(minLat, minLng), new TMap.LatLng(maxLat, maxLng)));
-              } catch (e) {}
-            }
-          };
-          if (cached && cached.t && cached.polys && cached.polys.length
-              && (Date.now() - cached.t < 7 * 24 * 3600 * 1000)) {
-            applyBoundary(cached.polys);
-          } else {
-            var svc = new TMap.service.District({ polygon: 1 });
-            svc.search({ keyword: p.name }).then(function (res) {
-              var items = (res && res.result) || [];
-              var polyStrs = items
-                .filter(function (it) { return it && it.polygon; })
-                .map(function (it) { return it.polygon; });
-              if (polyStrs.length) {
-                try { localStorage.setItem(CK, JSON.stringify({ t: Date.now(), polys: polyStrs })); } catch (e) {}
-                applyBoundary(polyStrs);
-              }
-            }).catch(function () {});
-          }
-        } catch (e) {}
+        // 省界高亮：改用阿里 DataV 标准省界 GeoJSON（免配额、GCJ-02、带审图号）
+        try { drawProvinceBoundary(TMap, map, p, pk); } catch (e) {}
       }).catch(function(){ sec.style.display = 'none'; });
     }
 
