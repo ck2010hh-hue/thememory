@@ -688,6 +688,18 @@
       else { intro.textContent = ''; intro.style.display = 'none'; }
     }
 
+    // Hero 背景图（半透明，数据驱动；无则不显示）
+    var heroEl = document.querySelector('.province-hero');
+    if(heroEl){
+      if(p.hero){
+        heroEl.classList.add('has-hero');
+        heroEl.style.backgroundImage = 'url(\''+esc(p.hero)+'\')';
+      } else {
+        heroEl.classList.remove('has-hero');
+        heroEl.style.backgroundImage = '';
+      }
+    }
+
     // 省份真实轮廓地图（阿里 DataV 省界，免配额）
     drawProvinceSVG(d, pk, p);
 
