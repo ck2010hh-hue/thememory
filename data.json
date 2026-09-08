@@ -39,6 +39,30 @@
   "galleryOrder": [
     "huangshan"
   ],
+  "moments": {
+    "navLabel": "Moments",
+    "hero": "media/albums/huangshan/IMG_20260218_103450.jpg",
+    "title": "生命中有很多转瞬即逝的瞬间",
+    "subtitle": "有时候只是惊鸿一瞥，有时候也会刻骨铭心。",
+    "items": [
+      {
+        "id": "moment-1",
+        "date": "2026.02.18",
+        "place": "黄山 · 安徽",
+        "text": "清晨六点，缆车还未醒，我们已踩着残雪上了山。雾在脚下，松在雾里，偶尔一阵风，把云海掀开一道缝，露出远峰的轮廓。",
+        "media": "media/albums/huangshan/IMG_20260218_082134.jpg",
+        "type": "image"
+      },
+      {
+        "id": "moment-2",
+        "date": "2026.02.18",
+        "place": "黄山 · 安徽",
+        "text": "这一天走得并不轻松。石阶结着薄冰，呼吸在冷空气里凝成白雾。可每当转过一个弯，看见云瀑从崖边倾泻而下，又觉得一切都值得。",
+        "media": "media/albums/huangshan/IMG_20260218_100734.jpg",
+        "type": "image"
+      }
+    ]
+  },
   "places": {
     "provinces": {
       "zhejiang": {
