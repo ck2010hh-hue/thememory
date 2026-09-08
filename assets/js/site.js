@@ -421,9 +421,15 @@
   }
 
   /* ---------- Places：统计 / 精选 / 海外 通用渲染 ---------- */
+  function provinceHasAlbums(p){
+    var cities = p.cities || {};
+    return Object.keys(cities).some(function(ck){ return (cities[ck].albums||[]).length > 0; });
+  }
   function getPlaceStatsHTML(d){
     var provinces = d.places.provinces || {};
-    var pCount = Object.keys(provinces).length;
+    // "省份" 统计与地图高亮数一致：只统计有相册的省份
+    var pCount = 0;
+    Object.keys(provinces).forEach(function(k){ if(provinceHasAlbums(provinces[k])) pCount++; });
     var cityCount = 0;
     Object.keys(provinces).forEach(function(k){ cityCount += Object.keys(provinces[k].cities||{}).length; });
     var photoCount = 0;
@@ -669,6 +675,28 @@
       .catch(function(){ fallback(); });
   }
 
+  /* 根据图片 URL 判断整体亮度（canvas 采样），回调返回 isDark */
+  function detectImageBrightness(url, cb){
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function(){
+      var canvas = document.createElement('canvas');
+      var w = canvas.width = 64, h = canvas.height = 64;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      var data;
+      try { data = ctx.getImageData(0, 0, w, h).data; } catch(e){ cb(false); return; }
+      var sum = 0, n = data.length / 4;
+      for(var i = 0; i < data.length; i += 4){
+        // 相对亮度
+        sum += 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
+      }
+      cb((sum / n) < 115); // 0-255，低于 115 视为暗背景
+    };
+    img.onerror = function(){ cb(false); };
+    img.src = url;
+  }
+
   /* ---------- 渲染：Province 省地图页 ---------- */
   function renderProvince(d){
     var params = new URLSearchParams(location.search);
@@ -688,15 +716,20 @@
       else { intro.textContent = ''; intro.style.display = 'none'; }
     }
 
-    // Hero 背景图（半透明，数据驱动；无则不显示）
+    // Hero 背景图（数据驱动；无则不显示）+ 根据图片亮度自动切换深浅文字
     var heroEl = document.querySelector('.province-hero');
     if(heroEl){
+      heroEl.classList.remove('hero-light','hero-dark');
       if(p.hero){
         heroEl.classList.add('has-hero');
         heroEl.style.backgroundImage = 'url(\''+esc(p.hero)+'\')';
+        detectImageBrightness(p.hero, function(isDark){
+          heroEl.classList.add(isDark ? 'hero-dark' : 'hero-light');
+        });
       } else {
         heroEl.classList.remove('has-hero');
         heroEl.style.backgroundImage = '';
+        heroEl.classList.add('hero-light');
       }
     }
 
