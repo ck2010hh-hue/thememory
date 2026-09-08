@@ -308,7 +308,7 @@
 
   /* ---------- 渲染 ---------- */
   function renderAll() {
-    renderSite(); renderVideos(); renderAlbums(); renderOrder('#favOrder', 'favoritesOrder', '首页收藏');
+    renderSite(); renderVideos(); renderMoments(); renderAlbums(); renderOrder('#favOrder', 'favoritesOrder', '首页收藏');
     renderOrder('#galOrder', 'galleryOrder', '图集'); renderPlaces();
     disableUploadUI();
   }
@@ -348,6 +348,93 @@
       acts.appendChild(up); acts.appendChild(dn); acts.appendChild(rm);
       item.appendChild(acts);
       wrap.appendChild(item);
+    });
+  }
+
+  function renderMoments() {
+    DATA.moments = DATA.moments || {};
+    var m = DATA.moments;
+    var wrap = $('#momentsForm'); wrap.innerHTML = '';
+    // 入口设置
+    var head = el('div', 'album-card');
+    head.appendChild(el('div', 'ac-head', '<div class="ac-title">首页入口</div>'));
+    var g = el('div', 'grid2');
+    g.appendChild(field('导航名称', inp('text', m.navLabel || 'Moments', function (v) { m.navLabel = v; })));
+    g.appendChild(field('大标题', inp('text', m.title || '', function (v) { m.title = v; })));
+    head.appendChild(g);
+    var subRow = el('div', 'field');
+    subRow.appendChild(el('label', null, '副标题'));
+    var subTa = document.createElement('textarea'); subTa.rows = 2; subTa.value = m.subtitle || '';
+    subTa.oninput = function () { m.subtitle = subTa.value; };
+    subRow.appendChild(subTa); head.appendChild(subRow);
+    var heroRow = el('div', 'field');
+    heroRow.appendChild(el('label', null, '入口背景图'));
+    var hr = el('div', 'row');
+    var hi = inp('text', m.hero || '', function (v) { m.hero = v; }); hi.style.flex = '1';
+    hr.appendChild(hi);
+    var hb = el('button', 'btn-mini', '上传背景');
+    hb.onclick = function () { pickFile(false, function (files) { uploadOne('moments', files[0], function (path) { if (path) { m.hero = path; hi.value = path; } }); }, 'image/*'); };
+    hr.appendChild(hb); heroRow.appendChild(hr); head.appendChild(heroRow);
+    wrap.appendChild(head);
+    // 条目列表
+    var listHead = el('div', 'tab-head');
+    listHead.appendChild(el('h3', 'sub-h', '零散瞬间条目'));
+    var addBtn = el('button', 'btn-primary', '+ 添加条目');
+    addBtn.onclick = function () {
+      m.items = m.items || [];
+      m.items.push({ id: 'moment-' + Date.now(), date: '', place: '', text: '', media: '', type: 'image' });
+      renderMoments();
+    };
+    listHead.appendChild(addBtn);
+    wrap.appendChild(listHead);
+    var items = m.items || [];
+    if (!items.length) { wrap.appendChild(el('p', 'hint', '还没有条目，点右上角「添加条目」。')); return; }
+    items.forEach(function (it, i) {
+      var card = el('div', 'album-card');
+      card.appendChild(el('div', 'ac-head', '<div class="ac-title">条目 ' + (i + 1) + '</div>'));
+      var row1 = el('div', 'field-row');
+      row1.appendChild(el('label', '', '时间'));
+      row1.appendChild(inp('text', it.date || '', function (v) { it.date = v; }));
+      row1.appendChild(el('label', '', '地点'));
+      row1.appendChild(inp('text', it.place || '', function (v) { it.place = v; }));
+      card.appendChild(row1);
+      var typeRow = el('div', 'field-row');
+      typeRow.appendChild(el('label', '', '类型'));
+      var sel = document.createElement('select');
+      sel.innerHTML = '<option value="image"' + (it.type === 'image' ? ' selected' : '') + '>图片</option>'
+        + '<option value="video"' + (it.type === 'video' ? ' selected' : '') + '>视频</option>'
+        + '<option value="auto"' + (it.type === 'auto' ? ' selected' : '') + '>自动判断</option>';
+      sel.onchange = function () { it.type = sel.value; };
+      typeRow.appendChild(sel);
+      card.appendChild(typeRow);
+      var textRow = el('div', 'field');
+      textRow.appendChild(el('label', null, '文案'));
+      var ta = document.createElement('textarea'); ta.rows = 4; ta.value = it.text || '';
+      ta.oninput = function () { it.text = ta.value; };
+      textRow.appendChild(ta); card.appendChild(textRow);
+      var mediaRow = el('div', 'field');
+      mediaRow.appendChild(el('label', null, '照片 / 视频文件'));
+      var mr = el('div', 'row');
+      var mi = inp('text', it.media || '', function (v) { it.media = v; }); mi.style.flex = '1';
+      mr.appendChild(mi);
+      var mb = el('button', 'btn-mini', '上传媒体');
+      mb.onclick = function () {
+        pickFile(false, function (files) {
+          var f = files[0];
+          var acc = (it.type === 'video') ? 'video/*' : ((it.type === 'image') ? 'image/*' : 'image/*,video/*');
+          if (f.type && f.type.startsWith('video/')) it.type = 'video';
+          uploadOne('moments', f, function (path) { if (path) { it.media = path; mi.value = path; } });
+        }, (it.type === 'video') ? 'video/*' : ((it.type === 'image') ? 'image/*' : 'image/*,video/*'));
+      };
+      mr.appendChild(mb); mediaRow.appendChild(mr); card.appendChild(mediaRow);
+      var acts = el('div', 'field-row');
+      var up = el('button', 'btn-mini', '↑'); up.onclick = function () { swap(items, i, i - 1); renderMoments(); };
+      var dn = el('button', 'btn-mini', '↓'); dn.onclick = function () { swap(items, i, i + 1); renderMoments(); };
+      var rm = el('button', 'btn-danger', '删');
+      rm.onclick = function () { if (confirm('删除这条瞬间记录？')) { items.splice(i, 1); renderMoments(); } };
+      acts.appendChild(up); acts.appendChild(dn); acts.appendChild(rm);
+      card.appendChild(acts);
+      wrap.appendChild(card);
     });
   }
 
