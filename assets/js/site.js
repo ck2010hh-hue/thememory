@@ -591,6 +591,9 @@
       layer = svgEl.querySelector('#prov-zoom-layer');
       // 滚轮缩放
       svgEl.addEventListener('wheel', function(e){
+        // 普通滚轮 / 双指上下滑动：不阻止，交给页面自然滚动。
+        // 双指捏合（触控板通常带 ctrlKey）或 Ctrl/Cmd + 滚轮：才缩放地图。
+        if (!(e.ctrlKey || e.metaKey)) return;
         e.preventDefault();
         var delta = e.deltaY > 0 ? 0.9 : 1.1;
         var rect = svgEl.getBoundingClientRect();
