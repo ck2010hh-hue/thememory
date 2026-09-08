@@ -189,6 +189,84 @@ a{ color:inherit; text-decoration:none; }
   .vpage .vside-desc{ max-height:none; }
 }
 
+/* ---------- Moments：首页入口大图 ---------- */
+.moments-hero{ width:100%; padding:0 8vw 20px; box-sizing:border-box; }
+.moments-hero .mh-link{
+  position:relative; display:block; width:100%; height:62vh; min-height:420px; max-height:720px;
+  overflow:hidden; border-radius:6px; color:#fff;
+}
+.moments-hero .mh-bg{
+  position:absolute; inset:0; background:center/cover no-repeat;
+  transition:transform 1.2s ease;
+}
+.moments-hero .mh-link:hover .mh-bg{ transform:scale(1.03); }
+.moments-hero .mh-veil{
+  position:absolute; inset:0;
+  background:linear-gradient(90deg, rgba(30,26,22,.55) 0%, rgba(30,26,22,.28) 55%, rgba(30,26,22,.12) 100%);
+}
+.moments-hero .mh-text{
+  position:absolute; left:0; top:0; bottom:0; width:55%; padding:8vh 6vw;
+  display:flex; flex-direction:column; justify-content:center; z-index:2;
+}
+.moments-hero .mh-label{ font-size:12px; letter-spacing:.4em; text-transform:uppercase; opacity:.85; margin-bottom:22px; }
+.moments-hero .mh-title{ font-family:var(--serif); font-size:clamp(26px,3.6vw,46px); font-weight:400; line-height:1.35; letter-spacing:.03em; margin-bottom:18px; }
+.moments-hero .mh-sub{ font-size:15px; line-height:1.9; opacity:.88; max-width:420px; }
+.moments-hero .mh-enter{
+  display:inline-block; margin-top:36px; font-size:13px; letter-spacing:.25em; text-transform:uppercase;
+  border-bottom:1px solid rgba(255,255,255,.6); padding-bottom:4px; width:fit-content; opacity:.9;
+  transition:opacity .3s, border-color .3s;
+}
+.moments-hero .mh-link:hover .mh-enter{ opacity:1; border-color:#fff; }
+@media (max-width:900px){
+  .moments-hero{ padding:0 5vw 16px; }
+  .moments-hero .mh-link{ height:68vh; min-height:360px; }
+  .moments-hero .mh-veil{ background:linear-gradient(180deg, rgba(30,26,22,.45) 0%, rgba(30,26,22,.55) 100%); }
+  .moments-hero .mh-text{ width:100%; padding:40px 28px; text-align:center; align-items:center; }
+  .moments-hero .mh-title{ font-size:26px; }
+}
+
+/* ---------- Moments：二级页 ---------- */
+.mh-header{ padding:160px 8vw 90px; text-align:center; }
+.mh-header-label{ font-size:12px; letter-spacing:.4em; text-transform:uppercase; color:var(--accent); margin-bottom:18px; }
+.mh-header-title{ font-family:var(--serif); font-size:clamp(30px,4.5vw,54px); font-weight:400; line-height:1.3; margin-bottom:16px; }
+.mh-header-sub{ font-size:16px; color:var(--ink-soft); max-width:560px; margin:0 auto; line-height:1.9; }
+.moments-list{ max-width:1180px; margin:0 auto; padding:0 8vw 140px; }
+.moment-item{
+  display:grid; grid-template-columns:1fr 1fr; gap:70px; align-items:center;
+  margin-bottom:120px;
+}
+.moment-item.reverse{ direction:rtl; }
+.moment-item.reverse > *{ direction:ltr; }
+.moment-media{
+  display:flex; align-items:center; justify-content:center;
+  min-height:320px; background:var(--bg-soft); border-radius:4px; overflow:hidden;
+}
+.moment-media img,
+.moment-media video{
+  max-width:100%; max-height:76vh; width:auto; height:auto;
+  display:block; object-fit:contain;
+}
+.moment-text{ padding:30px 10px; }
+.moment-meta{ margin-bottom:36px; }
+.moment-date,
+.moment-place{
+  display:block; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--accent);
+}
+.moment-date{ margin-bottom:8px; }
+.moment-body{
+  font-size:16px; line-height:2.2; color:var(--ink-soft); white-space:pre-wrap;
+}
+@media (max-width:900px){
+  .mh-header{ padding:120px 6vw 60px; }
+  .moments-list{ padding:0 6vw 100px; }
+  .moment-item{ grid-template-columns:1fr; gap:28px; margin-bottom:80px; }
+  .moment-item.reverse{ direction:ltr; }
+  .moment-media{ min-height:auto; }
+  .moment-media img, .moment-media video{ max-height:60vh; }
+  .moment-text{ padding:10px 0 20px; }
+  .moment-meta{ margin-bottom:22px; }
+}
+
 /* ---------- 相册详情页 ---------- */
 .detail-hero{ position:relative; height:100vh; overflow:hidden; }
 .detail-hero img{ width:100%; height:100%; object-fit:cover; filter:brightness(.7); }
