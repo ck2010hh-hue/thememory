@@ -10,7 +10,7 @@
   var MAX_FAV = 3;
 
   function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-  function getJSON(url){ return fetch(url, {headers:{'x-admin-token':TOKEN}}).then(function(r){ return r.json(); }); }
+  function getJSON(url){ return fetch(url + '?t=' + Date.now(), {headers:{'x-admin-token':TOKEN}}).then(function(r){ return r.json(); }); }
 
   /* ---------- CDN 前缀：data.json 只存相对路径，换域名只改 cdnBase ---------- */
   function abs(p, base){
@@ -247,14 +247,9 @@
       var mhBg = document.getElementById('moments-hero-bg');
       var mhTitle = document.getElementById('moments-hero-title');
       var mhSub = document.getElementById('moments-hero-sub');
-      var mhLink = document.getElementById('moments-hero-link');
-      if(mhBg && d.moments.hero) mhBg.style.backgroundImage = 'url('+esc(d.moments.hero)+')';
-      if(mhTitle) mhTitle.textContent = d.moments.title || '';
-      if(mhSub) mhSub.textContent = d.moments.subtitle || '';
-      if(mhLink && d.moments.navLabel){
-        var mhLabel = mhLink.querySelector('.mh-label');
-        if(mhLabel) mhLabel.textContent = d.moments.navLabel;
-      }
+      if(mhBg && d.moments.hero) mhBg.style.backgroundImage = 'url("'+esc(d.moments.hero)+'")';
+      if(mhTitle) mhTitle.innerHTML = esc(d.moments.title || '').replace(/\n/g, '<br>');
+      if(mhSub) mhSub.innerHTML = esc(d.moments.subtitle || '').replace(/\n/g, '<br>');
     }
 
     // FAVORITES
