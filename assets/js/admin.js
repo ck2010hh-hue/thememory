@@ -308,9 +308,47 @@
 
   /* ---------- 渲染 ---------- */
   function renderAll() {
-    renderSite(); renderAlbums(); renderOrder('#favOrder', 'favoritesOrder', '首页收藏');
+    renderSite(); renderVideos(); renderAlbums(); renderOrder('#favOrder', 'favoritesOrder', '首页收藏');
     renderOrder('#galOrder', 'galleryOrder', '图集'); renderPlaces();
     disableUploadUI();
+  }
+
+  function renderVideos() {
+    var wrap = $('#videoList'); wrap.innerHTML = '';
+    var videos = (DATA.site && DATA.site.videos) || (DATA.site = DATA.site || {}, DATA.site.videos = []);
+    if (!videos.length) { wrap.appendChild(el('p', 'hint', '还没有影片，点右上角「添加影片」。')); return; }
+    videos.forEach(function (v, i) {
+      var item = el('div', 'order-item');
+      item.appendChild(el('div', 'oi-title', esc(v.title || '未命名')));
+      var row = el('div', 'field-row');
+      row.appendChild(el('label', '', '编号'));
+      row.appendChild(inp('text', v.sub || '', function (val) { v.sub = val; }));
+      row.appendChild(el('label', '', '标题'));
+      row.appendChild(inp('text', v.title || '', function (val) { v.title = val; }));
+      item.appendChild(row);
+      var srcRow = el('div', 'field-row');
+      srcRow.appendChild(el('label', '', '视频文件'));
+      var srcIn = inp('text', v.src || '', function (val) { v.src = val; });
+      srcIn.style.flex = '1'; srcIn.placeholder = '如 media/hero-web2.mp4';
+      srcRow.appendChild(srcIn);
+      item.appendChild(srcRow);
+      var descRow = el('div', 'field-row');
+      descRow.appendChild(el('label', '', '说明（空行分段）'));
+      var ta = document.createElement('textarea');
+      ta.rows = 4; ta.value = (v.desc || '').replace(/<br>/g, '\n');
+      ta.style.width = '100%'; ta.style.boxSizing = 'border-box';
+      ta.oninput = function () { v.desc = ta.value; };
+      descRow.appendChild(ta);
+      item.appendChild(descRow);
+      var acts = el('div', 'field-row');
+      var up = el('button', 'btn-mini', '↑'); up.onclick = function () { swap(videos, i, i - 1); renderVideos(); };
+      var dn = el('button', 'btn-mini', '↓'); dn.onclick = function () { swap(videos, i, i + 1); renderVideos(); };
+      var rm = el('button', 'btn-danger', '删');
+      rm.onclick = function () { if (confirm('删除影片「' + (v.title || '') + '」？')) { videos.splice(i, 1); renderVideos(); } };
+      acts.appendChild(up); acts.appendChild(dn); acts.appendChild(rm);
+      item.appendChild(acts);
+      wrap.appendChild(item);
+    });
   }
 
   function renderSite() {
@@ -643,6 +681,12 @@
       DATA.site.introAudio = $('#s-audio').value;
       if ($('#s-mapkey')) DATA.site.mapKey = ($('#s-mapkey').value || '').trim();
       saveAll();
+    };
+    $('#newVideo').onclick = function () {
+      var title = prompt('新影片标题：', '新影片'); if (!title) return;
+      DATA.site = DATA.site || {}; DATA.site.videos = DATA.site.videos || [];
+      DATA.site.videos.push({ src: '', sub: '', title: title, desc: '' });
+      renderVideos();
     };
     $('#newAlbum').onclick = function () {
       var title = prompt('新相册标题：', '新相册'); if (!title) return;
