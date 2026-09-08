@@ -564,45 +564,31 @@
     var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); }, {threshold:0.12});
     els.forEach(function(e){ io.observe(e); });
   }
-  /* 背景轻音乐：自动轮播播放，按钮点击开/关；浏览器拦截自动播放时等首次交互再起 */
+  /* 背景轻音乐：打开页面即自动轮播播放，按钮用于暂停/继续 */
   function initBgm(playlist){
     var btn = document.querySelector('.audio-toggle');
     if(!btn || !playlist || !playlist.length) return;
     var au = new Audio(); au.volume = 0.35;
-    var idx = 0, armed = false;
-    var want = localStorage.getItem('tm_bgm') !== 'off';   // 用户关过就不再自动播
+    var idx = 0;
     function start(){
       if(!au.src) au.src = playlist[idx % playlist.length];
-      au.play().then(function(){ btn.classList.add('playing'); }).catch(function(){ armGesture(); });
+      var pp = au.play();
+      if(pp && pp.then) pp.then(function(){ btn.classList.add('playing'); }).catch(function(){});
+      else btn.classList.add('playing');
     }
     function stop(){ au.pause(); btn.classList.remove('playing'); }
-    function onGesture(){
-      document.removeEventListener('pointerdown', onGesture);
-      document.removeEventListener('touchstart', onGesture);
-      document.removeEventListener('scroll', onGesture);
-      document.removeEventListener('keydown', onGesture);
-      if(want) start();
-    }
-    function armGesture(){
-      if(armed) return; armed = true;
-      document.addEventListener('pointerdown', onGesture);
-      document.addEventListener('touchstart', onGesture);
-      document.addEventListener('scroll', onGesture);
-      document.addEventListener('keydown', onGesture);
-    }
     au.addEventListener('ended', function(){
       idx = (idx + 1) % playlist.length;   // 轮播：一曲终了自动下一首
       au.src = playlist[idx];
       au.play().catch(function(){});
+      btn.classList.add('playing');
     });
     btn.addEventListener('click', function(){
-      if(au.paused){
-        want = true; localStorage.setItem('tm_bgm', 'on'); start();
-      } else {
-        want = false; localStorage.setItem('tm_bgm', 'off'); stop();
-      }
+      if(au.paused){ start(); }
+      else { stop(); }
     });
-    if(want) start(); else btn.classList.remove('playing');
+    // 进入页面直接尝试播放；若浏览器拦截自动播放，用户点击按钮即可继续
+    start();
   }
   function initCoverSliders(){
     document.querySelectorAll('.cover-slider').forEach(function(slider){
