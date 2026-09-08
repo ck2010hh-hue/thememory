@@ -3,7 +3,7 @@
     "name": "The Memory",
     "intro": "有些风景，走过便成了记忆。\n我把它们留在这里——\n一段段光，一座座远方的城。",
     "introAudio": "media/bgm.wav",
-    "heroVideo": "media/hero-web.mp4",
+    "heroVideo": "media/hero-web2.mp4",
     "cdnBase": "https://thememoryhk-1482718043.cos.ap-hongkong.myqcloud.com/",
     "videos": [
       {
