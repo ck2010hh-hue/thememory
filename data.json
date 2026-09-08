@@ -7,19 +7,22 @@
     "cdnBase": "https://thememoryhk-1482718043.cos.ap-hongkong.myqcloud.com/",
     "videos": [
       {
-        "src": "media/hero-web.mp4",
+        "src": "media/hero-web2.mp4",
         "sub": "Film 01",
-        "title": "泰国 · 2026"
+        "title": "泰国 · 2026",
+        "desc": "曼谷街头的烟火气、寺庙檐角的晨光，还有猝不及防的一场雨。把这些片段剪成一支短片，像把旅行时的心情重新放映了一遍。"
       },
       {
-        "src": "media/hero-web.mp4",
+        "src": "media/hero-web2.mp4",
         "sub": "Film 02",
-        "title": "海风与晚霞"
+        "title": "海风与晚霞",
+        "desc": "海边的黄昏是一天中最温柔的时刻。天空被染成粉橘色，海浪一遍遍把脚印抚平，只留下咸湿的风和余晖。"
       },
       {
-        "src": "media/hero-web.mp4",
+        "src": "media/hero-web2.mp4",
         "sub": "Film 03",
-        "title": "曼谷的午后"
+        "title": "曼谷的午后",
+        "desc": "午后的曼谷总是懒洋洋的。找一间临河咖啡馆坐下，看船来船往，听风铃和冰块碰撞的声音，时间就这样慢下来。"
       }
     ],
     "mapKey": "G5ABZ-QWMC4-U2QUX-KCFCF-GSYH3-5QBDB",
