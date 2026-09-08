@@ -703,11 +703,15 @@
     // 省份真实轮廓地图（阿里 DataV 省界，免配额）
     drawProvinceSVG(d, pk, p);
 
-    // 城市卡片
+    // 城市卡片：有相册的城市优先置顶，按原顺序排列
     var grid = document.getElementById('city-grid');
     if(grid){
       var cities = p.cities || {};
-      var keys = Object.keys(cities);
+      var keys = Object.keys(cities).sort(function(a,b){
+        var ha = ((cities[a].albums||[]).length > 0) ? 1 : 0;
+        var hb = ((cities[b].albums||[]).length > 0) ? 1 : 0;
+        return hb - ha; // 有相册的排在前面
+      });
       var html = '';
       keys.forEach(function(ck){
         var c = cities[ck];
