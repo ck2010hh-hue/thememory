@@ -29,13 +29,15 @@
   </div>
 </header>
 
-<!-- 真实地图（配置腾讯地图 Key 后显示；未配置时整块隐藏，保持原装饰风格） -->
-<section class="chapter" id="prov-map-sec" style="display:none;">
+<!-- 省份抽象地图 -->
+<section class="chapter chapter-map" id="prov-map-sec">
   <div class="chapter-head reveal">
     <div class="eyebrow">Map</div>
     <h2 class="serif-title">足迹地图</h2>
   </div>
-  <div id="prov-map-wrap" style="max-width:1000px;margin:0 auto;"></div>
+  <div class="mapwrap mapwrap-wide">
+    <svg id="province-svg" viewBox="0 0 360 420" role="img" aria-label="省份地图"></svg>
+  </div>
 </section>
 
 <section class="chapter">
@@ -50,6 +52,6 @@
   THE MEMORY · 个人旅行日志<br>© 2026 · Built with light &amp; patience.
 </footer>
 
-<script src="assets/js/site.js"></script>
+<script src="assets/js/site.js?v=2"></script>
 </body>
 </html>
