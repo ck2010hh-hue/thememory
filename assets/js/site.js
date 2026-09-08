@@ -638,24 +638,30 @@
   }
   function initVideoCarousel(){
     var vp=document.querySelector('.vpage'); if(!vp) return;
-    var vids=(DATA && DATA.site && DATA.site.videos) ? DATA.site.videos
-             : JSON.parse(vp.getAttribute('data-videos')||'[]');
+    var vids=(DATA && DATA.site && DATA.site.videos) ? DATA.site.videos : [];
     if(!vids.length) return;
-    var stage=vp.querySelector('.vstage'), titleBox=vp.querySelector('.vtitle');
-    var sub=titleBox.querySelector('.vt-sub'), main=titleBox.querySelector('.vt-main'), count=vp.querySelector('.vcount');
-    var cur=0, timer=null;
+    var stage=vp.querySelector('.vstage');
+    var sub=vp.querySelector('.vside-sub'), main=vp.querySelector('.vside-title'), desc=vp.querySelector('.vside-desc'), count=vp.querySelector('.vcount');
+    var cur=0;
+    function renderDesc(text){
+      var s = (text || '').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+      var ps = s.split(/\n\s*\n/).filter(function(p){ return p.trim(); }).map(function(p){ return '<p>'+esc(p)+'</p>'; }).join('');
+      if(desc) desc.innerHTML = ps || '<p style="opacity:.5;">（暂无说明）</p>';
+    }
     function load(i){
       cur=(i+vids.length)%vids.length; var v=vids[cur];
       stage.innerHTML='<video playsinline muted preload="auto"><source src="'+v.src+'" type="video/mp4"></video>';
       var video=stage.querySelector('video');
-      titleBox.classList.remove('hide'); sub.textContent=v.sub||''; main.textContent=v.title||'';
-      count.textContent=(cur+1)+' / '+vids.length;
-      clearTimeout(timer);
-      timer=setTimeout(function(){ titleBox.classList.add('hide'); video.muted=true; video.play().catch(function(){}); }, 3000);
+      video.play().catch(function(){});
+      if(sub) sub.textContent=v.sub||'';
+      if(main) main.textContent=v.title||'';
+      if(desc) renderDesc(v.desc);
+      if(count) count.textContent=(cur+1)+' / '+vids.length;
     }
     vp.querySelector('.vprev').addEventListener('click',function(){load(cur-1);});
     vp.querySelector('.vnext').addEventListener('click',function(){load(cur+1);});
-    vp.querySelector('.vclose').addEventListener('click',function(){ history.length>1?history.back():(location.href='index.html'); });
+    var closeBtn=vp.querySelector('.vclose');
+    if(closeBtn) closeBtn.addEventListener('click',function(){ history.length>1?history.back():(location.href='index.html'); });
     document.addEventListener('keydown',function(e){ if(e.key==='ArrowLeft')load(cur-1); if(e.key==='ArrowRight')load(cur+1); });
     load(0);
   }
