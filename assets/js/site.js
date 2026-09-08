@@ -226,8 +226,10 @@
   function renderHome(d){
     var vid = document.querySelector('.hero video');
     if(vid && d.site.heroVideo){
+      vid.src = d.site.heroVideo;
       vid.innerHTML = '<source src="'+d.site.heroVideo+'" type="video/mp4">';
       try { vid.load(); } catch(e){}
+      try { var pp = vid.play(); if(pp && pp.catch) pp.catch(function(){}); } catch(e){}
     }
     var poem = document.querySelector('.intro .poem');
     if(poem) poem.innerHTML = (d.site.intro||'').replace(/\n/g,'<br>');
