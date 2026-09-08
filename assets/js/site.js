@@ -27,6 +27,12 @@
       if(d.site.bgmList) d.site.bgmList = d.site.bgmList.map(function(u){ return abs(u, base); });
       if(d.site.videos) d.site.videos.forEach(function(v){ v.src = abs(v.src, base); });
     }
+    if(d.moments){
+      if(d.moments.hero) d.moments.hero = abs(d.moments.hero, base);
+      (d.moments.items||[]).forEach(function(m){
+        if(m.media) m.media = abs(m.media, base);
+      });
+    }
     Object.keys(d.albums||{}).forEach(function(k){
       var a = d.albums[k];
       if(a.hero) a.hero = abs(a.hero, base);
@@ -236,6 +242,21 @@
     var at = document.querySelector('.intro .audio-toggle');
     if(at && d.site.introAudio) at.setAttribute('data-audio', d.site.introAudio);
 
+    // MOMENTS 首页入口
+    if(d.moments){
+      var mhBg = document.getElementById('moments-hero-bg');
+      var mhTitle = document.getElementById('moments-hero-title');
+      var mhSub = document.getElementById('moments-hero-sub');
+      var mhLink = document.getElementById('moments-hero-link');
+      if(mhBg && d.moments.hero) mhBg.style.backgroundImage = 'url('+esc(d.moments.hero)+')';
+      if(mhTitle) mhTitle.textContent = d.moments.title || '';
+      if(mhSub) mhSub.textContent = d.moments.subtitle || '';
+      if(mhLink && d.moments.navLabel){
+        var mhLabel = mhLink.querySelector('.mh-label');
+        if(mhLabel) mhLabel.textContent = d.moments.navLabel;
+      }
+    }
+
     // FAVORITES
     var wrap = document.getElementById('fav-list');
     if(wrap){
@@ -287,6 +308,38 @@
       gt.innerHTML = '<div class="gallery-grid">'+gcards+'</div>'
         + '<div class="chapter-more"><a href="gallery.html">进入完整图集 →</a></div>';
     }
+  }
+
+  /* ---------- 渲染：Moments 零散瞬间页 ---------- */
+  function renderMomentsPage(d){
+    var m = d.moments;
+    if(!m){ document.body.innerHTML = '<p style="padding:120px;text-align:center;">暂无 Moments 数据</p>'; return; }
+    document.title = (m.navLabel || 'Moments') + ' · The Memory';
+    var title = document.getElementById('moments-page-title');
+    var sub = document.getElementById('moments-page-sub');
+    if(title) title.textContent = m.title || '';
+    if(sub) sub.textContent = m.subtitle || '';
+    var wrap = document.getElementById('moments-list');
+    if(!wrap) return;
+    var items = m.items || [];
+    if(!items.length){
+      wrap.innerHTML = '<p class="center-note">后台「瞬间管理」中添加第一条记录后，会显示在这里。</p>';
+      return;
+    }
+    wrap.innerHTML = items.map(function(it, i){
+      var isEven = (i % 2 === 0);
+      var mediaHtml = '';
+      if(it.type === 'video' || (it.media && /\.(mp4|mov|webm)$/i.test(it.media))){
+        mediaHtml = '<div class="moment-media"><video controls playsinline preload="metadata" src="'+esc(it.media)+'"></video></div>';
+      } else {
+        mediaHtml = '<div class="moment-media"><img src="'+esc(it.media)+'" alt="" loading="lazy"></div>';
+      }
+      var textHtml = '<div class="moment-text">'
+        + '<div class="moment-meta"><span class="moment-date">'+esc(it.date||'')+'</span><span class="moment-place">'+esc(it.place||'')+'</span></div>'
+        + '<div class="moment-body">'+esc(it.text||'').replace(/\n/g,'<br>')+'</div>'
+        + '</div>';
+      return '<article class="moment-item reveal'+(isEven?'':' reverse')+'">' + (isEven ? mediaHtml + textHtml : textHtml + mediaHtml) + '</article>';
+    }).join('');
   }
 
   /* ---------- 渲染：相册详情 ---------- */
@@ -680,6 +733,7 @@
       } else if(p.indexOf('province.html')>-1){ renderProvince(d); }
       else if(p.indexOf('gallery.html')>-1){ renderGallery(d); }
       else if(p.indexOf('place.html')>-1){ renderPlaces(d); }
+      else if(p.indexOf('moments.html')>-1){ renderMomentsPage(d); }
       else { renderHome(d); }
       initCoverSliders(); initLightbox();
       renderBreadcrumb(d);
