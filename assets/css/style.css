@@ -307,28 +307,45 @@ a{ color:inherit; text-decoration:none; }
 .mapwrap svg{ width:100%; height:auto; overflow:visible; }
 .mapwrap.mini{ max-width:720px; }
 .chapter-map{ padding-left:4vw; padding-right:4vw; }
-.mapwrap-wide{ max-width:none; }
-.mapwrap-wide svg{ max-height:78vh; }
-.china-outline{ fill:#E8E0D0; stroke:#C8BDA8; stroke-width:2; stroke-linejoin:round; }
-.china-outline.mini{ fill:none; stroke:var(--line); stroke-width:1.5; opacity:.7; }
+.mapwrap-wide{ max-width:1180px; margin:0 auto; }
+.mapwrap-wide svg{ max-height:80vh; }
 
-/* 省份/海外地点交互点 */
-.prov-dot{ cursor:pointer; }
-.prov-dot circle{ fill:#C4B8A3; transition:fill .3s, r .3s; }
-.prov-dot text{ fill:#8A7B5E; font-size:13px; letter-spacing:.15em; text-anchor:middle; transition:fill .3s; }
-.prov-dot:hover circle{ fill:var(--accent); r:14; }
-.prov-dot:hover text{ fill:var(--accent); }
-.prov-dot.lit circle{ fill:#A68B5B; }
-.prov-dot.lit text{ fill:var(--ink); }
-.prov-dot.mini circle{ r:7; }
-.prov-dot.mini text{ font-size:11px; }
-.prov-dot.mini:hover circle{ r:9; }
-.prov-dot.abroad circle{ fill:#B8AA8C; stroke:var(--bg); stroke-width:2; }
-.prov-dot.abroad text{ fill:#8a7b5e; }
-.map-legend{ text-align:center; margin-top:40px; color:var(--ink-soft); font-size:13px; letter-spacing:.15em; }
+/* 章节副标题 */
+.chapter-sub{ text-align:center; color:var(--ink-soft); font-size:15px; letter-spacing:.04em; margin:-4px auto 0; max-width:560px; line-height:1.9; }
 
-/* 省份页抽象地图 */
-.prov-shape-path{ fill:#E8E0D0; stroke:#C8BDA8; stroke-width:2; stroke-linejoin:round; }
+/* 统计条 */
+.place-stats{ display:flex; justify-content:center; gap:64px; margin:0 auto 40px; }
+.place-stats .stat{ text-align:center; }
+.place-stats .stat b{ display:block; font-family:var(--serif); font-weight:400; font-size:42px; color:var(--accent); line-height:1; }
+.place-stats .stat span{ display:block; margin-top:10px; font-size:12px; letter-spacing:.3em; color:var(--ink-soft); }
+
+/* 中国地图：插画柔化风 */
+.cn-map-group{ filter: drop-shadow(0 18px 30px rgba(120,100,70,.16)); }
+.cn-prov path{ fill:#EBE3D2; stroke:#C9BCA4; stroke-width:1.1; stroke-linejoin:round; transition:fill .3s; }
+.cn-prov:hover path{ fill:#E2D3B6; }
+.cn-prov.visited path{ fill:#E2CFAE; stroke:#BE9F72; stroke-width:1.4; }
+.cn-prov.visited:hover path{ fill:var(--accent); }
+.cn-label{ font-family:var(--serif); font-size:15px; fill:#6E5C46; text-anchor:middle; paint-order:stroke; stroke:#FBF7EF; stroke-width:3px; pointer-events:none; }
+.cn-prov.visited:hover .cn-label{ fill:#fff; stroke:#B08A55; }
+
+/* 精选 / 海外 足迹 */
+.place-featured, .place-abroad{ max-width:1180px; margin:64px auto 0; }
+.pf-head{ text-align:center; margin-bottom:30px; }
+.pf-head .eyebrow{ display:block; font-size:11px; letter-spacing:.4em; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+.pf-head .serif-title{ font-size:30px; }
+.pf-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:24px; }
+.pf-card{ background:var(--bg-soft); overflow:hidden; transition:transform .3s, box-shadow .3s; }
+.pf-card:hover{ transform:translateY(-5px); box-shadow:0 16px 30px rgba(120,100,70,.14); }
+.pf-img{ aspect-ratio:4/3; overflow:hidden; background:var(--line); display:flex; align-items:center; justify-content:center; }
+.pf-img img{ width:100%; height:100%; object-fit:cover; transition:transform .6s; }
+.pf-card:hover .pf-img img{ transform:scale(1.04); }
+.pf-img.empty{ background:repeating-linear-gradient(45deg,#efe8da,#efe8da 12px,#e9e0cf 12px,#e9e0cf 24px); }
+.pf-meta{ padding:20px 22px; }
+.pf-name{ font-family:var(--serif); font-size:22px; font-weight:400; }
+.pf-sub{ margin-top:6px; font-size:12px; letter-spacing:.15em; color:var(--ink-soft); text-transform:uppercase; }
+
+/* 省份页真实轮廓 */
+.prov-shape-path{ fill:#E7DECB; stroke:#BE9F72; stroke-width:1.6; stroke-linejoin:round; filter: drop-shadow(0 10px 18px rgba(120,100,70,.15)); }
 .city-dot{ cursor:pointer; }
 .city-dot circle{ fill:#C4B8A3; transition:fill .3s, r .3s; }
 .city-dot text{ fill:#8A7B5E; font-size:13px; letter-spacing:.12em; text-anchor:middle; transition:fill .3s; }
@@ -336,6 +353,8 @@ a{ color:inherit; text-decoration:none; }
 .city-dot:hover text{ fill:var(--accent); }
 .city-dot.lit circle{ fill:#A68B5B; }
 .city-dot.lit text{ fill:var(--ink); }
+
+.map-legend{ text-align:center; margin-top:36px; color:var(--ink-soft); font-size:13px; letter-spacing:.15em; }
 
 .gallery-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:22px; max-width:1180px; margin:0 auto; }
 .gcard{ cursor:pointer; background:var(--bg-soft); overflow:hidden; }
