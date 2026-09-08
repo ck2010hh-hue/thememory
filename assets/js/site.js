@@ -107,6 +107,10 @@
     });});
     return d.trim();
   }
+  function isNationalBoundaryFeature(f){
+    var ad = f.properties && f.properties.adcode;
+    return ad === '100000_JD' || ad === 100000 || ad === '100000' || !(f.properties && f.properties.name);
+  }
   function featureCenter(feature, pr){ var b=geoBounds(feature); return pr.proj((b.minLng+b.maxLng)/2,(b.minLat+b.maxLat)/2); }
 
   /* ---------- 渲染：可复用的中国地图 ---------- */
@@ -200,26 +204,29 @@
         return;
       }
       var pr = makeProjection(geo, W, H, pad);
-      var html = '<g class="cn-map-group">';
+      var paths = '', labels = '';
       (geo.features||[]).forEach(function(f){
-        if(!f.properties) return;
+        if(!f.properties || isNationalBoundaryFeature(f)) return;   // 跳过全国边界 feature，避免覆盖
         var adcode = f.properties.adcode;
         var pk = null;
         Object.keys(provinces).forEach(function(k){ if(String(provinces[k].adcode)===String(adcode)) pk=k; });
         var visited = !!pk;
         var path = featurePath(f, pr);
+        if(!path) return;
         var cls = 'cn-prov' + (visited ? ' visited' : '') + (opts.mini ? ' mini' : '');
-        var href = visited ? ('province.html?province='+esc(pk)) : '#';
-        var label = '';
-        if(visited && !opts.mini){
+        var href = visited ? ('province.html?province='+esc(pk)) : 'javascript:void(0)';
+        var tag = visited ? 'a' : 'g';
+        var click = visited ? '' : ' onclick="return false"';
+        paths += '<'+tag+' href="'+href+'" class="'+cls+'"'+click+'><path d="'+path+'" fill-rule="evenodd"/></'+tag+'>';
+        if(!opts.mini){
           var ctr = featureCenter(f, pr);
-          label = '<text class="cn-label" x="'+ctr[0].toFixed(1)+'" y="'+(ctr[1]+4).toFixed(1)+'">'+esc(provinces[pk].name)+'</text>';
+          var name = visited ? provinces[pk].name : (f.properties.name || '');
+          if(name){
+            labels += '<text class="cn-label'+(visited?' visited':'')+'" x="'+ctr[0].toFixed(1)+'" y="'+(ctr[1]+4).toFixed(1)+'">'+esc(name)+'</text>';
+          }
         }
-        html += '<a href="'+href+'" class="'+cls+'" '+(visited?'':'onclick="return false"')+'>'
-              + '<path d="'+path+'"/></a>' + label;
       });
-      html += '</g>';
-      svg.innerHTML = html;
+      svg.innerHTML = '<g class="cn-map-group">' + paths + labels + '</g>';
     }).catch(function(){
       svg.innerHTML = '<path d="'+chinaOutlinePath()+'" class="china-outline'+(opts.mini?' mini':'')+'"/>';
     });
@@ -534,7 +541,7 @@
       var pr = makeProjection(geo, W, H, pad);
       var f = geo.features && geo.features[0];
       var path = f ? featurePath(f, pr) : '';
-      var html = '<path d="' + path + '" class="prov-shape-path"/>';
+      var html = '<path d="' + path + '" class="prov-shape-path" fill-rule="evenodd"/>';
       var cities = p.cities || {};
       Object.keys(cities).forEach(function(ck){
         var c = cities[ck];
