@@ -147,57 +147,11 @@
     opts = opts || {};
     var svg = document.querySelector(svgSelector); if(!svg || !d.places) return;
     var provinces = d.places.provinces || {};
-
-    /* 有 key：渲染真实腾讯地图 */
-    var mapKey = (d.site && d.site.mapKey) || '';
-    if(mapKey){
-      var abroadAll = d.places.abroad || {};
-      var hostId = (svg.id || 'map') + '-tmap';
-      var host = mountMapHost(svg, hostId, opts.mini ? '360px' : '560px');
-      loadTMap(mapKey).then(function(TMap){
-        var pts = [];
-        Object.keys(provinces).forEach(function(k){
-          var p = provinces[k];
-          if(p.lng == null || p.lat == null) return;
-          pts.push({ lng: p.lng, lat: p.lat, name: p.name,
-            lit: Object.keys(p.cities || {}).length > 0,
-            url: 'province.html?province=' + encodeURIComponent(k) });
-        });
-        if(!opts.mini){
-          Object.keys(abroadAll).forEach(function(k){
-            var p = abroadAll[k];
-            if(p.lng == null || p.lat == null) return;
-            var has = p.albums && p.albums.length;
-            pts.push({ lng: p.lng, lat: p.lat, name: p.name, lit: !!has,
-              url: has ? ('album.html?id=' + encodeURIComponent(p.albums[0]) + '&from=place') : 'gallery.html' });
-          });
-        }
-        var map = new TMap.Map(host, {
-          center: new TMap.LatLng(33.5, 106.5),
-          zoom: opts.mini ? 3.2 : 3.6,
-          pitch: 0,
-          scrollwheel: !opts.mini,
-          baseMap: { type: 'vector' }
-        });
-        addTMapPoints(TMap, map, pts, function(p){ if(p.url) location.href = p.url; });
-      }).catch(function(){
-        svg.style.display = '';
-        var h = document.getElementById(hostId);
-        if(h && h.parentNode) h.parentNode.removeChild(h);
-      });
-      return;
-    }
     var abroad = d.places.abroad || {};
-    var hasProvinces = Object.keys(provinces).length > 0;
 
-    // 容器内容
+    // 容器内容：抽象卡通风格中国轮廓 + 省份/海外点
     var html = '';
-    if(!opts.mini){
-      html += '<path d="'+chinaOutlinePath()+'" class="china-outline"/>';
-    } else {
-      // 迷你版只画一个轻盈轮廓
-      html += '<path d="'+chinaOutlinePath()+'" class="china-outline mini"/>';
-    }
+    html += '<path d="'+chinaOutlinePath()+'" class="china-outline'+(opts.mini?' mini':'')+'"/>';
 
     // 省份点
     Object.keys(provinces).forEach(function(k){
@@ -212,7 +166,7 @@
         + '</a>';
     });
 
-    // 海外点（仅在非迷你版显示，放在中国轮廓右侧/下方）
+    // 海外点（仅在非迷你版显示）
     if(!opts.mini){
       Object.keys(abroad).forEach(function(k){
         var p = abroad[k];
@@ -491,34 +445,32 @@
       else { intro.textContent = ''; intro.style.display = 'none'; }
     }
 
-    // 省份真实地图：独立区块，含省界高亮（省界走阿里 DataV，免配额）
-    var mapKey2 = (d.site && d.site.mapKey) || '';
-    var sec = document.getElementById('prov-map-sec');
-    var pwrap = document.getElementById('prov-map-wrap');
-    if(mapKey2 && p.lng != null && p.lat != null && sec && pwrap){
-      sec.style.display = '';
-      pwrap.innerHTML = '';
-      var phost = document.createElement('div');
-      phost.id = 'prov-map';
-      phost.style.cssText = 'width:100%;height:460px;border-radius:12px;overflow:hidden;filter:' + MAP_FILTER + ';';
-      pwrap.appendChild(phost);
-      loadTMap(mapKey2).then(function(TMap){
-        var citiesAll = p.cities || {};
-        var pts = Object.keys(citiesAll).map(function(ck){
-          var c = citiesAll[ck];
-          var albums = c.albums || [];
-          return { lng: c.lng, lat: c.lat, name: c.name || ck, lit: albums.length > 0,
-            url: albums.length ? ('album.html?id=' + encodeURIComponent(albums[0])
-                 + '&from=province&province=' + encodeURIComponent(pk)) : '' };
-        }).filter(function(x){ return x.lng != null && x.lat != null; });
-        var map = new TMap.Map(phost, {
-          center: new TMap.LatLng(p.lat, p.lng),
-          zoom: 7, pitch: 0, scrollwheel: false, baseMap: { type: 'vector' }
-        });
-        addTMapPoints(TMap, map, pts, function(x){ if(x.url) location.href = x.url; });
-        // 省界高亮：改用阿里 DataV 标准省界 GeoJSON（免配额、GCJ-02、带审图号）
-        try { drawProvinceBoundary(TMap, map, p, pk); } catch (e) {}
-      }).catch(function(){ sec.style.display = 'none'; });
+    // 省份抽象地图：简化轮廓 + 城市点
+    var svg = document.getElementById('province-svg');
+    if(svg){
+      var html = '';
+      // 省份轮廓（无精确 shape 时用椭圆占位）
+      if(p.shape){
+        html += '<path d="'+esc(p.shape)+'" class="prov-shape-path"/>';
+      } else {
+        html += '<ellipse cx="180" cy="210" rx="130" ry="170" class="prov-shape-path"/>';
+      }
+      // 城市点
+      var citiesAll = p.cities || {};
+      Object.keys(citiesAll).forEach(function(ck){
+        var c = citiesAll[ck];
+        var albums = c.albums || [];
+        var has = albums.length > 0;
+        var href = has ? ('album.html?id='+esc(albums[0])+'&from=province&province='+esc(pk)) : '#';
+        var cls = 'city-dot' + (has ? ' lit' : '');
+        var sx = c.sx != null ? c.sx : 180;
+        var sy = c.sy != null ? c.sy : 210;
+        html += '<a href="'+href+'" class="'+cls+'" '+(has?'':'onclick="return false"')+'>'
+          + '<circle cx="'+sx+'" cy="'+sy+'" r="9"/>'
+          + '<text x="'+sx+'" y="'+(sy+26)+'">'+esc(c.name||ck)+'</text>'
+          + '</a>';
+      });
+      svg.innerHTML = html;
     }
 
     // 城市卡片
