@@ -603,9 +603,10 @@
 
   /* ---------- 文件选择 ---------- */
   var pending = null;
-  function pickFile(multiple, cb) {
+  function pickFile(multiple, cb, accept) {
     pending = cb;
-    var fi = $('#fileInput'); fi.multiple = multiple; fi.value = ''; fi.accept = 'image/*';
+    var fi = $('#fileInput'); fi.multiple = multiple; fi.value = '';
+    fi.accept = accept || 'image/*';
     fi.onchange = function () { if (fi.files && fi.files.length) cb(fi.files); pending = null; };
     fi.click();
   }
@@ -653,13 +654,17 @@
     $all('[data-upload]').forEach(function (b) {
       b.onclick = function () {
         var kind = b.getAttribute('data-upload');
+        var acc = kind === 'hero' ? 'video/mp4,video/*' : (kind === 'audio' ? 'audio/*' : 'image/*');
         pickFile(false, function (files) {
-          uploadOne('site', files[0], function (path) {
+          var f = files[0];
+          if (kind === 'hero' && f.size > 30 * 1024 * 1024
+              && !confirm('这个视频超过 30MB，直接上传不会压缩，可能导致首页加载慢甚至同步失败。\\n\\n建议让阿布用脚本压缩后上线（更快更稳）。仍要直接上传吗？')) return;
+          uploadOne('site', f, function (path) {
             if (kind === 'hero') { DATA.site.heroVideo = path; $('#s-hero').value = path; }
             else { DATA.site.introAudio = path; $('#s-audio').value = path; }
             toast('已上传');
           });
-        });
+        }, acc);
       };
     });
     // 地点添加
