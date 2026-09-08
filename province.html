@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Province · The Memory</title>
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=3">
 </head>
 <body class="province-page">
 
@@ -22,12 +22,31 @@
 <nav class="breadcrumb" id="breadcrumb"></nav>
 
 <header class="province-hero">
-  <div class="prov-shape"><svg viewBox="0 0 400 400"><path d="" fill="#EFE8DA" stroke="#D8CFBE" stroke-width="2"/></svg></div>
   <div class="ph-text">
     <div class="ph-sub">Province · 中国</div>
     <h1></h1>
+    <p class="ph-intro" style="display:none;"></p>
   </div>
 </header>
+
+<!-- 省份抽象地图 -->
+<section class="chapter chapter-map" id="prov-map-sec">
+  <div class="chapter-head reveal">
+    <div class="eyebrow">Map</div>
+    <h2 class="serif-title">足迹地图</h2>
+    <p class="chapter-sub">城市圆点按真实经纬度落位，暖色为已有相册记录，点击可进入城市游记。</p>
+  </div>
+  <div class="map-panel prov-zoom-panel">
+    <div class="zoom-controls">
+      <button class="zoom-btn zoom-in" aria-label="放大">+</button>
+      <button class="zoom-btn zoom-out" aria-label="缩小">−</button>
+      <button class="zoom-btn zoom-reset" aria-label="重置">⟲</button>
+    </div>
+    <div class="mapwrap mapwrap-wide prov-map-wrap">
+      <svg id="province-svg" viewBox="0 0 900 720" role="img" aria-label="省份地图"></svg>
+    </div>
+  </div>
+</section>
 
 <section class="chapter">
   <div class="chapter-head reveal">
@@ -41,6 +60,6 @@
   THE MEMORY · 个人旅行日志<br>© 2026 · Built with light &amp; patience.
 </footer>
 
-<script src="assets/js/site.js"></script>
+<script src="assets/js/site.js?v=3"></script>
 </body>
 </html>

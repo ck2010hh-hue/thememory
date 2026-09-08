@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Places · The Memory</title>
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=3">
 </head>
 <body>
 
@@ -19,23 +19,25 @@
   </div>
 </nav>
 
-<section class="chapter">
+<section class="chapter chapter-map">
   <div class="chapter-head reveal">
     <div class="eyebrow">Chapter 02</div>
     <h2 class="serif-title">Places</h2>
+    <p class="chapter-sub">山河远阔，人间烟火。被点亮的省份，是我曾用脚步丈量过的地方。</p>
   </div>
 
-  <div class="mapwrap reveal">
-    <svg id="place-svg" viewBox="0 0 800 620" role="img" aria-label="中国地图"></svg>
-    <div class="map-legend"></div>
-    <p class="center-note">当前按素材 EXIF / 文件夹自动归类。归类不到的地点，你在后台手动归类后会补入。<br>地图为风格化简化版，正式上线前可替换为精确省界 SVG。</p>
+  <div class="map-panel reveal">
+    <div class="mapwrap mapwrap-wide">
+      <svg id="place-svg" role="img" aria-label="中国地图"></svg>
+    </div>
   </div>
+  <p class="map-legend reveal">浅色线描为全部省份轮廓，暖色填充为已有照片记录；点击省份可进入省地图。</p>
 </section>
 
 <footer>
   THE MEMORY · 个人旅行日志<br>© 2026 · Built with light &amp; patience.
 </footer>
 
-<script src="assets/js/site.js"></script>
+<script src="assets/js/site.js?v=3"></script>
 </body>
 </html>

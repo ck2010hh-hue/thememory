@@ -50,6 +50,116 @@
   function getJSON() { return fetch(BASE + '/api/data').then(function (r) { return r.json(); }); }
 
   // 静态站模式：登录框改成 GitHub Token 入口
+  /* ---------- 匿名直传 COS（手机可用，无需密钥） ----------
+     桶策略限定：匿名只能 PUT 到 media/albums 下 upload- 前缀的新文件；
+     读 / 列 / 删 以及覆盖已有照片全部拒绝。 */
+  var COS_ORIGIN = 'https://thememoryhk-1482718043.cos.ap-hongkong.myqcloud.com';
+
+  function cosPut(key, blob) {
+    var url = COS_ORIGIN + '/' + key.split('/').map(encodeURIComponent).join('/');
+    return fetch(url, { method: 'PUT', body: blob, headers: { 'Content-Type': 'image/jpeg' } })
+      .then(function (r) {
+        if (r.ok) return { ok: true };
+        return r.text().then(function (t) { return { ok: false, msg: 'HTTP ' + r.status }; });
+      });
+  }
+
+  function shrinkImg(file, maxSide, quality) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+        var sc = Math.min(1, maxSide / Math.max(w, h));
+        var cv = document.createElement('canvas');
+        cv.width = Math.max(1, Math.round(w * sc));
+        cv.height = Math.max(1, Math.round(h * sc));
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        cv.toBlob(function (b) {
+          URL.revokeObjectURL(url);
+          if (b) resolve(b); else reject(new Error('图片压缩失败'));
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('无法读取该图片')); };
+      img.src = url;
+    });
+  }
+
+  function stampOf(file) {
+    var d = file.lastModified ? new Date(file.lastModified) : new Date();
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+    return d.getFullYear() + '.' + pad(d.getMonth() + 1) + '.' + pad(d.getDate());
+  }
+
+  // done(item|false)：item = {src, thumb, cap}
+  function phoneUpload(albumId, file, done) {
+    if (!/^image\//.test(file.type || '')) { toast('只支持图片，视频请用电脑导入'); done(false); return; }
+    toast('处理中…' + file.name);
+    var name = 'upload-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7) + '.jpg';
+    var k1 = 'media/albums/' + albumId + '/' + name;
+    var k2 = 'media/albums/' + albumId + '/thumb/' + name;
+    Promise.all([shrinkImg(file, 1600, 0.82), shrinkImg(file, 480, 0.75)])
+      .then(function (bs) {
+        return cosPut(k1, bs[0]).then(function (r) { return r.ok ? cosPut(k2, bs[1]) : r; });
+      })
+      .then(function (r) {
+        if (!r.ok) { toast('上传失败：' + r.msg); done(false); return; }
+        toast('已上传 ✓ 记得点「保存全部」');
+        done({ src: k1, thumb: k2, cap: stampOf(file) });
+      })
+      .catch(function (e) { toast('上传出错：' + e.message); done(false); });
+  }
+
+  /* ---------- 线上版（GH 模式）界面适配 ---------- */
+  function ghPanelBar() {
+    // 2026-09-07 用户要求：手机上传提示栏不要了（手机端暂时不操作后台），不再渲染。
+    return;
+    if (MODE !== 'gh' || $('#ghBar')) return;
+    var panel = $('#panel');
+    if (!panel) return;
+    var bar = document.createElement('div');
+    bar.id = 'ghBar';
+    bar.style.cssText = 'background:#2a201a;color:#e8ddd2;padding:10px 16px;font-size:13px;'
+      + 'line-height:1.7;border-bottom:1px solid #3b2f27;';
+    bar.innerHTML = '<b>线上版</b>　改完记得点「保存全部」，约 1 分钟生效。'
+      + '<br>可改：文字 / 标题 / 说明 / 排序 / 增删条目；<b style="color:#9fd0a8;">可直接从手机相册上传照片</b>（自动压缩）。'
+      + '<br><span style="color:#d8a08a;">视频需电脑导入</span>（体积大，手机传不动）。';
+    panel.insertBefore(bar, panel.firstChild);
+  }
+
+  function disableUploadUI() {
+    if (MODE !== 'gh') return;
+    Array.prototype.forEach.call(document.querySelectorAll('button'), function (b) {
+      if (!/\u4e0a\u4f20(\u89c6\u9891|\u97f3\u4e50)/.test(b.textContent || '')) return;
+      if (b.dataset.ghOff === '1') return;
+      b.dataset.ghOff = '1';
+      b.disabled = true;
+      b.title = '视频/音乐体积大，请用电脑端导入脚本';
+      b.style.opacity = '.35';
+      b.style.cursor = 'not-allowed';
+    });
+  }
+
+  function watchUploadUI() {
+    if (MODE !== 'gh' || typeof MutationObserver === 'undefined') { disableUploadUI(); return; }
+    new MutationObserver(disableUploadUI).observe(document.body, { childList: true, subtree: true });
+    disableUploadUI();
+  }
+
+  function pullLatest() {
+    if (!GH_TOKEN) { toast('请先填入 GitHub Token'); return; }
+    toast('拉取中…');
+    ghApi('GET', '/repos/' + GH.owner + '/' + GH.repo + '/contents/' + GH.path + '?ref=' + GH.branch)
+      .then(function (res) {
+        if (!res.ok) { toast('拉取失败 ' + res.status); return; }
+        GH_SHA = res.j.sha;
+        try {
+          DATA = JSON.parse(decodeURIComponent(escape(atob(res.j.content.replace(/\n/g, '')))));
+          renderAll(); toast('已拉取线上最新 ✓');
+        } catch (e) { toast('解析失败：' + e.message); }
+      });
+  }
+
   function guardStaticHost() {
     if (!isStatic) return;
     var p = $('#pass');
@@ -82,6 +192,7 @@
     DATA = d;
     $('#login').classList.add('hidden');
     $('#panel').classList.remove('hidden');
+    ghPanelBar();
     renderAll();
   }
 
@@ -101,6 +212,7 @@
         });
       }).then(function (res) {
         if (res.ok) { GH_SHA = res.j.content && res.j.content.sha; toast('已保存 ✓ 约 1 分钟后生效'); }
+        else if (res.status === 409) toast('线上数据已被改动，请先点「拉取线上最新」再改');
         else toast('保存失败：' + ((res.j && res.j.message) || res.status));
       }).catch(function (e) { toast('保存出错：' + e.message); });
     }
@@ -123,6 +235,40 @@
       fr.onload = function () { resolve(fr.result); };
       fr.onerror = reject;
       fr.readAsDataURL(file);
+    });
+  }
+
+  /* ---------- 上传前压缩（2026-09-07 加）----------
+     原图动辄 5MB，直传会让页面加载极慢。统一压到最长边 1600px / JPEG 82%，
+     与电脑端 import_album.py 的规格一致。非图片（视频等）不压缩，原样上传。 */
+  var UP_MAX = 1600, UP_Q = 0.82;
+  function compressImage(file) {
+    return new Promise(function (resolve) {
+      if (!/^image\//.test(file.type) || /gif|svg/.test(file.type)) { resolve(null); return; }
+      function draw(src) {
+        var w = src.width, h = src.height;
+        var s = Math.min(1, UP_MAX / Math.max(w, h));
+        var cv = document.createElement('canvas');
+        cv.width = Math.round(w * s); cv.height = Math.round(h * s);
+        cv.getContext('2d').drawImage(src, 0, 0, cv.width, cv.height);
+        cv.toBlob(function (b) { resolve(b || null); }, 'image/jpeg', UP_Q);
+      }
+      function fallback() {
+        var fr = new FileReader();
+        fr.onload = function () {
+          var im = new Image();
+          im.onload = function () { draw(im); };
+          im.onerror = function () { resolve(null); };
+          im.src = fr.result;
+        };
+        fr.onerror = function () { resolve(null); };
+        fr.readAsDataURL(file);
+      }
+      if (window.createImageBitmap) {
+        try {
+          createImageBitmap(file, { imageOrientation: 'from-image' }).then(draw).catch(fallback);
+        } catch (e) { fallback(); }
+      } else { fallback(); }
     });
   }
 
@@ -162,8 +308,134 @@
 
   /* ---------- 渲染 ---------- */
   function renderAll() {
-    renderSite(); renderAlbums(); renderOrder('#favOrder', 'favoritesOrder', '首页收藏');
+    renderSite(); renderVideos(); renderMoments(); renderAlbums(); renderOrder('#favOrder', 'favoritesOrder', '首页收藏');
     renderOrder('#galOrder', 'galleryOrder', '图集'); renderPlaces();
+    disableUploadUI();
+  }
+
+  function renderVideos() {
+    var wrap = $('#videoList'); wrap.innerHTML = '';
+    var videos = (DATA.site && DATA.site.videos) || (DATA.site = DATA.site || {}, DATA.site.videos = []);
+    if (!videos.length) { wrap.appendChild(el('p', 'hint', '还没有影片，点右上角「添加影片」。')); return; }
+    videos.forEach(function (v, i) {
+      var item = el('div', 'order-item');
+      item.appendChild(el('div', 'oi-title', esc(v.title || '未命名')));
+      var row = el('div', 'field-row');
+      row.appendChild(el('label', '', '编号'));
+      row.appendChild(inp('text', v.sub || '', function (val) { v.sub = val; }));
+      row.appendChild(el('label', '', '标题'));
+      row.appendChild(inp('text', v.title || '', function (val) { v.title = val; }));
+      item.appendChild(row);
+      var srcRow = el('div', 'field-row');
+      srcRow.appendChild(el('label', '', '视频文件'));
+      var srcIn = inp('text', v.src || '', function (val) { v.src = val; });
+      srcIn.style.flex = '1'; srcIn.placeholder = '如 media/hero-web2.mp4';
+      srcRow.appendChild(srcIn);
+      item.appendChild(srcRow);
+      var descRow = el('div', 'field-row');
+      descRow.appendChild(el('label', '', '说明（空行分段）'));
+      var ta = document.createElement('textarea');
+      ta.rows = 4; ta.value = (v.desc || '').replace(/<br>/g, '\n');
+      ta.style.width = '100%'; ta.style.boxSizing = 'border-box';
+      ta.oninput = function () { v.desc = ta.value; };
+      descRow.appendChild(ta);
+      item.appendChild(descRow);
+      var acts = el('div', 'field-row');
+      var up = el('button', 'btn-mini', '↑'); up.onclick = function () { swap(videos, i, i - 1); renderVideos(); };
+      var dn = el('button', 'btn-mini', '↓'); dn.onclick = function () { swap(videos, i, i + 1); renderVideos(); };
+      var rm = el('button', 'btn-danger', '删');
+      rm.onclick = function () { if (confirm('删除影片「' + (v.title || '') + '」？')) { videos.splice(i, 1); renderVideos(); } };
+      acts.appendChild(up); acts.appendChild(dn); acts.appendChild(rm);
+      item.appendChild(acts);
+      wrap.appendChild(item);
+    });
+  }
+
+  function renderMoments() {
+    DATA.moments = DATA.moments || {};
+    var m = DATA.moments;
+    var wrap = $('#momentsForm'); wrap.innerHTML = '';
+    // 入口设置
+    var head = el('div', 'album-card');
+    head.appendChild(el('div', 'ac-head', '<div class="ac-title">首页入口</div>'));
+    var g = el('div', 'grid2');
+    g.appendChild(field('导航名称', inp('text', m.navLabel || 'Moments', function (v) { m.navLabel = v; })));
+    g.appendChild(field('大标题', inp('text', m.title || '', function (v) { m.title = v; })));
+    head.appendChild(g);
+    var subRow = el('div', 'field');
+    subRow.appendChild(el('label', null, '副标题'));
+    var subTa = document.createElement('textarea'); subTa.rows = 2; subTa.value = m.subtitle || '';
+    subTa.oninput = function () { m.subtitle = subTa.value; };
+    subRow.appendChild(subTa); head.appendChild(subRow);
+    var heroRow = el('div', 'field');
+    heroRow.appendChild(el('label', null, '入口背景图'));
+    var hr = el('div', 'row');
+    var hi = inp('text', m.hero || '', function (v) { m.hero = v; }); hi.style.flex = '1';
+    hr.appendChild(hi);
+    var hb = el('button', 'btn-mini', '上传背景');
+    hb.onclick = function () { pickFile(false, function (files) { uploadOne('moments', files[0], function (path) { if (path) { m.hero = path; hi.value = path; } }); }, 'image/*'); };
+    hr.appendChild(hb); heroRow.appendChild(hr); head.appendChild(heroRow);
+    wrap.appendChild(head);
+    // 条目列表
+    var listHead = el('div', 'tab-head');
+    listHead.appendChild(el('h3', 'sub-h', '零散瞬间条目'));
+    var addBtn = el('button', 'btn-primary', '+ 添加条目');
+    addBtn.onclick = function () {
+      m.items = m.items || [];
+      m.items.push({ id: 'moment-' + Date.now(), date: '', place: '', text: '', media: '', type: 'image' });
+      renderMoments();
+    };
+    listHead.appendChild(addBtn);
+    wrap.appendChild(listHead);
+    var items = m.items || [];
+    if (!items.length) { wrap.appendChild(el('p', 'hint', '还没有条目，点右上角「添加条目」。')); return; }
+    items.forEach(function (it, i) {
+      var card = el('div', 'album-card');
+      card.appendChild(el('div', 'ac-head', '<div class="ac-title">条目 ' + (i + 1) + '</div>'));
+      var row1 = el('div', 'field-row');
+      row1.appendChild(el('label', '', '时间'));
+      row1.appendChild(inp('text', it.date || '', function (v) { it.date = v; }));
+      row1.appendChild(el('label', '', '地点'));
+      row1.appendChild(inp('text', it.place || '', function (v) { it.place = v; }));
+      card.appendChild(row1);
+      var typeRow = el('div', 'field-row');
+      typeRow.appendChild(el('label', '', '类型'));
+      var sel = document.createElement('select');
+      sel.innerHTML = '<option value="image"' + (it.type === 'image' ? ' selected' : '') + '>图片</option>'
+        + '<option value="video"' + (it.type === 'video' ? ' selected' : '') + '>视频</option>'
+        + '<option value="auto"' + (it.type === 'auto' ? ' selected' : '') + '>自动判断</option>';
+      sel.onchange = function () { it.type = sel.value; };
+      typeRow.appendChild(sel);
+      card.appendChild(typeRow);
+      var textRow = el('div', 'field');
+      textRow.appendChild(el('label', null, '文案'));
+      var ta = document.createElement('textarea'); ta.rows = 4; ta.value = it.text || '';
+      ta.oninput = function () { it.text = ta.value; };
+      textRow.appendChild(ta); card.appendChild(textRow);
+      var mediaRow = el('div', 'field');
+      mediaRow.appendChild(el('label', null, '照片 / 视频文件'));
+      var mr = el('div', 'row');
+      var mi = inp('text', it.media || '', function (v) { it.media = v; }); mi.style.flex = '1';
+      mr.appendChild(mi);
+      var mb = el('button', 'btn-mini', '上传媒体');
+      mb.onclick = function () {
+        pickFile(false, function (files) {
+          var f = files[0];
+          var acc = (it.type === 'video') ? 'video/*' : ((it.type === 'image') ? 'image/*' : 'image/*,video/*');
+          if (f.type && f.type.startsWith('video/')) it.type = 'video';
+          uploadOne('moments', f, function (path) { if (path) { it.media = path; mi.value = path; } });
+        }, (it.type === 'video') ? 'video/*' : ((it.type === 'image') ? 'image/*' : 'image/*,video/*'));
+      };
+      mr.appendChild(mb); mediaRow.appendChild(mr); card.appendChild(mediaRow);
+      var acts = el('div', 'field-row');
+      var up = el('button', 'btn-mini', '↑'); up.onclick = function () { swap(items, i, i - 1); renderMoments(); };
+      var dn = el('button', 'btn-mini', '↓'); dn.onclick = function () { swap(items, i, i + 1); renderMoments(); };
+      var rm = el('button', 'btn-danger', '删');
+      rm.onclick = function () { if (confirm('删除这条瞬间记录？')) { items.splice(i, 1); renderMoments(); } };
+      acts.appendChild(up); acts.appendChild(dn); acts.appendChild(rm);
+      card.appendChild(acts);
+      wrap.appendChild(card);
+    });
   }
 
   function renderSite() {
@@ -172,6 +444,7 @@
     $('#s-intro').value = (s.intro || '').replace(/<br>/g, '\n');
     $('#s-hero').value = s.heroVideo || '';
     $('#s-audio').value = s.introAudio || '';
+    if ($('#s-mapkey')) $('#s-mapkey').value = s.mapKey || '';
   }
 
   function renderAlbums() {
@@ -210,7 +483,11 @@
     var hi = inp('text', a.hero || '', function (v) { a.hero = v; }); hi.style.flex = '1';
     hr.appendChild(hi);
     var hb = el('button', 'btn-mini', '上传主图');
-    hb.onclick = function () { pickFile(false, function (files) { uploadOne(a.id, files[0], function (path) { a.hero = path; hi.value = path; toast('主图已设'); }); }); };
+    hb.onclick = function () { pickFile(false, function (files) { uploadOne(a.id, files[0], function (r) {
+      if (typeof r === 'string') { a.hero = r; hi.value = r; }
+      else if (r) { a.hero = r.src; a.heroThumb = r.thumb; hi.value = r.src; }
+      toast(r ? '主图已设' : '未设置');
+    }); }); };
     hr.appendChild(hb);
     heroRow.appendChild(hr);
     card.appendChild(heroRow);
@@ -240,9 +517,18 @@
     pmh.appendChild(el('div', null, '<b>相册照片</b>（点击「设为主图」可换满屏大图；可排序/删除）'));
     var upBtn = el('button', 'btn-mini', '上传照片');
     upBtn.onclick = function () { pickFile(true, function (files) {
-      Array.prototype.forEach.call(files, function (f) {
-        uploadOne(a.id, f, function (path) { a.photos = a.photos || []; a.photos.push({ src: path, cap: f.name.replace(/\.[^.]+$/, '') }); renderAlbums(); });
-      });
+      var i = 0;
+      (function next() {
+        if (i >= files.length) { renderAlbums(); return; }
+        var f = files[i++];
+        uploadOne(a.id, f, function (r) {
+          if (r) {
+            a.photos = a.photos || [];
+            a.photos.push(typeof r === 'string' ? { src: r, cap: f.name.replace(/\.[^.]+$/, '') } : r);
+          }
+          next();
+        });
+      })();
     }); };
     pmh.appendChild(upBtn);
     pm.appendChild(pmh);
@@ -286,10 +572,17 @@
   function renderOrder(sel, key, label) {
     var wrap = $(sel); wrap.innerHTML = '';
     var order = DATA[key] || (DATA[key] = []);
+    if (key === 'favoritesOrder') {
+      var tip = el('p', 'hint', '首页只显示前 3 个（当前 ' + order.length + ' 个）。'
+        + '用 ↑↓ 调整顺序决定哪 3 个上首页，第 4 个起仅出现在二级页。');
+      tip.style.cssText = 'color:#c8a882;margin:0 0 10px;font-size:12px;line-height:1.7;';
+      wrap.appendChild(tip);
+    }
     order.forEach(function (id, i) {
       var a = DATA.albums[id]; if (!a) return;
       var item = el('div', 'order-item');
-      item.appendChild(el('div', 'oi-title', esc(a.title || id)));
+      var pre = (key === 'favoritesOrder') ? ((i < 3 ? '首页 ' : '隐藏 ') + (i + 1) + '. ') : '';
+      item.appendChild(el('div', 'oi-title', pre + esc(a.title || id)));
       var up = el('button', 'btn-mini', '↑'); up.onclick = function () { swap(order, i, i - 1); renderOrder(sel, key, label); };
       var dn = el('button', 'btn-mini', '↓'); dn.onclick = function () { swap(order, i, i + 1); renderOrder(sel, key, label); };
       var rm = el('button', 'btn-danger', '移出'); rm.onclick = function () { order.splice(i, 1); renderOrder(sel, key, label); };
@@ -343,6 +636,21 @@
       row.appendChild(el('label', '', 'Y'));
       row.appendChild(inp('number', p.cy || 0, function (v) { p.cy = Number(v); }));
       item.appendChild(row);
+      // 经纬度（真实地图定位用，GCJ-02）
+      var gRow = el('div', 'field-row');
+      gRow.appendChild(el('label', '', '经度'));
+      gRow.appendChild(inp('number', p.lng || '', function (v) { p.lng = parseFloat(v); }));
+      gRow.appendChild(el('label', '', '纬度'));
+      gRow.appendChild(inp('number', p.lat || '', function (v) { p.lat = parseFloat(v); }));
+      item.appendChild(gRow);
+      // 简介（省份页标题下的文字，留空则不显示）
+      var iRow = el('div', 'field-row');
+      iRow.appendChild(el('label', '', '简介'));
+      var iTa = document.createElement('textarea');
+      iTa.rows = 3; iTa.value = p.intro || '';
+      iTa.oninput = function(){ p.intro = iTa.value; };
+      iRow.appendChild(iTa);
+      item.appendChild(iRow);
       // 城市
       var cities = p.cities || (p.cities = {});
       var cityWrap = el('div', 'city-wrap');
@@ -352,6 +660,12 @@
         cRow.appendChild(el('span', 'city-id', ck));
         var cName = inp('text', c.name || '', function (v) { c.name = v; });
         cRow.appendChild(cName);
+        var cLng = inp('number', c.lng || '', function (v) { c.lng = parseFloat(v); });
+        cLng.style.width = '84px'; cLng.placeholder = '经度';
+        cRow.appendChild(cLng);
+        var cLat = inp('number', c.lat || '', function (v) { c.lat = parseFloat(v); });
+        cLat.style.width = '84px'; cLat.placeholder = '纬度';
+        cRow.appendChild(cLat);
         var cSel = document.createElement('select');
         cSel.innerHTML = albumOptions((c.albums && c.albums[0]) || '');
         cSel.onchange = function () { c.albums = cSel.value ? [cSel.value] : []; };
@@ -393,6 +707,10 @@
       row.appendChild(inp('number', p.cx || 0, function (v) { p.cx = Number(v); }));
       row.appendChild(el('label', '', 'Y'));
       row.appendChild(inp('number', p.cy || 0, function (v) { p.cy = Number(v); }));
+      row.appendChild(el('label', '', '经度'));
+      row.appendChild(inp('number', p.lng || '', function (v) { p.lng = parseFloat(v); }));
+      row.appendChild(el('label', '', '纬度'));
+      row.appendChild(inp('number', p.lat || '', function (v) { p.lat = parseFloat(v); }));
       item.appendChild(row);
       var selRow = el('div', 'field-row');
       selRow.appendChild(el('label', '', '默认相册'));
@@ -410,16 +728,23 @@
 
   /* ---------- 文件选择 ---------- */
   var pending = null;
-  function pickFile(multiple, cb) {
+  function pickFile(multiple, cb, accept) {
     pending = cb;
     var fi = $('#fileInput'); fi.multiple = multiple; fi.value = '';
+    fi.accept = accept || 'image/*';
     fi.onchange = function () { if (fi.files && fi.files.length) cb(fi.files); pending = null; };
     fi.click();
   }
   function uploadOne(albumId, file, done) {
-    toast('上传中…' + file.name);
-    readFileAsDataURL(file).then(function (dataUrl) {
-      return upload(albumId, file.name, dataUrl);
+    if (MODE === 'gh') return phoneUpload(albumId, file, done);
+    toast('压缩并上传中…' + file.name);
+    Promise.resolve(compressImage(file)).then(function (blob) {
+      if (blob) {
+        var nm = file.name, dot = nm.lastIndexOf('.');
+        nm = (dot > 0 ? nm.slice(0, dot) : nm) + '.jpg';
+        return readFileAsDataURL(blob).then(function (du) { return upload(albumId, nm, du); });
+      }
+      return readFileAsDataURL(file).then(function (du) { return upload(albumId, file.name, du); });
     }).then(function (r) {
       if (r.ok) done(r.path); else toast('上传失败：' + (r.error || ''));
     }).catch(function (e) { toast('上传出错：' + e.message); });
@@ -441,7 +766,14 @@
       DATA.site.intro = $('#s-intro').value.replace(/\n/g, '<br>');
       DATA.site.heroVideo = $('#s-hero').value;
       DATA.site.introAudio = $('#s-audio').value;
+      if ($('#s-mapkey')) DATA.site.mapKey = ($('#s-mapkey').value || '').trim();
       saveAll();
+    };
+    $('#newVideo').onclick = function () {
+      var title = prompt('新影片标题：', '新影片'); if (!title) return;
+      DATA.site = DATA.site || {}; DATA.site.videos = DATA.site.videos || [];
+      DATA.site.videos.push({ src: '', sub: '', title: title, desc: '' });
+      renderVideos();
     };
     $('#newAlbum').onclick = function () {
       var title = prompt('新相册标题：', '新相册'); if (!title) return;
@@ -453,13 +785,17 @@
     $all('[data-upload]').forEach(function (b) {
       b.onclick = function () {
         var kind = b.getAttribute('data-upload');
+        var acc = kind === 'hero' ? 'video/mp4,video/*' : (kind === 'audio' ? 'audio/*' : 'image/*');
         pickFile(false, function (files) {
-          uploadOne('site', files[0], function (path) {
+          var f = files[0];
+          if (kind === 'hero' && f.size > 30 * 1024 * 1024
+              && !confirm('这个视频超过 30MB，直接上传不会压缩，可能导致首页加载慢甚至同步失败。\\n\\n建议让阿布用脚本压缩后上线（更快更稳）。仍要直接上传吗？')) return;
+          uploadOne('site', f, function (path) {
             if (kind === 'hero') { DATA.site.heroVideo = path; $('#s-hero').value = path; }
             else { DATA.site.introAudio = path; $('#s-audio').value = path; }
             toast('已上传');
           });
-        });
+        }, acc);
       };
     });
     // 地点添加
@@ -488,6 +824,15 @@
 
   bind();
   guardStaticHost();
+  watchUploadUI();
+  if (MODE === 'gh' && $('#saveAll') && !$('#pullLatest')) {
+    var pb = document.createElement('button');
+    pb.id = 'pullLatest'; pb.className = 'btn-primary'; pb.textContent = '拉取线上最新';
+    pb.style.marginLeft = '8px';
+    pb.onclick = pullLatest;
+    var sb = $('#saveAll');
+    sb.parentNode.insertBefore(pb, sb.nextSibling);
+  }
   // 若已有 token，尝试直接进入
   if (TOKEN) {
     fetch(BASE + '/api/data', { headers: { 'x-admin-token': TOKEN } }).then(function (r) {

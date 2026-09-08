@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Memory</title>
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=3">
 </head>
 <body>
 
@@ -12,6 +12,7 @@
   <a class="brand" href="index.html">The Memory</a>
   <div class="nav-links">
     <a href="index.html" class="active">Home</a>
+    <a href="#moments">Moments</a>
     <a href="#favorites">Favorites</a>
     <a href="gallery.html">Gallery</a>
     <a href="place.html">Places</a>
@@ -21,7 +22,7 @@
 
 <header class="hero">
   <video autoplay muted loop playsinline preload="auto">
-    <source src="media/hero.mp4" type="video/mp4">
+    <!-- src 由 site.js 按 data.json 的 cdnBase 填充（媒体在图床，不随仓库部署） -->
   </video>
   <div class="hero-veil"></div>
   <div class="hero-center">
@@ -34,10 +35,23 @@
 
 <section class="intro reveal">
   <p class="poem"></p>
-  <button class="audio-toggle" data-audio="assets/media/bgm.wav" aria-label="播放背景音乐">
+  <button class="audio-toggle" data-audio="media/bgm.wav" aria-label="播放背景音乐">
     <span class="ico"></span>
   </button>
   <div class="audio-cap">Sound · 轻音乐</div>
+</section>
+
+<section class="moments-hero reveal" id="moments">
+  <a href="moments.html" class="mh-link" id="moments-hero-link">
+    <div class="mh-bg" id="moments-hero-bg"></div>
+    <div class="mh-veil"></div>
+    <div class="mh-text">
+      <h2 class="mh-title" id="moments-hero-title"></h2>
+      <p class="mh-sub" id="moments-hero-sub"></p>
+      <div class="mh-dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+    <span class="mh-enter">enter →</span>
+  </a>
 </section>
 
 <section class="chapter" id="favorites">
@@ -79,6 +93,6 @@
   <div class="lb-count" style="position:absolute;bottom:26px;right:34px;color:#fff;font-size:12px;letter-spacing:.2em;"></div>
 </div>
 
-<script src="assets/js/site.js"></script>
+<script src="assets/js/site.js?v=3"></script>
 </body>
 </html>

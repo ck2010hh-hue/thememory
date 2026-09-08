@@ -3,25 +3,173 @@
     "name": "The Memory",
     "intro": "有些风景，走过便成了记忆。\n我把它们留在这里——\n一段段光，一座座远方的城。",
     "introAudio": "media/bgm.wav",
-    "heroVideo": "media/hero.mp4",
+    "heroVideo": "media/hero-web2.mp4",
     "cdnBase": "https://thememoryhk-1482718043.cos.ap-hongkong.myqcloud.com/",
     "videos": [
-      { "src": "media/hero.mp4", "sub": "Film 01", "title": "泰国 · 2026" },
-      { "src": "media/hero.mp4", "sub": "Film 02", "title": "海风与晚霞" },
-      { "src": "media/hero.mp4", "sub": "Film 03", "title": "曼谷的午后" }
+      {
+        "src": "media/hero-web2.mp4",
+        "sub": "Film 01",
+        "title": "泰国 · 2026",
+        "desc": "曼谷街头的烟火气、寺庙檐角的晨光，还有猝不及防的一场雨。把这些片段剪成一支短片，像把旅行时的心情重新放映了一遍。"
+      },
+      {
+        "src": "media/hero-web2.mp4",
+        "sub": "Film 02",
+        "title": "海风与晚霞",
+        "desc": "海边的黄昏是一天中最温柔的时刻。天空被染成粉橘色，海浪一遍遍把脚印抚平，只留下咸湿的风和余晖。"
+      },
+      {
+        "src": "media/hero-web2.mp4",
+        "sub": "Film 03",
+        "title": "曼谷的午后",
+        "desc": "午后的曼谷总是懒洋洋的。找一间临河咖啡馆坐下，看船来船往，听风铃和冰块碰撞的声音，时间就这样慢下来。"
+      }
+    ],
+    "mapKey": "G5ABZ-QWMC4-U2QUX-KCFCF-GSYH3-5QBDB",
+    "bgmList": [
+      "media/bgm/bgm1.mp3",
+      "media/bgm/bgm2.mp3",
+      "media/bgm/bgm3.mp3",
+      "media/bgm/bgm4.mp3"
     ]
   },
-  "favoritesOrder": ["huangshan"],
-  "galleryOrder": ["huangshan"],
+  "favoritesOrder": [
+    "huangshan"
+  ],
+  "galleryOrder": [
+    "huangshan"
+  ],
+  "moments": {
+    "navLabel": "Moments",
+    "hero": "media/albums/huangshan/IMG_20260218_103450.jpg",
+    "title": "生命中有很多转瞬即逝的瞬间",
+    "subtitle": "有时候只是惊鸿一瞥\n有时候也会刻骨铭心",
+    "items": [
+      {
+        "id": "moment-1",
+        "date": "2026.02.18",
+        "place": "黄山 · 安徽",
+        "text": "清晨六点，缆车还未醒，我们已踩着残雪上了山。雾在脚下，松在雾里，偶尔一阵风，把云海掀开一道缝，露出远峰的轮廓。",
+        "media": "media/albums/huangshan/IMG_20260218_082134.jpg",
+        "type": "image"
+      },
+      {
+        "id": "moment-2",
+        "date": "2026.02.18",
+        "place": "黄山 · 安徽",
+        "text": "这一天走得并不轻松。石阶结着薄冰，呼吸在冷空气里凝成白雾。可每当转过一个弯，看见云瀑从崖边倾泻而下，又觉得一切都值得。",
+        "media": "media/albums/huangshan/IMG_20260218_100734.jpg",
+        "type": "image"
+      }
+    ]
+  },
   "places": {
     "provinces": {
-      "zhejiang": { "name": "浙江", "cx": 670, "cy": 355, "cities": { "ningbo": { "name": "宁波", "albums": [] }, "hangzhou": { "name": "杭州", "albums": [] } } },
-      "anhui": { "name": "安徽", "cx": 615, "cy": 330, "cities": { "huangshan": { "name": "黄山", "albums": ["huangshan"] } } },
-      "yunnan": { "name": "云南", "cx": 330, "cy": 430, "cities": {} }
+      "zhejiang": {
+        "name": "浙江",
+        "cx": 670,
+        "cy": 355,
+        "shape": "M80,60 L240,80 L300,220 L220,340 L120,300 L60,180 Z",
+        "cities": {
+          "hangzhou": { "name": "杭州", "albums": [], "lng": 120.15, "lat": 30.27 },
+          "ningbo": { "name": "宁波", "albums": [], "lng": 121.55, "lat": 29.87 },
+          "wenzhou": { "name": "温州", "albums": [], "lng": 120.70, "lat": 28.00 },
+          "jiaxing": { "name": "嘉兴", "albums": [], "lng": 120.76, "lat": 30.75 },
+          "huzhou": { "name": "湖州", "albums": [], "lng": 120.09, "lat": 30.89 },
+          "shaoxing": { "name": "绍兴", "albums": [], "lng": 120.58, "lat": 30.02 },
+          "jinhua": { "name": "金华", "albums": [], "lng": 119.65, "lat": 29.08 },
+          "quzhou": { "name": "衢州", "albums": [], "lng": 118.87, "lat": 28.94 },
+          "zhoushan": { "name": "舟山", "albums": [], "lng": 122.21, "lat": 30.02 },
+          "taizhou": { "name": "台州", "albums": [], "lng": 121.43, "lat": 28.66 },
+          "lishui": { "name": "丽水", "albums": [], "lng": 119.92, "lat": 28.45 }
+        },
+        "lng": 120.15,
+        "lat": 29.18,
+        "intro": "江南忆，最忆是杭州。从西湖的烟雨到宁波的老外滩，这座省份藏着水乡的温柔与海港的辽阔，每一次抵达都像翻开一页旧信。",
+        "adcode": "330000"
+      },
+      "anhui": {
+        "name": "安徽",
+        "cx": 615,
+        "cy": 330,
+        "shape": "M90,50 L250,70 L300,180 L260,380 L110,360 L60,170 Z",
+        "cities": {
+          "hefei": { "name": "合肥", "albums": [], "lng": 117.27, "lat": 31.86 },
+          "wuhu": { "name": "芜湖", "albums": [], "lng": 118.38, "lat": 31.33 },
+          "bengbu": { "name": "蚌埠", "albums": [], "lng": 117.39, "lat": 32.92 },
+          "huainan": { "name": "淮南", "albums": [], "lng": 116.98, "lat": 32.62 },
+          "maanshan": { "name": "马鞍山", "albums": [], "lng": 118.51, "lat": 31.69 },
+          "huaibei": { "name": "淮北", "albums": [], "lng": 116.79, "lat": 33.97 },
+          "tongling": { "name": "铜陵", "albums": [], "lng": 117.81, "lat": 30.94 },
+          "anqing": { "name": "安庆", "albums": [], "lng": 117.04, "lat": 30.51 },
+          "huangshan": { "name": "黄山", "albums": ["huangshan"], "lng": 118.29, "lat": 29.71 },
+          "chuzhou": { "name": "滁州", "albums": [], "lng": 118.31, "lat": 32.30 },
+          "fuyang": { "name": "阜阳", "albums": [], "lng": 115.81, "lat": 32.90 },
+          "suzhou": { "name": "宿州", "albums": [], "lng": 116.97, "lat": 33.63 },
+          "luan": { "name": "六安", "albums": [], "lng": 116.52, "lat": 31.75 },
+          "bozhou": { "name": "亳州", "albums": [], "lng": 115.78, "lat": 33.87 },
+          "chizhou": { "name": "池州", "albums": [], "lng": 117.49, "lat": 30.66 },
+          "xuancheng": { "name": "宣城", "albums": [], "lng": 118.76, "lat": 30.95 }
+        },
+        "lng": 117.28,
+        "lat": 31.86,
+        "intro": "粉墙黛瓦，云海奇松。黄山的三十六峰之上，晨雾与日落轮番登场，徽州的旧时光在山脚下的古村里慢慢流淌。",
+        "adcode": "340000"
+      },
+      "yunnan": {
+        "name": "云南",
+        "cx": 330,
+        "cy": 430,
+        "shape": "M50,100 L280,130 L320,300 L180,360 L40,260 Z",
+        "cities": {
+          "kunming": {
+            "name": "昆明",
+            "albums": [],
+            "lng": 102.71,
+            "lat": 25.04
+          },
+          "dali": {
+            "name": "大理",
+            "albums": [],
+            "lng": 100.22,
+            "lat": 25.59
+          },
+          "lijiang": {
+            "name": "丽江",
+            "albums": [],
+            "lng": 100.23,
+            "lat": 26.88
+          },
+          "xishuangbanna": {
+            "name": "西双版纳",
+            "albums": [],
+            "lng": 100.79,
+            "lat": 22.00
+          }
+        },
+        "lng": 101.48,
+        "lat": 24.97,
+        "intro": "彩云之南，四季如春。雪山、古城、洱海与苍山，风花雪月不只是传说，而是推开窗就能看见的日常。",
+        "adcode": "530000"
+      }
     },
     "abroad": {
-      "japan": { "name": "日本", "albums": [], "cx": 740, "cy": 260 },
-      "thailand": { "name": "泰国", "albums": [], "cx": 380, "cy": 510 }
+      "japan": {
+        "name": "日本",
+        "albums": [],
+        "cx": 740,
+        "cy": 260,
+        "lng": 138.0,
+        "lat": 36.2
+      },
+      "thailand": {
+        "name": "泰国",
+        "albums": [],
+        "cx": 380,
+        "cy": 510,
+        "lng": 100.99,
+        "lat": 15.87
+      }
     }
   },
   "albums": {
@@ -38,12 +186,30 @@
         "傍晚宿在山顶，星星亮得不像话。我把镜头对准山谷，想替未来的自己记住——曾有一个冬天，我为一座山早起，并为它心动过。"
       ],
       "photos": [
-        { "src": "media/albums/huangshan/IMG_20260218_082134.jpg", "cap": "黄山 · 雪后松枝 · 2026.02" },
-        { "src": "media/albums/huangshan/IMG_20260218_100734.jpg", "cap": "黄山 · 云海初现 · 2026.02" },
-        { "src": "media/albums/huangshan/IMG_20260218_103633.jpg", "cap": "黄山 · 远峰 · 2026.02" },
-        { "src": "media/albums/huangshan/IMG_20260218_105153.jpg", "cap": "黄山 · 山脊 · 2026.02" },
-        { "src": "media/albums/huangshan/IMG_20260218_110854.jpg", "cap": "黄山 · 石阶 · 2026.02" },
-        { "src": "media/albums/huangshan/IMG_20260218_120948.jpg", "cap": "黄山 · 日落 · 2026.02" }
+        {
+          "src": "media/albums/huangshan/IMG_20260218_082134.jpg",
+          "cap": "黄山 · 雪后松枝 · 2026.02"
+        },
+        {
+          "src": "media/albums/huangshan/IMG_20260218_100734.jpg",
+          "cap": "黄山 · 云海初现 · 2026.02"
+        },
+        {
+          "src": "media/albums/huangshan/IMG_20260218_103633.jpg",
+          "cap": "黄山 · 远峰 · 2026.02"
+        },
+        {
+          "src": "media/albums/huangshan/IMG_20260218_105153.jpg",
+          "cap": "黄山 · 山脊 · 2026.02"
+        },
+        {
+          "src": "media/albums/huangshan/IMG_20260218_110854.jpg",
+          "cap": "黄山 · 石阶 · 2026.02"
+        },
+        {
+          "src": "media/albums/huangshan/IMG_20260218_120948.jpg",
+          "cap": "黄山 · 日落 · 2026.02"
+        }
       ]
     }
   }

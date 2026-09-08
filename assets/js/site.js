@@ -4,9 +4,13 @@
   var DATA = null;
   var API = 'api/data';
   var TOKEN = localStorage.getItem('tm_token') || '';
+  /* 首页 FAVORITES 最多显示几个（2026-09-07 用户定：只留 3 个）。
+     多余的收藏不会丢，仍按后台顺序保留，只是首页不渲染；
+     想改数量改这个数字即可（想全部显示改成 999）。 */
+  var MAX_FAV = 3;
 
   function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-  function getJSON(url){ return fetch(url, {headers:{'x-admin-token':TOKEN}}).then(function(r){ return r.json(); }); }
+  function getJSON(url){ return fetch(url + '?t=' + Date.now(), {headers:{'x-admin-token':TOKEN}}).then(function(r){ return r.json(); }); }
 
   /* ---------- CDN 前缀：data.json 只存相对路径，换域名只改 cdnBase ---------- */
   function abs(p, base){
@@ -20,14 +24,34 @@
     if(d.site){
       if(d.site.heroVideo) d.site.heroVideo = abs(d.site.heroVideo, base);
       if(d.site.introAudio) d.site.introAudio = abs(d.site.introAudio, base);
+      if(d.site.bgmList) d.site.bgmList = d.site.bgmList.map(function(u){ return abs(u, base); });
       if(d.site.videos) d.site.videos.forEach(function(v){ v.src = abs(v.src, base); });
+    }
+    if(d.moments){
+      if(d.moments.hero) d.moments.hero = abs(d.moments.hero, base);
+      (d.moments.items||[]).forEach(function(m){
+        if(m.media) m.media = abs(m.media, base);
+      });
     }
     Object.keys(d.albums||{}).forEach(function(k){
       var a = d.albums[k];
       if(a.hero) a.hero = abs(a.hero, base);
-      (a.photos||[]).forEach(function(p){ if(p.src) p.src = abs(p.src, base); });
+      (a.photos||[]).forEach(function(p){
+        if(p.src) p.src = abs(p.src, base);
+        if(p.thumb) p.thumb = abs(p.thumb, base);
+      });
+      if(a.heroThumb) a.heroThumb = abs(a.heroThumb, base);
     });
     return d;
+  }
+
+  /* 卡片/列表封面统一用缩略图，灯箱与详情页大图才用原尺寸 */
+  function coverThumb(a){
+    if(a.heroThumb) return a.heroThumb;
+    var p = (a.photos||[])[0];
+    if(p && p.thumb) return p.thumb;
+    if(p && p.src) return p.src;
+    return a.hero || '';
   }
 
   /* ---------- 中国地图：简化轮廓（可替换为精确 GeoJSON/SVG） ---------- */
@@ -42,71 +66,213 @@
       + ' M545,455 L555,450 L558,465 L548,470 Z';
   }
 
+  /* ---------- 地理投影：GeoJSON(lng/lat) → SVG(x/y) ---------- */
+  var _chinaGeo = null;
+  function getChinaGeo(){
+    if(_chinaGeo) return Promise.resolve(_chinaGeo);
+    var CK = 'tm_china_geo_v2';
+    try { var c = localStorage.getItem(CK); if(c){ _chinaGeo = JSON.parse(c); return Promise.resolve(_chinaGeo); } } catch(e){}
+    function fetchDataV(){ return fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json').then(function(r){ return r.json(); }); }
+    return fetch('assets/maps/china.json')
+      .then(function(r){ return r.json(); })
+      .catch(fetchDataV)
+      .then(function(g){ _chinaGeo = g; try{ localStorage.setItem(CK, JSON.stringify(g)); }catch(e){} return g; })
+      .catch(function(){ return null; });
+  }
+  function _scanCoords(c, b){
+    if(typeof c[0]==='number'){ var l=c[0],a=c[1];
+      if(l<b.minLng)b.minLng=l; if(l>b.maxLng)b.maxLng=l; if(a<b.minLat)b.minLat=a; if(a>b.maxLat)b.maxLat=a;
+    } else if(Array.isArray(c)){ for(var i=0;i<c.length;i++) _scanCoords(c[i],b); }
+  }
+  function geoBounds(geo){
+    var b={minLng:180,maxLng:-180,minLat:90,maxLat:-90};
+    var root = (geo && geo.type==='FeatureCollection' && geo.features) ? geo.features : [geo];
+    root.forEach(function(f){ if(f && f.geometry) _scanCoords(f.geometry.coordinates, b); });
+    return b;
+  }
+  function makeProjection(geo, W, H, pad){
+    var b=geoBounds(geo);
+    var spanLng=b.maxLng-b.minLng, spanLat=b.maxLat-b.minLat;
+    var s=Math.min((W-2*pad)/spanLng,(H-2*pad)/spanLat);
+    var offX=pad+((W-2*pad)-s*spanLng)/2;
+    var offY=pad+((H-2*pad)-s*spanLat)/2;
+    return { bounds:b, proj:function(lng,lat){ return [offX+(lng-b.minLng)*s, offY+(b.maxLat-lat)*s]; } };
+  }
+  function featurePath(feature, pr){
+    var g=feature.geometry; if(!g||!g.coordinates) return '';
+    var polys = g.type==='MultiPolygon'? g.coordinates : (g.type==='Polygon'? [g.coordinates] : []);
+    var d='';
+    polys.forEach(function(poly){ poly.forEach(function(ring){
+      if(!ring.length) return;
+      ring.forEach(function(c,i){ var pt=pr.proj(c[0],c[1]); d += (i===0?'M':'L')+pt[0].toFixed(1)+','+pt[1].toFixed(1)+' '; });
+      d += 'Z ';
+    });});
+    return d.trim();
+  }
+  function isNationalBoundaryFeature(f){
+    var ad = f.properties && f.properties.adcode;
+    return ad === '100000_JD' || ad === 100000 || ad === '100000' || !(f.properties && f.properties.name);
+  }
+  function featureCenter(feature, pr){ var b=geoBounds(feature); return pr.proj((b.minLng+b.maxLng)/2,(b.minLat+b.maxLat)/2); }
+
   /* ---------- 渲染：可复用的中国地图 ---------- */
+  /* ---------- 腾讯地图（合规底图；key 由后台 site.mapKey 配置）----------
+     未配置 key 时自动降级为原有示意轮廓，页面不会空白。
+     坐标系：GCJ-02。禁止改用 OSM / Google 等无资质底图。 */
+  var tmapPromise = null;
+  function loadTMap(key){
+    if(window.TMap) return Promise.resolve(window.TMap);
+    if(tmapPromise) return tmapPromise;
+    tmapPromise = new Promise(function(res, rej){
+      var s = document.createElement('script');
+      s.src = 'https://map.qq.com/api/gljs?v=1.exp&key=' + encodeURIComponent(key);
+      s.onload = function(){ window.TMap ? res(window.TMap) : rej(new Error('SDK 未就绪')); };
+      s.onerror = function(){ rej(new Error('地图 SDK 加载失败')); };
+      document.head.appendChild(s);
+    });
+    return tmapPromise;
+  }
+  function dotIcon(color, size){
+    size = size || 22;
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '">'
+      + '<circle cx="' + size/2 + '" cy="' + size/2 + '" r="' + (size/2 - 4) + '" fill="' + color + '" stroke="#fff" stroke-width="2"/></svg>';
+    return { width: size, height: size, src: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg) };
+  }
+  var MAP_FILTER = 'grayscale(.35) sepia(.22) saturate(.85) brightness(1.03)';
+  function mountMapHost(el, id, height){
+    var host = el.parentNode;
+    var old = document.getElementById(id);
+    if(old && old.parentNode) old.parentNode.removeChild(old);
+    var div = document.createElement('div');
+    div.id = id;
+    div.style.cssText = 'width:100%;height:' + height + ';border-radius:12px;overflow:hidden;filter:' + MAP_FILTER + ';';
+    el.style.display = 'none';
+    host.appendChild(div);
+    return div;
+  }
+  function addTMapPoints(TMap, map, points, onClick){
+    var geos = [], labels = [];
+    points.forEach(function(p, i){
+      geos.push({ id: 'm' + i, styleId: p.lit ? 'lit' : 'dim', position: new TMap.LatLng(p.lat, p.lng) });
+      labels.push({ id: 'l' + i, styleId: 'lb', position: new TMap.LatLng(p.lat, p.lng), content: p.name });
+    });
+    if(!geos.length) return;
+    var mk = new TMap.MultiMarker({
+      map: map,
+      styles: {
+        lit:  new TMap.MarkerStyle(dotIcon('#C8A882')),
+        dim:  new TMap.MarkerStyle(dotIcon('#A79A8E')),
+        hlit: new TMap.MarkerStyle(dotIcon('#B08A55', 32)),
+        hdim: new TMap.MarkerStyle(dotIcon('#857463', 32))
+      },
+      geometries: geos
+    });
+    /* hover 高亮：悬浮放大加深，移开恢复 */
+    function hoverStyle(gid, hover){
+      for(var i = 0; i < geos.length; i++){
+        if(geos[i].id !== gid) continue;
+        var base = geos[i].styleId === 'lit' || geos[i].styleId === 'hlit' ? 'lit' : 'dim';
+        var target = hover ? (base === 'lit' ? 'hlit' : 'hdim') : base;
+        mk.updateGeometries([{ id: gid, styleId: target, position: geos[i].position }]);
+        var dom = map.getContainer && map.getContainer();
+        if(dom) dom.style.cursor = (hover && base === 'lit') ? 'pointer' : '';
+        return;
+      }
+    }
+    mk.on('mouseover', function(evt){ if(evt.geometry) hoverStyle(evt.geometry.id, true); });
+    mk.on('mouseout',  function(evt){ if(evt.geometry) hoverStyle(evt.geometry.id, false); });
+    mk.on('click', function(evt){
+      var i = parseInt(String(evt.geometry.id || 'm0').slice(1), 10);
+      if(onClick && points[i]) onClick(points[i]);
+    });
+    new TMap.MultiLabel({
+      map: map,
+      styles: { lb: new TMap.LabelStyle({ color: '#5a4c40', size: 12, offset: { x: 0, y: 16 } }) },
+      geometries: labels
+    });
+  }
+
   function renderChinaMap(svgSelector, d, opts){
     opts = opts || {};
     var svg = document.querySelector(svgSelector); if(!svg || !d.places) return;
     var provinces = d.places.provinces || {};
-    var abroad = d.places.abroad || {};
-    var hasProvinces = Object.keys(provinces).length > 0;
+    var W = 1000, H = 820, pad = 36;
+    if(opts.mini){ W = 1000; H = 760; pad = 64; }
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
 
-    // 容器内容
-    var html = '';
-    if(!opts.mini){
-      html += '<path d="'+chinaOutlinePath()+'" class="china-outline"/>';
-    } else {
-      // 迷你版只画一个轻盈轮廓
-      html += '<path d="'+chinaOutlinePath()+'" class="china-outline mini"/>';
-    }
-
-    // 省份点
-    Object.keys(provinces).forEach(function(k){
-      var p = provinces[k];
-      var cityCount = Object.keys(p.cities||{}).length;
-      var hasAlbum = cityCount > 0;
-      var cls = 'prov-dot' + (hasAlbum ? ' lit' : '') + (opts.mini ? ' mini' : '');
-      var href = 'province.html?province='+esc(k);
-      html += '<a href="'+href+'" class="'+cls+'">'
-        + '<circle cx="'+p.cx+'" cy="'+p.cy+'" r="'+(opts.mini?7:10)+'"/>'
-        + '<text x="'+p.cx+'" y="'+(p.cy+(opts.mini?22:30))+'">'+esc(p.name)+'</text>'
-        + '</a>';
-    });
-
-    // 海外点（仅在非迷你版显示，放在中国轮廓右侧/下方）
-    if(!opts.mini){
-      Object.keys(abroad).forEach(function(k){
-        var p = abroad[k];
-        var cls = 'prov-dot abroad';
-        var href = p.albums && p.albums.length ? ('album.html?id='+esc(p.albums[0])+'&from=place') : 'gallery.html';
-        html += '<a href="'+href+'" class="'+cls+'">'
-          + '<circle cx="'+p.cx+'" cy="'+p.cy+'" r="9"/>'
-          + '<text x="'+p.cx+'" y="'+(p.cy+28)+'">'+esc(p.name)+'</text>'
-          + '</a>';
+    getChinaGeo().then(function(geo){
+      if(!geo){
+        svg.innerHTML = '<path d="'+chinaOutlinePath()+'" class="china-outline'+(opts.mini?' mini':'')+'"/>';
+        return;
+      }
+      var pr = makeProjection(geo, W, H, pad);
+      var paths = '', labels = '';
+      (geo.features||[]).forEach(function(f){
+        if(!f.properties || isNationalBoundaryFeature(f)) return;   // 跳过全国边界 feature，避免覆盖
+        var adcode = f.properties.adcode;
+        var pk = null;
+        Object.keys(provinces).forEach(function(k){ if(String(provinces[k].adcode)===String(adcode)) pk=k; });
+        // 只有该省份下存在有相册的城市，才高亮为"去过"
+        var hasAlbums = false;
+        if(pk){
+          var cities = provinces[pk].cities || {};
+          Object.keys(cities).forEach(function(ck){
+            if((cities[ck].albums||[]).length) hasAlbums = true;
+          });
+        }
+        var visited = hasAlbums;
+        var path = featurePath(f, pr);
+        if(!path) return;
+        var cls = 'cn-prov' + (visited ? ' visited' : '') + (opts.mini ? ' mini' : '');
+        var href = pk ? ('province.html?province='+esc(pk)) : 'javascript:void(0)';
+        var tag = pk ? 'a' : 'g';
+        var click = pk ? '' : ' onclick="return false"';
+        paths += '<'+tag+' href="'+href+'" class="'+cls+'"'+click+' data-province="'+esc(pk||'')+'"><path d="'+path+'" fill-rule="evenodd"/></'+tag+'>';
+        if(!opts.mini){
+          var ctr = featureCenter(f, pr);
+          var name = pk ? provinces[pk].name : (f.properties.name || '');
+          if(name){
+            labels += '<text class="cn-label'+(visited?' visited':'')+'" x="'+ctr[0].toFixed(1)+'" y="'+(ctr[1]+4).toFixed(1)+'">'+esc(name)+'</text>';
+          }
+        }
       });
-    }
-
-    svg.innerHTML = html;
+      svg.innerHTML = '<g class="cn-map-group">' + paths + labels + '</g>';
+    }).catch(function(){
+      svg.innerHTML = '<path d="'+chinaOutlinePath()+'" class="china-outline'+(opts.mini?' mini':'')+'"/>';
+    });
   }
 
   /* ---------- 渲染：首页 ---------- */
   function renderHome(d){
     var vid = document.querySelector('.hero video');
     if(vid && d.site.heroVideo){
+      vid.src = d.site.heroVideo;
       vid.innerHTML = '<source src="'+d.site.heroVideo+'" type="video/mp4">';
       try { vid.load(); } catch(e){}
+      try { var pp = vid.play(); if(pp && pp.catch) pp.catch(function(){}); } catch(e){}
     }
     var poem = document.querySelector('.intro .poem');
     if(poem) poem.innerHTML = (d.site.intro||'').replace(/\n/g,'<br>');
     var at = document.querySelector('.intro .audio-toggle');
     if(at && d.site.introAudio) at.setAttribute('data-audio', d.site.introAudio);
 
+    // MOMENTS 首页入口
+    if(d.moments){
+      var mhBg = document.getElementById('moments-hero-bg');
+      var mhTitle = document.getElementById('moments-hero-title');
+      var mhSub = document.getElementById('moments-hero-sub');
+      if(mhBg && d.moments.hero) mhBg.style.backgroundImage = 'url("'+esc(d.moments.hero)+'")';
+      if(mhTitle) mhTitle.innerHTML = esc(d.moments.title || '').replace(/\n/g, '<br>');
+      if(mhSub) mhSub.innerHTML = esc(d.moments.subtitle || '').replace(/\n/g, '<br>');
+    }
+
     // FAVORITES
     var wrap = document.getElementById('fav-list');
     if(wrap){
       var html = '';
-      (d.favoritesOrder||[]).forEach(function(id, i){
+      (d.favoritesOrder||[]).slice(0, MAX_FAV).forEach(function(id, i){
         var a = d.albums[id]; if(!a) return;
-        var covers = (a.photos||[]).slice(0, 8).map(function(p){ return p.src; });
+        var covers = (a.photos||[]).slice(0, 8).map(function(p){ return p.thumb || p.src; });
         var rev = (i % 2 === 1) ? ' reverse' : '';
         html += '<article class="album-row reveal'+rev+'">'
           + '<div class="cover-slider" data-imgs=\''+JSON.stringify(covers)+'\'></div>'
@@ -125,15 +291,8 @@
       wrap.innerHTML = html;
     }
 
-    // CHAPTER 02 PLACES 预览段：迷你中国地图
-    var pt = document.getElementById('place-teaser');
-    if(pt && d.places){
-      pt.innerHTML = '<div class="mapwrap mini reveal">'
-        + '<svg id="home-map" viewBox="0 0 800 620" role="img" aria-label="中国地图"></svg>'
-        + '</div>'
-        + '<div class="chapter-more"><a href="place.html">查看全部地点 →</a></div>';
-      renderChinaMap('#home-map', d, {mini:true});
-    }
+    // CHAPTER 02 PLACES：完整中国地图 + 统计 + 精选 + 海外
+    if(d.places) renderHomePlaces(d);
 
     // CHAPTER 03 GALLERY 预览段
     var gt = document.getElementById('gallery-teaser');
@@ -141,7 +300,7 @@
       var gids = (d.galleryOrder||[]).slice(0,6);
       var gcards = gids.map(function(id,i){
         var a = d.albums[id]; if(!a) return '';
-        var cover = a.hero || (a.photos[0] && a.photos[0].src) || '';
+        var cover = coverThumb(a);
         return '<a class="gcard reveal" href="album.html?id='+esc(id)+'&from=gallery">'
           + '<div class="gc-img"><img src="'+esc(cover)+'" alt="'+esc(a.title)+'"></div>'
           + '<div class="gc-info"><div class="gc-no">No.'+('0'+(i+1)).slice(-2)+'</div>'
@@ -151,6 +310,38 @@
       gt.innerHTML = '<div class="gallery-grid">'+gcards+'</div>'
         + '<div class="chapter-more"><a href="gallery.html">进入完整图集 →</a></div>';
     }
+  }
+
+  /* ---------- 渲染：Moments 零散瞬间页 ---------- */
+  function renderMomentsPage(d){
+    var m = d.moments;
+    if(!m){ document.body.innerHTML = '<p style="padding:120px;text-align:center;">暂无 Moments 数据</p>'; return; }
+    document.title = (m.navLabel || 'Moments') + ' · The Memory';
+    var title = document.getElementById('moments-page-title');
+    var sub = document.getElementById('moments-page-sub');
+    if(title) title.textContent = m.title || '';
+    if(sub) sub.textContent = m.subtitle || '';
+    var wrap = document.getElementById('moments-list');
+    if(!wrap) return;
+    var items = m.items || [];
+    if(!items.length){
+      wrap.innerHTML = '<p class="center-note">后台「瞬间管理」中添加第一条记录后，会显示在这里。</p>';
+      return;
+    }
+    wrap.innerHTML = items.map(function(it, i){
+      var isEven = (i % 2 === 0);
+      var mediaHtml = '';
+      if(it.type === 'video' || (it.media && /\.(mp4|mov|webm)$/i.test(it.media))){
+        mediaHtml = '<div class="moment-media"><video controls playsinline preload="metadata" src="'+esc(it.media)+'"></video></div>';
+      } else {
+        mediaHtml = '<div class="moment-media"><img src="'+esc(it.media)+'" alt="" loading="lazy"></div>';
+      }
+      var textHtml = '<div class="moment-text">'
+        + '<div class="moment-meta"><span class="moment-date">'+esc(it.date||'')+'</span><span class="moment-place">'+esc(it.place||'')+'</span></div>'
+        + '<div class="moment-body">'+esc(it.text||'').replace(/\n/g,'<br>')+'</div>'
+        + '</div>';
+      return '<article class="moment-item reveal'+(isEven?'':' reverse')+'">' + (isEven ? mediaHtml + textHtml : textHtml + mediaHtml) + '</article>';
+    }).join('');
   }
 
   /* ---------- 渲染：相册详情 ---------- */
@@ -171,11 +362,26 @@
       });
       body.innerHTML = s;
     }
+    // 相册视频区（紧跟故事之后）
+    var vbox = document.querySelector('.album-videos');
+    if(vbox){
+      var vs = a.videos || [];
+      vbox.innerHTML = vs.length
+        ? '<div class="eyebrow">Films</div>' + vs.map(function(v){
+            return '<figure class="album-video">'
+              + '<video controls playsinline preload="none" poster="'+esc(v.poster||'')+'">'
+              + '<source src="'+esc(v.src)+'" type="video/mp4"></video>'
+              + (v.cap ? '<figcaption>'+esc(v.cap)+'</figcaption>' : '')
+              + '</figure>';
+          }).join('')
+        : '';
+    }
     var grid = document.querySelector('.grid[data-lightbox]');
     if(grid){
       grid.setAttribute('data-lightbox', id);
       grid.innerHTML = (a.photos||[]).map(function(p){
-        return '<div class="cell"><img data-full="'+esc(p.src)+'" data-cap="'+esc(p.cap||'')+'" src="'+esc(p.src)+'" alt=""></div>';
+        var t = p.thumb || p.src;
+          return '<div class="cell"><img data-full="'+esc(p.src)+'" data-cap="'+esc(p.cap||'')+'" src="'+esc(t)+'" alt="" loading="lazy"></div>';
       }).join('');
     }
     var order = d.galleryOrder && d.galleryOrder.length ? d.galleryOrder : Object.keys(d.albums);
@@ -198,7 +404,7 @@
     var html = '';
     (d.galleryOrder||[]).forEach(function(id, i){
       var a = d.albums[id]; if(!a) return;
-      var cover = a.hero || (a.photos[0] && a.photos[0].src) || '';
+      var cover = coverThumb(a);
       var rev = (i % 2 === 1) ? ' reverse' : '';
       html += '<a class="glist-row reveal'+rev+'" href="album.html?id='+esc(id)+'&from=gallery">'
         + '<div class="glist-img"><img src="'+esc(cover)+'" alt="'+esc(a.title)+'"></div>'
@@ -214,12 +420,250 @@
     grid.innerHTML = html;
   }
 
+  /* ---------- Places：统计 / 精选 / 海外 通用渲染 ---------- */
+  function getPlaceStatsHTML(d){
+    var provinces = d.places.provinces || {};
+    var pCount = Object.keys(provinces).length;
+    var cityCount = 0;
+    Object.keys(provinces).forEach(function(k){ cityCount += Object.keys(provinces[k].cities||{}).length; });
+    var photoCount = 0;
+    Object.keys(d.albums||{}).forEach(function(k){ photoCount += (d.albums[k].photos||[]).length; });
+    return '<div class="stat"><b>'+pCount+'</b><span>省份</span></div>'
+      + '<div class="stat"><b>'+cityCount+'</b><span>城市</span></div>'
+      + '<div class="stat"><b>'+photoCount+'</b><span>张照片</span></div>';
+  }
+  function getPlaceFeaturedHTML(d){
+    var provinces = d.places.provinces || {};
+    var featured = Object.keys(provinces).filter(function(k){
+      return Object.keys(provinces[k].cities||{}).some(function(ck){ return (provinces[k].cities[ck].albums||[]).length>0; });
+    });
+    if(!featured.length) featured = Object.keys(provinces);
+    if(!featured.length) return '<p class="center-note">后台「地点地图」添加省份与城市相册后，会显示在这里。</p>';
+    return featured.map(function(k){
+      var p = provinces[k];
+      var albumId = null;
+      Object.keys(p.cities||{}).forEach(function(ck){ var al=p.cities[ck].albums||[]; if(al.length && !albumId) albumId=al[0]; });
+      var cover = (albumId && d.albums[albumId]) ? coverThumb(d.albums[albumId]) : (p.hero||'');
+      var href = albumId ? ('album.html?id='+esc(albumId)+'&from=place') : ('province.html?province='+esc(k));
+      return '<a class="pf-card reveal" href="'+href+'">'
+        + (cover ? '<div class="pf-img"><img src="'+esc(cover)+'" alt="'+esc(p.name)+'" loading="lazy"></div>' : '<div class="pf-img empty"></div>')
+        + '<div class="pf-meta"><div class="pf-name">'+esc(p.name)+'</div>'
+        + '<div class="pf-sub">'+(albumId && d.albums[albumId] ? esc(d.albums[albumId].title) : '查看省份')+'</div></div>'
+        + '</a>';
+    }).join('');
+  }
+  function getPlaceAbroadHTML(d){
+    var abroad = d.places.abroad || {};
+    var akeys = Object.keys(abroad);
+    if(!akeys.length) return '';
+    return '<div class="pf-head"><span class="eyebrow">Abroad</span><h3 class="serif-title">海外足迹</h3></div>'
+      + '<div class="pf-grid">' + akeys.map(function(k){
+          var p = abroad[k];
+          var albumId = (p.albums && p.albums[0]) || null;
+          var cover = (albumId && d.albums[albumId]) ? coverThumb(d.albums[albumId]) : '';
+          var href = albumId ? ('album.html?id='+esc(albumId)+'&from=place') : '#';
+          return '<a class="pf-card" href="'+href+'" '+(albumId?'':'onclick="return false"')+'>'
+            + (cover ? '<div class="pf-img"><img src="'+esc(cover)+'" alt="'+esc(p.name)+'" loading="lazy"></div>' : '<div class="pf-img empty"></div>')
+            + '<div class="pf-meta"><div class="pf-name">'+esc(p.name)+'</div><div class="pf-sub">'+(albumId?'查看相册':'敬请期待')+'</div></div>'
+            + '</a>';
+        }).join('') + '</div>';
+  }
+
+  /* ---------- 渲染：首页 Places 预览（完整版） ---------- */
+  function renderHomePlaces(d){
+    var wrap = document.getElementById('place-teaser'); if(!wrap) return;
+    wrap.innerHTML =
+      '<div class="place-stats reveal" id="home-place-stats"></div>'
+      + '<div class="map-panel reveal">'
+      +   '<div class="mapwrap mapwrap-wide">'
+      +     '<svg id="home-map" role="img" aria-label="中国地图"></svg>'
+      +   '</div>'
+      + '</div>'
+      + '<p class="map-legend reveal">浅色线描为全部省份轮廓，暖色填充为已有照片记录；点击高亮省份可进入省地图。</p>'
+      + '<div class="place-featured reveal" id="home-pf-grid">'
+      +   '<div class="pf-head"><span class="eyebrow">Featured</span><h3 class="serif-title">精选足迹</h3></div>'
+      +   '<div class="pf-grid"></div>'
+      + '</div>'
+      + '<div class="place-abroad reveal" id="home-place-abroad"></div>'
+      + '<div class="chapter-more"><a href="place.html">查看全部地点 →</a></div>';
+    var stats = document.getElementById('home-place-stats');
+    if(stats) stats.innerHTML = getPlaceStatsHTML(d);
+    var grid = document.querySelector('#home-pf-grid .pf-grid');
+    if(grid) grid.innerHTML = getPlaceFeaturedHTML(d);
+    var ab = document.getElementById('home-place-abroad');
+    if(ab) ab.innerHTML = getPlaceAbroadHTML(d);
+    renderChinaMap('#home-map', d, {mini:false});
+  }
+
   /* ---------- 渲染：Places 完整页 ---------- */
   function renderPlaces(d){
+    var stats = document.getElementById('place-stats');
+    if(stats) stats.innerHTML = getPlaceStatsHTML(d);
+    var grid = document.querySelector('#pf-grid');
+    if(grid) grid.innerHTML = getPlaceFeaturedHTML(d);
+    var ab = document.getElementById('place-abroad');
+    if(ab) ab.innerHTML = getPlaceAbroadHTML(d);
+    // 地图
     var svg = document.querySelector('#place-svg');
     if(svg) renderChinaMap('#place-svg', d, {mini:false});
-    var legend = document.querySelector('.map-legend');
-    if(legend) legend.textContent = '点亮省份 = 已有照片记录 · 点击进入省地图 · 海外地点在轮廓外';
+  }
+
+  /* ---------- DataV 省界高亮（免配额、GCJ-02、有审图号） ---------- */
+  function drawProvinceBoundary(TMap, map, p, pk){
+    if(!p.adcode) return;
+    var CK = 'tm_datav_' + p.adcode;
+    var cached = null;
+    try { cached = JSON.parse(localStorage.getItem(CK) || 'null'); } catch (e) { cached = null; }
+    function drawGeo(geo){
+      try {
+        var minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+        var polys = [];
+        (geo.features || []).forEach(function(f){
+          var g = f.geometry; if(!g) return;
+          var list = g.type === 'MultiPolygon' ? g.coordinates : (g.type === 'Polygon' ? [g.coordinates] : []);
+          list.forEach(function(poly){
+            poly.forEach(function(ring){
+              var pts = ring.map(function(c){
+                var ln = c[0], la = c[1];
+                if(isNaN(la) || isNaN(ln)) return null;
+                if(la < minLat) minLat = la; if(la > maxLat) maxLat = la;
+                if(ln < minLng) minLng = ln; if(ln > maxLng) maxLng = ln;
+                return new TMap.LatLng(la, ln);
+              }).filter(Boolean);
+              if(pts.length > 2) polys.push(pts);
+            });
+          });
+        });
+        if(polys.length){
+          new TMap.MultiPolygon({
+            map: map,
+            styles: { hl: new TMap.FillStyle({
+              color: 'rgba(200,168,130,0.16)',
+              borderColor: '#B99A6F',
+              borderWidth: 3
+            }) },
+            geometries: polys.map(function(g, i){ return { id: 'p' + i, styleId: 'hl', paths: g }; })
+          });
+          try {
+            map.fitBounds(new TMap.LatLngBounds(
+              new TMap.LatLng(minLat, minLng), new TMap.LatLng(maxLat, maxLng)));
+          } catch (e) {}
+        }
+      } catch (e) {}
+      try { localStorage.setItem(CK, JSON.stringify({ t: Date.now(), geo: geo })); } catch (e) {}
+    }
+    if(cached && cached.t && cached.geo && (Date.now() - cached.t < 7 * 24 * 3600 * 1000)){
+      drawGeo(cached.geo); return;
+    }
+    var url = 'https://geo.datav.aliyun.com/areas_v3/bound/' + p.adcode + '_full.json';
+    fetch(url).then(function(r){ return r.json(); }).then(drawGeo).catch(function(){});
+  }
+
+  /* 省份真实轮廓地图：DataV 省界 + 自动提取地级市，支持缩放拖拽 */
+  function drawProvinceSVG(d, pk, p){
+    var svg = document.getElementById('province-svg'); if(!svg || !p) return;
+    var W = 900, H = 720, pad = 36;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    function fallback(){ svg.innerHTML = '<ellipse cx="450" cy="360" rx="260" ry="300" class="prov-shape-path"/>'; }
+    if(!p.adcode){ fallback(); return; }
+
+    // 缩放 / 拖拽状态
+    var state = { scale:1, x:0, y:0, min:.65, max:5, panning:false, sx:0, sy:0 };
+    var layer;
+    function setTransform(){
+      if(!layer) return;
+      layer.setAttribute('transform', 'translate('+state.x+','+state.y+') scale('+state.scale+')');
+    }
+    function zoom(delta, cx, cy){
+      var old = state.scale;
+      var ns = Math.min(state.max, Math.max(state.min, old * delta));
+      if(ns === old) return;
+      var rect = svg.getBoundingClientRect();
+      var px = (cx == null ? rect.width/2 : cx) / rect.width * W;
+      var py = (cy == null ? rect.height/2 : cy) / rect.height * H;
+      state.x = px - (px - state.x) * ns / old;
+      state.y = py - (py - state.y) * ns / old;
+      state.scale = ns;
+      setTransform();
+    }
+
+    function bindZoom(svgEl){
+      layer = svgEl.querySelector('#prov-zoom-layer');
+      // 滚轮缩放
+      svgEl.addEventListener('wheel', function(e){
+        e.preventDefault();
+        var delta = e.deltaY > 0 ? 0.9 : 1.1;
+        var rect = svgEl.getBoundingClientRect();
+        zoom(delta, e.clientX - rect.left, e.clientY - rect.top);
+      }, {passive:false});
+      // 鼠标拖拽
+      svgEl.addEventListener('mousedown', function(e){ state.panning = true; state.sx = e.clientX; state.sy = e.clientY; svgEl.style.cursor = 'grabbing'; });
+      window.addEventListener('mousemove', function(e){
+        if(!state.panning) return;
+        var dx = e.clientX - state.sx, dy = e.clientY - state.sy;
+        state.sx = e.clientX; state.sy = e.clientY;
+        state.x += dx / state.scale; state.y += dy / state.scale;
+        setTransform();
+      });
+      window.addEventListener('mouseup', function(){ state.panning = false; svgEl.style.cursor = ''; });
+      // 按钮
+      var panel = svgEl.closest('.prov-zoom-panel');
+      if(panel){
+        panel.querySelector('.zoom-in') && panel.querySelector('.zoom-in').addEventListener('click', function(){ zoom(1.25); });
+        panel.querySelector('.zoom-out') && panel.querySelector('.zoom-out').addEventListener('click', function(){ zoom(0.8); });
+        panel.querySelector('.zoom-reset') && panel.querySelector('.zoom-reset').addEventListener('click', function(){ state.scale=1; state.x=0; state.y=0; setTransform(); });
+      }
+    }
+
+    function draw(geo){
+      var pr = makeProjection(geo, W, H, pad);
+      var html = '<g id="prov-zoom-layer">';
+      // 1) 地级市边界
+      var boundaryPaths = '';
+      (geo.features||[]).forEach(function(f){
+        if(!f.properties) return;
+        var path = featurePath(f, pr);
+        if(path) boundaryPaths += '<path d="'+path+'" class="city-boundary" fill-rule="evenodd"/>';
+      });
+      html += '<g class="prov-cities-group">' + boundaryPaths + '</g>';
+      // 2) 城市点与名称：优先用 GeoJSON 中的地级市；再与 data.json 中的 cities 匹配相册
+      var dataCities = p.cities || {};
+      var cityByName = {};
+      Object.keys(dataCities).forEach(function(ck){
+        var c = dataCities[ck];
+        var key = (c.name||ck).replace(/市$/,'');
+        cityByName[key] = c;
+      });
+      var cityDots = '';
+      (geo.features||[]).forEach(function(f){
+        if(!f.properties || !f.properties.name) return;
+        var nameRaw = f.properties.name;
+        var nameKey = nameRaw.replace(/市$/,'');
+        var c = cityByName[nameKey];
+        var ctr = featureCenter(f, pr);
+        var albums = c ? (c.albums||[]) : [];
+        var has = albums.length > 0;
+        var href = has ? ('album.html?id='+esc(albums[0])+'&from=province&province='+esc(pk)) : '#';
+        var cls = 'city-dot' + (has ? ' lit' : '');
+        var displayName = c ? (c.name || nameRaw) : nameRaw;
+        cityDots += '<a href="'+href+'" class="'+cls+'" '+(has?'':'onclick="return false"')+'>'
+          + '<circle cx="'+ctr[0].toFixed(1)+'" cy="'+ctr[1].toFixed(1)+'" r="'+(has?10:6)+'"/>'
+          + '<text x="'+ctr[0].toFixed(1)+'" y="'+(ctr[1]+26).toFixed(1)+'">'+esc(displayName)+'</text></a>';
+      });
+      html += '<g class="city-dot-group">' + cityDots + '</g>';
+      html += '</g>';
+      svg.innerHTML = html;
+      bindZoom(svg);
+    }
+
+    var CK = 'tm_datav_v2_' + p.adcode;
+    try { var c = localStorage.getItem(CK); if(c){ draw(JSON.parse(c)); return; } } catch(e){}
+    function fetchDataV(){ return fetch('https://geo.datav.aliyun.com/areas_v3/bound/' + p.adcode + '_full.json').then(function(r){ return r.json(); }); }
+    fetch('assets/maps/' + p.adcode + '.json')
+      .then(function(r){ return r.json(); })
+      .catch(fetchDataV)
+      .then(function(g){ try{ localStorage.setItem(CK, JSON.stringify(g)); }catch(e){} draw(g); })
+      .catch(function(){ fallback(); });
   }
 
   /* ---------- 渲染：Province 省地图页 ---------- */
@@ -235,13 +679,14 @@
     if(h1) h1.textContent = p.name;
     var sub = document.querySelector('.province-hero .ph-sub');
     if(sub) sub.textContent = 'Province · 中国';
-
-    // 省份形状装饰（风格化占位，未来可替换为精确省界 SVG）
-    var shape = document.querySelector('.prov-shape path');
-    if(shape){
-      // 用随机-ish 的圆润多边形模拟该省轮廓，仅作视觉提示
-      shape.setAttribute('d', organicProvinceShape());
+    var intro = document.querySelector('.province-hero .ph-intro');
+    if(intro){
+      if(p.intro){ intro.textContent = p.intro; intro.style.display = ''; }
+      else { intro.textContent = ''; intro.style.display = 'none'; }
     }
+
+    // 省份真实轮廓地图（阿里 DataV 省界，免配额）
+    drawProvinceSVG(d, pk, p);
 
     // 城市卡片
     var grid = document.getElementById('city-grid');
@@ -257,7 +702,7 @@
         var cover = '';
         if(firstAlbum && d.albums[firstAlbum]){
           var a = d.albums[firstAlbum];
-          cover = a.hero || (a.photos[0] && a.photos[0].src) || '';
+          cover = coverThumb(a);
         }
         html += '<a class="city-card reveal" href="'+href+'" '+(firstAlbum?'':'onclick="return false" style="opacity:.55;"')+'>'
           + (cover ? '<div class="city-img"><img src="'+esc(cover)+'" alt="'+esc(c.name)+'"></div>' : '<div class="city-img empty"><span>'+esc(c.name)+'</span></div>')
@@ -334,15 +779,31 @@
     var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); }, {threshold:0.12});
     els.forEach(function(e){ io.observe(e); });
   }
-  function initAudioToggle(){
-    document.querySelectorAll('.audio-toggle').forEach(function(btn){
-      var src = btn.getAttribute('data-audio'); if(!src) return;
-      var au = new Audio(src); au.loop = true; au.volume = 0.5;
-      btn.addEventListener('click', function(){
-        if(au.paused){ au.play().then(function(){ btn.classList.add('playing'); }).catch(function(){}); }
-        else { au.pause(); btn.classList.remove('playing'); }
-      });
+  /* 背景轻音乐：打开页面即自动轮播播放，按钮用于暂停/继续 */
+  function initBgm(playlist){
+    var btn = document.querySelector('.audio-toggle');
+    if(!btn || !playlist || !playlist.length) return;
+    var au = new Audio(); au.volume = 0.35;
+    var idx = 0;
+    function start(){
+      if(!au.src) au.src = playlist[idx % playlist.length];
+      var pp = au.play();
+      if(pp && pp.then) pp.then(function(){ btn.classList.add('playing'); }).catch(function(){});
+      else btn.classList.add('playing');
+    }
+    function stop(){ au.pause(); btn.classList.remove('playing'); }
+    au.addEventListener('ended', function(){
+      idx = (idx + 1) % playlist.length;   // 轮播：一曲终了自动下一首
+      au.src = playlist[idx];
+      au.play().catch(function(){});
+      btn.classList.add('playing');
     });
+    btn.addEventListener('click', function(){
+      if(au.paused){ start(); }
+      else { stop(); }
+    });
+    // 进入页面直接尝试播放；若浏览器拦截自动播放，用户点击按钮即可继续
+    start();
   }
   function initCoverSliders(){
     document.querySelectorAll('.cover-slider').forEach(function(slider){
@@ -392,34 +853,41 @@
   }
   function initVideoCarousel(){
     var vp=document.querySelector('.vpage'); if(!vp) return;
-    var vids=(DATA && DATA.site && DATA.site.videos) ? DATA.site.videos
-             : JSON.parse(vp.getAttribute('data-videos')||'[]');
+    var vids=(DATA && DATA.site && DATA.site.videos) ? DATA.site.videos : [];
     if(!vids.length) return;
-    var stage=vp.querySelector('.vstage'), titleBox=vp.querySelector('.vtitle');
-    var sub=titleBox.querySelector('.vt-sub'), main=titleBox.querySelector('.vt-main'), count=vp.querySelector('.vcount');
-    var cur=0, timer=null;
+    var stage=vp.querySelector('.vstage');
+    var sub=vp.querySelector('.vside-sub'), main=vp.querySelector('.vside-title'), desc=vp.querySelector('.vside-desc'), count=vp.querySelector('.vcount');
+    var cur=0;
+    function renderDesc(text){
+      var s = (text || '').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+      var ps = s.split(/\n\s*\n/).filter(function(p){ return p.trim(); }).map(function(p){ return '<p>'+esc(p)+'</p>'; }).join('');
+      if(desc) desc.innerHTML = ps || '<p style="opacity:.5;">（暂无说明）</p>';
+    }
     function load(i){
       cur=(i+vids.length)%vids.length; var v=vids[cur];
       stage.innerHTML='<video playsinline muted preload="auto"><source src="'+v.src+'" type="video/mp4"></video>';
       var video=stage.querySelector('video');
-      titleBox.classList.remove('hide'); sub.textContent=v.sub||''; main.textContent=v.title||'';
-      count.textContent=(cur+1)+' / '+vids.length;
-      clearTimeout(timer);
-      timer=setTimeout(function(){ titleBox.classList.add('hide'); video.muted=true; video.play().catch(function(){}); }, 3000);
+      video.play().catch(function(){});
+      if(sub) sub.textContent=v.sub||'';
+      if(main) main.textContent=v.title||'';
+      if(desc) renderDesc(v.desc);
+      if(count) count.textContent=(cur+1)+' / '+vids.length;
     }
     vp.querySelector('.vprev').addEventListener('click',function(){load(cur-1);});
     vp.querySelector('.vnext').addEventListener('click',function(){load(cur+1);});
-    vp.querySelector('.vclose').addEventListener('click',function(){ history.length>1?history.back():(location.href='index.html'); });
+    var closeBtn=vp.querySelector('.vclose');
+    if(closeBtn) closeBtn.addEventListener('click',function(){ history.length>1?history.back():(location.href='index.html'); });
     document.addEventListener('keydown',function(e){ if(e.key==='ArrowLeft')load(cur-1); if(e.key==='ArrowRight')load(cur+1); });
     load(0);
   }
 
   /* ---------- 启动 ---------- */
   function boot(){
-    initNav(); initReveal(); initAudioToggle();
+    initNav(); initReveal();
     getJSON('data.json').then(function(d){
       DATA = applyCdn(d);
       d = DATA;
+      initBgm(d.site.bgmList);   // 曲库在 data.json，等数据就绪再起音乐
       var p = location.pathname;
       if(p.indexOf('album.html')>-1){
         var id = new URLSearchParams(location.search).get('id') || (d.galleryOrder&&d.galleryOrder[0]) || Object.keys(d.albums)[0];
@@ -427,6 +895,7 @@
       } else if(p.indexOf('province.html')>-1){ renderProvince(d); }
       else if(p.indexOf('gallery.html')>-1){ renderGallery(d); }
       else if(p.indexOf('place.html')>-1){ renderPlaces(d); }
+      else if(p.indexOf('moments.html')>-1){ renderMomentsPage(d); }
       else { renderHome(d); }
       initCoverSliders(); initLightbox();
       renderBreadcrumb(d);
