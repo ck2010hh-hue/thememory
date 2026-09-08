@@ -448,6 +448,8 @@ a{ color:inherit; text-decoration:none; }
 
 /* ---------- Province 省地图页 ---------- */
 .province-hero{ position:relative; height:88vh; min-height:560px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:var(--bg); }
+.province-hero.has-hero{ background-size:cover; background-position:center; background-repeat:no-repeat; }
+.province-hero.has-hero::after{ content:''; position:absolute; inset:0; z-index:1; background:radial-gradient(ellipse at center, rgba(251,247,239,.62) 0%, rgba(251,247,239,.42) 55%, rgba(251,247,239,.72) 100%); }
 .province-hero .prov-shape{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.55; }
 .province-hero .prov-shape svg{ width:min(70vw,560px); height:auto; }
 .province-hero .ph-text{ position:relative; z-index:2; text-align:center; }
