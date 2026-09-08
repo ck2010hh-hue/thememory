@@ -8,20 +8,24 @@
 </head>
 <body>
 
-<section class="vpage" data-videos='[
-  {"src":"media/hero.mp4","sub":"Film 01","title":"泰国 · 2026"},
-  {"src":"media/hero.mp4","sub":"Film 02","title":"曼谷的午后"},
-  {"src":"media/hero.mp4","sub":"Film 03","title":"海风与晚霞"}
-]'>
-  <div class="vstage"></div>
-  <div class="vtitle">
-    <div class="vt-sub"></div>
-    <div class="vt-main"></div>
+<section class="vpage">
+  <div class="vwrap">
+    <div class="vplayer">
+      <div class="vstage"></div>
+      <button class="vnav vprev" aria-label="上一个">‹</button>
+      <button class="vnav vnext" aria-label="下一个">›</button>
+      <div class="vcount"></div>
+    </div>
+    <div class="vside">
+      <div class="vside-inner">
+        <div class="vside-eyebrow">Films</div>
+        <div class="vside-sub"></div>
+        <div class="vside-title"></div>
+        <div class="vside-desc"></div>
+      </div>
+      <div class="vclose">✕ Close</div>
+    </div>
   </div>
-  <button class="vnav vprev" aria-label="上一个">‹</button>
-  <button class="vnav vnext" aria-label="下一个">›</button>
-  <div class="vclose">✕ Close</div>
-  <div class="vcount"></div>
 </section>
 
 <script src="assets/js/site.js"></script>
