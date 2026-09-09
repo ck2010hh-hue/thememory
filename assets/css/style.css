@@ -695,7 +695,10 @@ footer{ text-align:center; padding:60px 20px; color:var(--ink-soft); font-size:1
   font-weight:400; margin:0 0 16px; color:var(--ink);
 }
 .film-row .film-desc{
-  font-size:15px; line-height:2; color:var(--ink-soft);
+  font-size:15px; line-height:2; color:var(--ink-soft); white-space:pre-line;
+}
+.film-row .film-desc-center{
+  text-align:center;
 }
 @media (max-width:900px){
   .film-section{ padding-top:70px; padding-bottom:70px; }
