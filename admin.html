@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Memory · 管理后台</title>
 <link rel="stylesheet" href="assets/css/style.css?v=14">
-<link rel="stylesheet" href="assets/css/admin.css?v=15">
+<link rel="stylesheet" href="assets/css/admin.css?v=16">
 </head>
 <body class="admin-body">
 
@@ -27,6 +27,7 @@
     <nav class="side-nav">
       <a data-tab="site" class="active">网站设置</a>
       <a data-tab="videos">影片管理</a>
+      <a data-tab="films">归档影片</a>
       <a data-tab="moments">瞬间管理</a>
       <a data-tab="albums">相册管理</a>
       <a data-tab="fav">首页收藏顺序</a>
@@ -81,6 +82,19 @@
       <div id="videoList" class="order-list"></div>
     </section>
 
+    <!-- 归档影片管理 -->
+    <section class="tab hidden" data-tab="films">
+      <div class="tab-head">
+        <h2 class="tab-h">归档影片（会动的记忆 · film）</h2>
+        <button id="newFilm" class="btn-primary">+ 添加归档影片</button>
+      </div>
+      <p class="hint">这部分对应视频页下方的「会动的记忆」归档区；和首页三段精选影片是两套独立内容，互不同步。</p>
+      <div class="field"><label>区域标题</label><input id="f-title" type="text"></div>
+      <div class="field"><label>英文副标题</label><input id="f-subtitle" type="text"></div>
+      <div class="field"><label>区域导语</label><textarea id="f-intro" rows="3"></textarea></div>
+      <div id="filmList" class="order-list"></div>
+    </section>
+
     <!-- 瞬间管理 -->
     <section class="tab hidden" data-tab="moments">
       <h2 class="tab-h">瞬间管理（Moments）</h2>
@@ -129,6 +143,6 @@
 <input id="fileInput" type="file" multiple accept="image/*" class="hidden">
 <div id="toast" class="toast"></div>
 
-<script src="assets/js/admin.js?v=15"></script>
+<script src="assets/js/admin.js?v=16"></script>
 </body>
 </html>
