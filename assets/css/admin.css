@@ -93,6 +93,18 @@
 .field-row label{ font-size:12px; color:#5a554b; min-width:26px; }
 .field-row input{ flex:1; min-width:80px; padding:8px 10px; border:1px solid #d8cfbe; border-radius:7px; font-size:14px; }
 .field-row input[type=number]{ max-width:90px; }
+
+/* 说明编辑器：大文本框 + 对齐选择 */
+.desc-editor{ width:100%; margin:6px 0 10px; }
+.de-label{ font-size:12px; color:#5a554b; margin-bottom:6px; letter-spacing:.05em; }
+.desc-area{
+  width:100%; min-height:120px; padding:12px 14px; border:1px solid #d8cfbe;
+  border-radius:8px; font-size:14px; line-height:1.7; background:#fffdf8;
+  font-family:inherit; resize:vertical; box-sizing:border-box;
+}
+.align-row{ display:flex; align-items:center; gap:8px; margin-top:8px; }
+.align-row label{ font-size:12px; color:#5a554b; min-width:auto; }
+.align-row select{ padding:6px 10px; border-radius:6px; border:1px solid #d8cfbe; font-size:13px; background:#fffdf8; }
 .city-wrap{ display:flex; flex-direction:column; gap:8px; padding-left:18px; border-left:2px solid #e3dccd; margin:6px 0; }
 .city-row{ display:flex; align-items:center; gap:8px; background:#f7f3eb; border-radius:7px; padding:8px 10px; }
 .city-row .city-id{ font-size:11px; color:#8a8478; width:70px; overflow:hidden; text-overflow:ellipsis; }
