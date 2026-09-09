@@ -38,6 +38,34 @@ function syncCloud(script, rel) {
   });
 }
 
+// ---- 自动部署到 GitHub Pages（后台保存后无需再手动跑 gh_push.py）----
+const DEPLOY = { running: false, pending: false, last: null, log: [] };
+function logDeploy(msg) {
+  const line = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  DEPLOY.log.push(line);
+  if (DEPLOY.log.length > 50) DEPLOY.log.shift();
+  console.log(line);
+}
+function runDeploy() {
+  if (DEPLOY.running) { DEPLOY.pending = true; return; }
+  DEPLOY.running = true; DEPLOY.pending = false;
+  logDeploy('开始推送到 GitHub...');
+  execFile(PYTHON, [path.join(TOOLS_DIR, 'gh_push.py'), 'update via admin'], { cwd: ROOT, timeout: 300000, maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
+    const out = String(stdout || '') + String(stderr || '');
+    const ok = !err && /完成|无变化/.test(out);
+    DEPLOY.last = { time: Date.now(), ok, output: out.slice(-500) };
+    logDeploy(ok ? 'GitHub 推送完成' : 'GitHub 推送失败：' + (err ? err.message : out.slice(0, 200)));
+    DEPLOY.running = false;
+    if (DEPLOY.pending) setTimeout(runDeploy, 500);
+  });
+}
+function currentMediaBase() {
+  try {
+    const d = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    return String(d.site && d.site.mediaBase || '');
+  } catch (e) { return ''; }
+}
+
 const ADMIN_PASS = process.env.TM_ADMIN_PASS || 'thememory2026';
 // SECRET 保持固定，避免每次重启 server.js 后浏览器 localStorage 里的 token 失效导致 unauthorized
 const SECRET = process.env.TM_ADMIN_SECRET || 'thememory-local-secret-2026';
@@ -179,9 +207,16 @@ const server = http.createServer(async (req, res) => {
         fs.writeFile(tmp, txt, 'utf8', () => {
           fs.rename(tmp, DATA_FILE, async e => {
             if (e) { sendJSON(res, 500, { error: 'save fail' }); return; }
-            // 保存后自动把 data.json 同步到云端，线上立刻生效
-            const up = await syncCloud('upload_one.py', 'data.json');
-            sendJSON(res, 200, { ok: true, cloud: up });
+            // 本地保存成功后立即响应；GitHub 推送在后台异步进行
+            sendJSON(res, 200, { ok: true, deploy: 'pending' });
+            // 若开启旧版 COS 同步，仍保留
+            syncCloud('upload_one.py', 'data.json').then(up => {
+              console.log('[cloud sync data.json]', up);
+            }).catch(err => {
+              console.error('[cloud sync data.json error]', err);
+            });
+            // 自动推送到 GitHub Pages
+            runDeploy();
           });
         });
       } catch (e) { sendJSON(res, 400, { error: 'JSON 格式错误' }); }
@@ -229,14 +264,19 @@ const server = http.createServer(async (req, res) => {
         fs.writeFile(target, buf, e => {
           if (e) { sendJSON(res, 500, { error: 'write fail' }); return; }
           const retRel = 'media/' + rel.replace(/\\/g, '/');
-          // 本地文件写入成功即返回，避免大文件 cloud 同步阻塞响应；
-          // 云同步在后台异步进行，失败只落日志，不影响本地上传结果。
-          sendJSON(res, 200, { ok: true, path: retRel, size: buf.length, cloud: { pending: true } });
-          syncCloud('upload_one.py', retRel).then(function (up) {
-            console.log('[cloud sync]', retRel, up);
-          }).catch(function (err) {
-            console.error('[cloud sync error]', retRel, err);
-          });
+          // 本地文件写入成功即返回；COS/GitHub 推送在后台异步进行
+          sendJSON(res, 200, { ok: true, path: retRel, size: buf.length, cloud: { pending: true }, deploy: 'pending' });
+          // 若站点配置了 COS mediaBase，自动把单个媒体文件传到 COS
+          const mbase = currentMediaBase();
+          if (mbase && mbase.includes('myqcloud.com')) {
+            syncCloud('upload_one.py', retRel).then(function (up) {
+              console.log('[cloud sync]', retRel, up);
+            }).catch(function (err) {
+              console.error('[cloud sync error]', retRel, err);
+            });
+          }
+          // 自动推送到 GitHub Pages（media 文件也会一并推上去）
+          runDeploy();
         });
       });
       return;
@@ -283,6 +323,18 @@ const server = http.createServer(async (req, res) => {
         const rel = path.relative(ROOT, target).replace(/\\/g, '/');
         const del = await syncCloud('delete_one.py', rel);
         sendJSON(res, 200, { ok: true, cloud: del });
+        runDeploy();
+      });
+      return;
+    }
+
+    // ---- 部署状态（供前端轮询）----
+    if (url === '/api/deploy-status' && method === 'GET') {
+      sendJSON(res, 200, {
+        running: DEPLOY.running,
+        pending: DEPLOY.pending,
+        last: DEPLOY.last,
+        log: DEPLOY.log.slice(-10)
       });
       return;
     }
