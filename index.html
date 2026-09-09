@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Memory</title>
-<link rel="stylesheet" href="assets/css/style.css?v=12">
+<link rel="stylesheet" href="assets/css/style.css?v=13">
 </head>
 <body>
 
@@ -65,11 +65,17 @@
 <hr class="section-divider">
 
 <section class="chapter" id="favorites">
-  <div class="chapter-head reveal">
-    <div class="eyebrow">Chapter 01</div>
-    <h2 class="serif-title">收藏 · My Favorites</h2>
+  <div class="favorites-header reveal">
+    <button class="fav-nav fav-prev" aria-label="上一个收藏">‹</button>
+    <div class="chapter-head">
+      <div class="eyebrow">Chapter 01</div>
+      <h2 class="serif-title">收藏 · My Favorites</h2>
+    </div>
+    <button class="fav-nav fav-next" aria-label="下一个收藏">›</button>
   </div>
-  <div id="fav-list"></div>
+  <div class="fav-slider-wrap">
+    <div id="fav-list" class="fav-track"></div>
+  </div>
 </section>
 
 <hr class="section-divider">
@@ -107,6 +113,6 @@
   <div class="lb-count" style="position:absolute;bottom:26px;right:34px;color:#fff;font-size:12px;letter-spacing:.2em;"></div>
 </div>
 
-<script src="assets/js/site.js?v=12"></script>
+<script src="assets/js/site.js?v=13"></script>
 </body>
 </html>
