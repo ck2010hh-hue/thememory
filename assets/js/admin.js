@@ -196,6 +196,27 @@
     renderAll();
   }
 
+  function pollDeployStatus() {
+    var max = 40, i = 0;
+    function check() {
+      if (i++ > max) { toast('推送时间较长，请稍后刷新网站查看'); return; }
+      fetch(BASE + '/api/deploy-status', { headers: { 'x-admin-token': TOKEN } })
+        .then(function (r) { return r.json(); })
+        .then(function (s) {
+          if (s.last && s.last.time) {
+            var age = Date.now() - s.last.time;
+            if (age < 4000) {
+              toast(s.last.ok ? '已推送至 GitHub ✓ 约 1 分钟后生效' : 'GitHub 推送失败，请检查后台终端');
+              return;
+            }
+          }
+          if (s.running || s.pending) { toast('正在推送到 GitHub...'); setTimeout(check, 1500); }
+          else { setTimeout(check, 1000); }
+        }).catch(function () { /* ignore */ });
+    }
+    check();
+  }
+
   function saveAll() {
     if (MODE === 'gh') {
       if (!GH_TOKEN) { toast('请先填入 GitHub Token'); return; }
@@ -217,7 +238,8 @@
       }).catch(function (e) { toast('保存出错：' + e.message); });
     }
     return api('PUT', '/api/data', DATA).then(function (r) {
-      if (r.ok) toast('已保存 ✓ 并同步到云端'); else toast('保存失败');
+      if (r.ok) { toast('已保存 ✓ 正在推送到 GitHub...'); pollDeployStatus(); }
+      else toast('保存失败');
     }).catch(function () { toast('保存失败：请确认是用本机后台地址打开'); });
   }
   function upload(albumId, filename, dataUrl) {
@@ -364,7 +386,7 @@
               body: JSON.stringify(body)
             });
           }).then(function (r) { return r.json(); }).then(function (r) {
-            if (r.ok) { v.src = r.path; srcIn.value = r.path; toast('已覆盖：' + r.path + (r.size ? '（' + Math.round(r.size / 1024) + ' KB）' : '')); }
+            if (r.ok) { v.src = r.path; srcIn.value = r.path; toast('已覆盖：' + r.path + (r.size ? '（' + Math.round(r.size / 1024) + ' KB）' : '') + '，正在推送...'); pollDeployStatus(); }
             else { toast('上传失败：' + (r.error || '未知错误')); }
           }).catch(function (e) { toast('上传出错：' + e.message); });
         }, 'video/*');
@@ -448,7 +470,7 @@
               body: JSON.stringify(body)
             });
           }).then(function (r) { return r.json(); }).then(function (r) {
-            if (r.ok) { v.src = r.path; srcIn.value = r.path; toast('已覆盖：' + r.path + (r.size ? '（' + Math.round(r.size / 1024) + ' KB）' : '')); }
+            if (r.ok) { v.src = r.path; srcIn.value = r.path; toast('已覆盖：' + r.path + (r.size ? '（' + Math.round(r.size / 1024) + ' KB）' : '') + '，正在推送...'); pollDeployStatus(); }
             else { toast('上传失败：' + (r.error || '未知错误')); }
           }).catch(function (e) { toast('上传出错：' + e.message); });
         }, 'video/*');
