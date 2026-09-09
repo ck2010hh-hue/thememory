@@ -14,35 +14,40 @@
   function getJSON(url){ return fetch(url + '?t=' + Date.now(), {headers:{'x-admin-token':TOKEN}}).then(function(r){ return r.json(); }); }
 
   /* ---------- CDN 前缀：data.json 只存相对路径，换域名只改 cdnBase ---------- */
-  function abs(p, base){
+  var CDN_BASE = '', MEDIA_BASE = '';
+  function isMediaFile(p){
+    return /\.(mp4|mov|webm|wav|mp3|m4a|ogg)$/i.test(p || '');
+  }
+  function abs(p){
     if(!p) return p;
     if(/^https?:\/\//i.test(p) || p.indexOf('//')===0) return p;
-    return (base||'') + p;
+    return (isMediaFile(p) ? MEDIA_BASE : CDN_BASE) + p;
   }
   function applyCdn(d){
-    var base = (d.site && d.site.cdnBase) || '';
-    if(!base) return d;
+    CDN_BASE = (d.site && d.site.cdnBase) || '';
+    MEDIA_BASE = (d.site && d.site.mediaBase) || CDN_BASE;
+    if(!CDN_BASE && !MEDIA_BASE) return d;
     if(d.site){
-      if(d.site.heroVideo) d.site.heroVideo = abs(d.site.heroVideo, base);
-      if(d.site.introAudio) d.site.introAudio = abs(d.site.introAudio, base);
-      if(d.site.bgmList) d.site.bgmList = d.site.bgmList.map(function(u){ return abs(u, base); });
-      if(d.site.videos) d.site.videos.forEach(function(v){ v.src = abs(v.src, base); });
+      if(d.site.heroVideo) d.site.heroVideo = abs(d.site.heroVideo);
+      if(d.site.introAudio) d.site.introAudio = abs(d.site.introAudio);
+      if(d.site.bgmList) d.site.bgmList = d.site.bgmList.map(function(u){ return abs(u); });
+      if(d.site.videos) d.site.videos.forEach(function(v){ v.src = abs(v.src); });
     }
-    if(d.films && d.films.items) d.films.items.forEach(function(v){ if(v.src) v.src = abs(v.src, base); });
+    if(d.films && d.films.items) d.films.items.forEach(function(v){ if(v.src) v.src = abs(v.src); });
     if(d.moments){
-      if(d.moments.hero) d.moments.hero = abs(d.moments.hero, base);
+      if(d.moments.hero) d.moments.hero = abs(d.moments.hero);
       (d.moments.items||[]).forEach(function(m){
-        if(m.media) m.media = abs(m.media, base);
+        if(m.media) m.media = abs(m.media);
       });
     }
     Object.keys(d.albums||{}).forEach(function(k){
       var a = d.albums[k];
-      if(a.hero) a.hero = abs(a.hero, base);
+      if(a.hero) a.hero = abs(a.hero);
       (a.photos||[]).forEach(function(p){
-        if(p.src) p.src = abs(p.src, base);
-        if(p.thumb) p.thumb = abs(p.thumb, base);
+        if(p.src) p.src = abs(p.src);
+        if(p.thumb) p.thumb = abs(p.thumb);
       });
-      if(a.heroThumb) a.heroThumb = abs(a.heroThumb, base);
+      if(a.heroThumb) a.heroThumb = abs(a.heroThumb);
     });
     return d;
   }
