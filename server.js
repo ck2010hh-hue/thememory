@@ -183,11 +183,12 @@ function serveStatic(req, res, urlPath) {
 
 const server = http.createServer(async (req, res) => {
   const url = req.url;
+  const pathname = (url || '').split('?')[0];
   const method = req.method;
 
   try {
     // ---- 登录 ----
-    if (url === '/api/login' && method === 'POST') {
+    if (pathname === '/api/login' && method === 'POST') {
       const body = JSON.parse(await readBody(req, 1e6));
       if (body.password === ADMIN_PASS) sendJSON(res, 200, { ok: true, token: VALID_TOKEN });
       else sendJSON(res, 401, { ok: false, error: '密码错误' });
@@ -195,7 +196,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ---- 读取数据（公开）----
-    if (url === '/api/data' && method === 'GET') {
+    if (pathname === '/api/data' && method === 'GET') {
       fs.readFile(DATA_FILE, 'utf8', (err, txt) => {
         if (err) { sendJSON(res, 500, { error: 'read fail' }); return; }
         res.writeHead(200, {
@@ -209,7 +210,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ---- 保存数据（需登录）----
-    if (url === '/api/data' && method === 'PUT') {
+    if (pathname === '/api/data' && method === 'PUT') {
       if (!authOK(req)) { sendJSON(res, 401, { error: 'unauthorized' }); return; }
       const txt = await readBody(req, 20 * 1024 * 1024);
       try {
@@ -235,7 +236,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ---- 通用媒体上传/覆盖（需登录，base64）：支持视频、音乐等大文件 ----
-    if (url === '/api/upload-media' && method === 'POST') {
+    if (pathname === '/api/upload-media' && method === 'POST') {
       if (!authOK(req)) { sendJSON(res, 401, { error: 'unauthorized' }); return; }
       const body = JSON.parse(await readBody(req, 500 * 1024 * 1024));
       const b64 = (body.data || '').replace(/^data:.*,/, '');
@@ -294,7 +295,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ---- 上传媒体（需登录，base64）----
-    if (url === '/api/upload' && method === 'POST') {
+    if (pathname === '/api/upload' && method === 'POST') {
       if (!authOK(req)) { sendJSON(res, 401, { error: 'unauthorized' }); return; }
       const body = JSON.parse(await readBody(req, 200 * 1024 * 1024));
       const albumId = sanitizeName(body.albumId || 'misc');
@@ -324,7 +325,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ---- 删除媒体（需登录）----
-    if (url === '/api/media' && method === 'DELETE') {
+    if (pathname === '/api/media' && method === 'DELETE') {
       if (!authOK(req)) { sendJSON(res, 401, { error: 'unauthorized' }); return; }
       const body = JSON.parse(await readBody(req, 1e6));
       const target = safeMediaPath(body.path || '');
@@ -340,7 +341,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ---- 部署状态（供前端轮询）----
-    if (url === '/api/deploy-status' && method === 'GET') {
+    if (pathname === '/api/deploy-status' && method === 'GET') {
       res.writeHead(200, noCacheHeaders({ 'Content-Type': 'application/json; charset=utf-8' }));
       res.end(JSON.stringify({
         running: DEPLOY.running,
@@ -352,7 +353,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ---- 静态文件 ----
-    if (method === 'GET' || method === 'HEAD') { serveStatic(req, res, url); return; }
+    if (method === 'GET' || method === 'HEAD') { serveStatic(req, res, pathname); return; }
     res.writeHead(405); res.end('method not allowed');
   } catch (e) {
     console.error(e);
