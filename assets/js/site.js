@@ -54,24 +54,39 @@
     return a.hero || '';
   }
 
-  /* ---------- 图片亮度检测（用于 Hero 文字深浅自适应） ---------- */
+  /* ---------- 图片亮度检测（用于 Hero 文字深浅自适应） ----------
+     以图片中心区域亮度为主（文字所在位置），全局亮度为辅；
+     阈值 150：只有中心明显偏亮才用深色字，否则默认浅色字更保险。
+  */
   function detectImageBrightness(url, cb){
     var img = new Image();
-    img.crossOrigin = 'anonymous';
+    try {
+      var u = new URL(url, location.href);
+      if(u.origin !== location.origin) img.crossOrigin = 'anonymous';
+    } catch(e){}
     img.onload = function(){
       var cv = document.createElement('canvas');
-      var w = 64, h = Math.round(img.naturalHeight / img.naturalWidth * 64) || 64;
+      var w = 120, h = Math.round(img.naturalHeight / img.naturalWidth * 120) || 120;
       cv.width = w; cv.height = h;
       var ctx = cv.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
       try {
         var data = ctx.getImageData(0, 0, w, h).data;
-        var sum = 0, n = 0;
-        for(var i=0;i<data.length;i+=4){
-          var l = 0.299*data[i] + 0.587*data[i+1] + 0.114*data[i+2];
-          sum += l; n++;
+        var sumAll = 0, sumCenter = 0, nAll = 0, nCenter = 0;
+        var x1 = Math.floor(w * 0.30), x2 = Math.floor(w * 0.70);
+        var y1 = Math.floor(h * 0.30), y2 = Math.floor(h * 0.70);
+        for(var y=0; y<h; y++){
+          for(var x=0; x<w; x++){
+            var i = ((y*w) + x) * 4;
+            var l = 0.299*data[i] + 0.587*data[i+1] + 0.114*data[i+2];
+            sumAll += l; nAll++;
+            if(x >= x1 && x <= x2 && y >= y1 && y <= y2){ sumCenter += l; nCenter++; }
+          }
         }
-        cb(null, n ? (sum/n) : 128);
+        var avgAll = nAll ? (sumAll/nAll) : 128;
+        var avgCenter = nCenter ? (sumCenter/nCenter) : 128;
+        var brightness = avgCenter * 0.65 + avgAll * 0.35;
+        cb(null, brightness);
       } catch(e){ cb(null, 128); }
     };
     img.onerror = function(){ cb(null, 128); };
@@ -730,7 +745,7 @@
         heroEl.style.backgroundImage = 'url(\''+esc(p.hero)+'\')';
         detectImageBrightness(p.hero, function(err, brightness){
           heroEl.classList.remove('text-dark','text-light');
-          heroEl.classList.add(brightness > 128 ? 'text-dark' : 'text-light');
+          heroEl.classList.add(brightness > 150 ? 'text-dark' : 'text-light');
         });
       } else {
         heroEl.classList.remove('has-hero','text-dark','text-light');
