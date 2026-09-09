@@ -4,7 +4,7 @@
     "intro": "有些风景，走过便成了记忆。\n我把它们留在这里——\n一段段光，一座座远方的城。",
     "introAudio": "media/bgm.wav",
     "heroVideo": "media/hero-web2.mp4",
-    "cdnBase": "",
+    "cdnBase": "https://cdn.jsdelivr.net/gh/ck2010hh-hue/thememory@main/",
     "videos": [
       {
         "src": "media/hero-web2.mp4",
