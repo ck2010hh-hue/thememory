@@ -382,7 +382,7 @@
       if(it.type === 'video' || (it.media && /\.(mp4|mov|webm)$/i.test(it.media))){
         mediaHtml = '<div class="moment-media"><video controls playsinline preload="metadata" src="'+esc(it.media)+'"></video></div>';
       } else {
-        mediaHtml = '<div class="moment-media"><img src="'+esc(it.media)+'" alt="" loading="lazy"></div>';
+        mediaHtml = '<div class="moment-media image-only"><img src="'+esc(it.media)+'" alt="" loading="lazy"></div>';
       }
       var textHtml = '<div class="moment-text">'
         + '<div class="moment-meta"><span class="moment-date">'+esc(it.date||'')+'</span><span class="moment-place">'+esc(it.place||'')+'</span></div>'
