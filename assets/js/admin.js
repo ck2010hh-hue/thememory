@@ -47,7 +47,10 @@
       return r.json();
     });
   }
-  function getJSON() { return fetch(BASE + '/api/data?_=' + Date.now()).then(function (r) { return r.json(); }); }
+  function getJSON() {
+    return fetch(BASE + '/api/data?_=' + Date.now(), { cache: 'no-store', headers: { 'x-admin-token': TOKEN } })
+      .then(function (r) { return r.json(); });
+  }
 
   // 静态站模式：登录框改成 GitHub Token 入口
   /* ---------- 匿名直传 COS（手机可用，无需密钥） ----------
@@ -323,15 +326,31 @@
   }
 
   function load() {
+    toast('正在加载数据…');
     getJSON().then(function (d) {
-      DATA = d; renderAll();
+      if (!d || typeof d !== 'object') { toast('数据格式错误：未读到有效内容'); return; }
+      DATA = d;
+      try { renderAll(); toast('数据已加载 ✓'); }
+      catch (e) { console.error(e); toast('渲染出错：' + e.message); }
     }).catch(function (e) { toast('读取数据失败：' + e.message); });
   }
 
   /* ---------- 渲染 ---------- */
   function renderAll() {
-    renderSite(); renderVideos(); renderFilms(); renderMoments(); renderAlbums(); renderOrder('#favOrder', 'favoritesOrder', '首页收藏');
-    renderOrder('#galOrder', 'galleryOrder', '图集'); renderPlaces();
+    var fns = [
+      ['网站设置', renderSite],
+      ['影片管理', renderVideos],
+      ['归档影片', renderFilms],
+      ['瞬间管理', renderMoments],
+      ['相册管理', renderAlbums],
+      ['首页收藏顺序', function () { renderOrder('#favOrder', 'favoritesOrder', '首页收藏'); }],
+      ['图集顺序', function () { renderOrder('#galOrder', 'galleryOrder', '图集'); }],
+      ['地点地图', renderPlaces]
+    ];
+    fns.forEach(function (pair) {
+      try { pair[1](); }
+      catch (e) { console.error('渲染 ' + pair[0] + ' 出错:', e); toast('「' + pair[0] + '」渲染出错：' + e.message); }
+    });
     disableUploadUI();
   }
 
