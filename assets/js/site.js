@@ -315,15 +315,16 @@
       if(mhSub) mhSub.innerHTML = esc(d.moments.subtitle || '').replace(/\n/g, '<br>');
     }
 
-    // FAVORITES
+    // FAVORITES：横向轮播，一次只显示一个收藏相册，左右箭头切换；内部 cover-slider 保留
     var wrap = document.getElementById('fav-list');
     if(wrap){
-      var html = '';
+      var slides = [];
       (d.favoritesOrder||[]).slice(0, MAX_FAV).forEach(function(id, i){
         var a = d.albums[id]; if(!a) return;
         var covers = (a.photos||[]).slice(0, 8).map(function(p){ return p.thumb || p.src; });
         var rev = (i % 2 === 1) ? ' reverse' : '';
-        html += '<article class="album-row reveal'+rev+'">'
+        slides.push('<div class="fav-slide'+(i===0?' active':'')+'">'
+          + '<article class="album-row'+rev+'">'
           + '<div class="cover-slider" data-imgs=\''+JSON.stringify(covers)+'\'></div>'
           + '<div class="album-info">'
           + '<div class="no">'+esc(a.date ? ('No.'+('0'+(i+1)).slice(-2)) : '')+'</div>'
@@ -331,13 +332,15 @@
           + '<div class="meta">'+esc(a.place)+' &nbsp;/&nbsp; '+esc(a.date)+'</div>'
           + '<p class="desc">'+esc(a.desc)+'</p>'
           + '<a class="more" href="album.html?id='+esc(id)+'&from=favorites">看完整游记 →</a>'
-          + '</div></article>';
+          + '</div></article></div>');
       });
-      if(!html){
-        html = '<article class="album-row reveal"><div class="cover-slider" style="background:var(--bg-soft);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);min-height:360px;"><span style="letter-spacing:.3em;font-size:13px;">No.01 · 待添加</span></div>'
-          + '<div class="album-info"><div class="no">No.01</div><h3>即将上线</h3><div class="meta">地点待定</div><p class="desc">在后台「新建相册」即可出现在这里。</p><span class="more" style="opacity:.5;cursor:default;">敬请期待</span></div></article>';
+      if(!slides.length){
+        slides.push('<div class="fav-slide active">'
+          + '<article class="album-row"><div class="cover-slider" style="background:var(--bg-soft);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);min-height:360px;"><span style="letter-spacing:.3em;font-size:13px;">No.01 · 待添加</span></div>'
+          + '<div class="album-info"><div class="no">No.01</div><h3>即将上线</h3><div class="meta">地点待定</div><p class="desc">在后台「新建相册」即可出现在这里。</p><span class="more" style="opacity:.5;cursor:default;">敬请期待</span></div></article></div>');
       }
-      wrap.innerHTML = html;
+      wrap.innerHTML = slides.join('');
+      initFavoritesSlider();
     }
 
     // CHAPTER 02 PLACES：完整中国地图 + 统计 + 精选 + 海外
@@ -902,6 +905,21 @@
     });
     au.addEventListener('playing', removeGestureHooks, {once:true});
   }
+  function initFavoritesSlider(){
+    var track = document.getElementById('fav-list'); if(!track) return;
+    var slides = track.querySelectorAll('.fav-slide'); if(slides.length <= 1) return;
+    var cur = 0;
+    function go(n){
+      slides[cur].classList.remove('active');
+      cur = (n + slides.length) % slides.length;
+      slides[cur].classList.add('active');
+    }
+    var prev = document.querySelector('.fav-nav.fav-prev');
+    var next = document.querySelector('.fav-nav.fav-next');
+    if(prev) prev.addEventListener('click', function(){ go(cur-1); });
+    if(next) next.addEventListener('click', function(){ go(cur+1); });
+  }
+
   function initCoverSliders(){
     document.querySelectorAll('.cover-slider').forEach(function(slider){
       var raw = slider.getAttribute('data-imgs'); if(!raw) return;
