@@ -73,6 +73,16 @@ a{ color:inherit; text-decoration:none; }
 .reveal{ opacity:0; transform:translateY(28px); transition:opacity 1s ease, transform 1s ease; }
 .reveal.in{ opacity:1; transform:none; }
 
+/* 主体板块间淡分隔线 */
+.section-divider{
+  border:none; height:1px; margin:0 8vw;
+  background:linear-gradient(90deg, transparent, var(--line) 20%, var(--line) 80%, transparent);
+  opacity:.45;
+}
+@media (max-width:900px){
+  .section-divider{ margin:0 5vw; }
+}
+
 /* ---------- 首页 Hero ---------- */
 .hero{ position:relative; height:100vh; overflow:hidden; }
 .hero video{
