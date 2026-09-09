@@ -31,6 +31,29 @@
   function $all(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
   function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  /* 可复用的「说明」编辑器：大文本框 + 回车换行 + 对齐选择 */
+  function descEditor(v) {
+    var wrap = el('div', 'desc-editor');
+    wrap.appendChild(el('div', 'de-label', '说明（回车换行，空行分段）'));
+    var ta = document.createElement('textarea');
+    ta.className = 'desc-area';
+    ta.rows = 6;
+    ta.value = (v.desc || '').replace(/<br>/g, '\n');
+    ta.placeholder = '输入说明文字，回车换行，两段之间空一行...';
+    ta.oninput = function () { v.desc = ta.value; };
+    wrap.appendChild(ta);
+    var alignRow = el('div', 'align-row');
+    alignRow.appendChild(el('label', '', '对齐'));
+    var sel = document.createElement('select');
+    sel.innerHTML = '<option value="left">左对齐</option><option value="center">居中</option>';
+    sel.value = v.align || 'left';
+    sel.onchange = function () { v.align = sel.value; };
+    alignRow.appendChild(sel);
+    wrap.appendChild(alignRow);
+    return wrap;
+  }
+
   function toast(msg) {
     var t = $('#toast'); t.textContent = msg; t.classList.add('show');
     clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('show'); }, 2200);
@@ -413,14 +436,7 @@
       srcRow.appendChild(upBtn);
       item.appendChild(srcRow);
       item.appendChild(clipRow);
-      var descRow = el('div', 'field-row');
-      descRow.appendChild(el('label', '', '说明（空行分段）'));
-      var ta = document.createElement('textarea');
-      ta.rows = 4; ta.value = (v.desc || '').replace(/<br>/g, '\n');
-      ta.style.width = '100%'; ta.style.boxSizing = 'border-box';
-      ta.oninput = function () { v.desc = ta.value; };
-      descRow.appendChild(ta);
-      item.appendChild(descRow);
+      item.appendChild(descEditor(v));
       var acts = el('div', 'field-row');
       var up = el('button', 'btn-mini', '↑'); up.onclick = function () { swap(videos, i, i - 1); renderVideos(); };
       var dn = el('button', 'btn-mini', '↓'); dn.onclick = function () { swap(videos, i, i + 1); renderVideos(); };
@@ -497,14 +513,7 @@
       srcRow.appendChild(upBtn);
       item.appendChild(srcRow);
       item.appendChild(clipRow);
-      var descRow = el('div', 'field-row');
-      descRow.appendChild(el('label', '', '说明（空行分段）'));
-      var ta = document.createElement('textarea');
-      ta.rows = 4; ta.value = (v.desc || '').replace(/<br>/g, '\n');
-      ta.style.width = '100%'; ta.style.boxSizing = 'border-box';
-      ta.oninput = function () { v.desc = ta.value; };
-      descRow.appendChild(ta);
-      item.appendChild(descRow);
+      item.appendChild(descEditor(v));
       var acts = el('div', 'field-row');
       var up = el('button', 'btn-mini', '↑'); up.onclick = function () { swap(items, i, i - 1); renderFilms(); };
       var dn = el('button', 'btn-mini', '↓'); dn.onclick = function () { swap(items, i, i + 1); renderFilms(); };
