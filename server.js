@@ -191,7 +191,11 @@ const server = http.createServer(async (req, res) => {
     if (url === '/api/data' && method === 'GET') {
       fs.readFile(DATA_FILE, 'utf8', (err, txt) => {
         if (err) { sendJSON(res, 500, { error: 'read fail' }); return; }
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.writeHead(200, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache'
+        });
         res.end(txt);
       });
       return;
@@ -330,12 +334,17 @@ const server = http.createServer(async (req, res) => {
 
     // ---- 部署状态（供前端轮询）----
     if (url === '/api/deploy-status' && method === 'GET') {
-      sendJSON(res, 200, {
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+        'Pragma': 'no-cache'
+      });
+      res.end(JSON.stringify({
         running: DEPLOY.running,
         pending: DEPLOY.pending,
         last: DEPLOY.last,
         log: DEPLOY.log.slice(-10)
-      });
+      }));
       return;
     }
 
