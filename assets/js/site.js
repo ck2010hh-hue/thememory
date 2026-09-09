@@ -1005,9 +1005,10 @@
     var stage=vp.querySelector('.vstage');
     var sub=vp.querySelector('.vside-sub'), main=vp.querySelector('.vside-title'), desc=vp.querySelector('.vside-desc'), count=vp.querySelector('.vcount');
     var cur=0;
-    function renderDesc(text){
+    function renderDesc(text, align){
       var s = (text || '').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
-      var ps = s.split(/\n\s*\n/).filter(function(p){ return p.trim(); }).map(function(p){ return '<p>'+esc(p)+'</p>'; }).join('');
+      var style = (align === 'center') ? ' style="text-align:center;"' : '';
+      var ps = s.split(/\n\s*\n/).filter(function(p){ return p.trim(); }).map(function(p){ return '<p'+style+'>'+esc(p)+'</p>'; }).join('');
       if(desc) desc.innerHTML = ps || '<p style="opacity:.5;">（暂无说明）</p>';
     }
     function load(i){
@@ -1017,7 +1018,7 @@
       video.play().catch(function(){});
       if(sub) sub.textContent=v.sub||'';
       if(main) main.textContent=v.title||'';
-      if(desc) renderDesc(v.desc);
+      if(desc) renderDesc(v.desc, v.align);
       if(count) count.textContent=(cur+1)+' / '+vids.length;
     }
     vp.querySelector('.vprev').addEventListener('click',function(){load(cur-1);});
@@ -1045,7 +1046,7 @@
           + '<div class="film-video"><video controls playsinline preload="metadata"><source src="'+esc(v.src)+'" type="video/mp4"></video></div>'
           + '<div class="film-text">'
           + '<h3 class="film-title">'+esc(v.title || '')+'</h3>'
-          + '<p class="film-desc">'+esc(v.desc || '').replace(/\n/g,'<br>')+'</p>'
+          + '<p class="film-desc'+(v.align==='center'?' film-desc-center':'')+'">'+esc(v.desc || '').replace(/\n/g,'<br>')+'</p>'
           + '</div></article>';
       }).join('');
     }
