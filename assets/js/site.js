@@ -17,12 +17,16 @@
   function isMediaFile(p){
     return /\.(mp4|mov|webm|wav|mp3|m4a|ogg)$/i.test(p || '');
   }
+  function encPath(p){
+    // 对路径中的每一级做 URL 编码，保留斜杠；避免文件名里的空格/括号破坏 URL
+    return p.split('/').map(function(s){ return encodeURIComponent(s); }).join('/');
+  }
   function abs(p){
     if(!p) return p;
     if(/^https?:\/\//i.test(p) || p.indexOf('//')===0) return p;
-    // 国内优先走 COS(mediaBase)；COS 不可用时 fallback 到 CDN_BASE(jsDelivr/GitHub)
+    // 全部资源优先走国内 COS；COS 不可用时 fallback 到 jsDelivr/GitHub
     var base = MEDIA_BASE || CDN_BASE;
-    return base + p;
+    return base + encPath(p);
   }
   function applyCdn(d){
     CDN_BASE = (d.site && d.site.cdnBase) || '';
@@ -53,21 +57,23 @@
     return d;
   }
 
-  /* ---------- 资源加载失败自动回退：COS 失败时切 jsDelivr，jsDelivr 失败时切 COS ---------- */
+  /* ---------- 资源加载失败自动回退：当 CDN_BASE 与 MEDIA_BASE 不同时，失败时互相回退 ---------- */
   document.addEventListener('error', function(e){
     var el = e.target;
     if(!el || (el.tagName !== 'IMG' && el.tagName !== 'VIDEO' && el.tagName !== 'SOURCE' && el.tagName !== 'AUDIO')) return;
     var src = el.src || el.currentSrc || el.getAttribute('src');
     if(!src) return;
+    // 两个 base 相同或只有一个配置时不回退；避免重复请求同一地址死循环
+    if(!MEDIA_BASE || !CDN_BASE || MEDIA_BASE === CDN_BASE) return;
     // 避免无限回退
     if(el.dataset._tmFb === '1') return;
     var fb = '';
-    if(MEDIA_BASE && CDN_BASE && src.indexOf(MEDIA_BASE) === 0){
+    if(src.indexOf(MEDIA_BASE) === 0){
       fb = src.replace(MEDIA_BASE, CDN_BASE);
-    } else if(MEDIA_BASE && CDN_BASE && src.indexOf(CDN_BASE) === 0){
+    } else if(src.indexOf(CDN_BASE) === 0){
       fb = src.replace(CDN_BASE, MEDIA_BASE);
     }
-    if(fb){
+    if(fb && fb !== src){
       el.dataset._tmFb = '1';
       console.log('[TM fallback]', src, '->', fb);
       if(el.tagName === 'SOURCE') el.src = fb; else el.src = fb;
@@ -320,7 +326,11 @@
     var vid = document.querySelector('.hero video');
     if(vid && d.site.heroVideo){
       vid.src = d.site.heroVideo;
-      vid.innerHTML = '<source src="'+d.site.heroVideo+'" type="video/mp4">';
+      vid.innerHTML = '';
+      var srcEl = document.createElement('source');
+      srcEl.src = d.site.heroVideo;
+      srcEl.type = 'video/mp4';
+      vid.appendChild(srcEl);
       try { vid.load(); } catch(e){}
       try { var pp = vid.play(); if(pp && pp.catch) pp.catch(function(){}); } catch(e){}
     }
