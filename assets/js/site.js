@@ -28,6 +28,7 @@
       if(d.site.bgmList) d.site.bgmList = d.site.bgmList.map(function(u){ return abs(u, base); });
       if(d.site.videos) d.site.videos.forEach(function(v){ v.src = abs(v.src, base); });
     }
+    if(d.films && d.films.items) d.films.items.forEach(function(v){ if(v.src) v.src = abs(v.src, base); });
     if(d.moments){
       if(d.moments.hero) d.moments.hero = abs(d.moments.hero, base);
       (d.moments.items||[]).forEach(function(m){
@@ -977,6 +978,29 @@
     load(0);
   }
 
+  /* ---------- 渲染：会动的记忆 · film 归档区 ---------- */
+  function renderFilms(d){
+    var sec = document.getElementById('films'); if(!sec) return;
+    var f = d.films;
+    if(!f || !f.items || !f.items.length){
+      sec.style.display = 'none';
+      return;
+    }
+    var intro = document.getElementById('film-intro');
+    if(intro) intro.innerHTML = esc(f.intro || '').replace(/\n/g, '<br>');
+    var list = document.getElementById('film-list');
+    if(list){
+      list.innerHTML = f.items.map(function(v, i){
+        return '<article class="film-row reveal">'
+          + '<div class="film-video"><video controls playsinline preload="metadata"><source src="'+esc(v.src)+'" type="video/mp4"></video></div>'
+          + '<div class="film-text">'
+          + '<h3 class="film-title">'+esc(v.title || '')+'</h3>'
+          + '<p class="film-desc">'+esc(v.desc || '').replace(/\n/g,'<br>')+'</p>'
+          + '</div></article>';
+      }).join('');
+    }
+  }
+
   /* ---------- 启动 ---------- */
   function boot(){
     initNav(); initReveal();
@@ -1012,6 +1036,7 @@
       initCoverSliders(); initLightbox();
       renderBreadcrumb(d);
       initVideoCarousel();
+      renderFilms(d);
       initReveal();
     }).catch(function(e){ console.error('load data fail', e); });
   }
