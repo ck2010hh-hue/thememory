@@ -135,12 +135,17 @@ a{ color:inherit; text-decoration:none; }
 .hero .hero-sub{ font-size:13px; letter-spacing:.45em; text-transform:uppercase; opacity:.85; margin-bottom:22px; }
 .hero .hero-title{ font-family:var(--serif); font-size:clamp(44px,8vw,96px); font-weight:400; letter-spacing:.04em; }
 .hero .enter-btn{
-  margin-top:46px; display:inline-flex; align-items:center; gap:12px;
-  border:1px solid rgba(255,255,255,.7); color:#fff;
-  padding:14px 34px; border-radius:40px; font-size:13px; letter-spacing:.3em; text-transform:uppercase;
-  cursor:pointer; transition:background .35s,color .35s;
+  margin-top:46px; display:inline-flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+  border:1px solid rgba(255,255,255,.55); color:#fff;
+  padding:22px 40px; border-radius:18px; background:rgba(255,255,255,.08);
+  backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+  cursor:pointer; transition:background .35s,border-color .35s,transform .35s;
+  box-shadow:0 10px 30px rgba(0,0,0,.15);
+  min-width:160px;
 }
-.hero .enter-btn:hover{ background:#fff; color:#2b2622; }
+.hero .enter-btn:hover{ background:rgba(255,255,255,.18); border-color:rgba(255,255,255,.8); transform:translateY(-3px); }
+.hero .enter-btn .enter-main{ font-size:14px; letter-spacing:.25em; font-weight:500; text-transform:uppercase; }
+.hero .enter-btn .enter-sub{ font-size:12px; letter-spacing:.08em; opacity:.78; margin-top:8px; }
 .hero .scroll-hint{
   position:absolute; bottom:30px; left:50%; transform:translateX(-50%);
   color:#fff; font-size:11px; letter-spacing:.3em; opacity:.7;
