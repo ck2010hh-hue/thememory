@@ -332,26 +332,46 @@
       srcIn.style.flex = '1'; srcIn.placeholder = '如 media/hero-web2.mp4';
       srcRow.appendChild(srcIn);
       var upBtn = el('button', 'btn-mini', '上传并覆盖');
+      // 裁剪/压缩控件
+      var clipRow = el('div', 'field-row clip-row');
+      var clipChk = document.createElement('input');
+      clipChk.type = 'checkbox'; clipChk.checked = true; clipChk.style.width = 'auto'; clipChk.style.marginRight = '4px';
+      clipRow.appendChild(clipChk);
+      clipRow.appendChild(el('label', '', '上传时裁剪/压缩'));
+      var sIn = inp('number', 0, function () {}); sIn.placeholder = '起始秒'; sIn.style.width = '64px'; sIn.min = 0;
+      clipRow.appendChild(sIn);
+      var dIn = inp('number', 30, function () {}); dIn.placeholder = '时长≤30'; dIn.style.width = '78px'; dIn.min = 1; dIn.max = 30;
+      clipRow.appendChild(dIn);
+      var clipHint = el('span', 'clip-hint', '自动转码：≤30秒、宽≤1080、压缩小体积');
+      clipHint.style.cssText = 'font-size:11px;opacity:.7;align-self:center;margin-left:6px;';
+      clipRow.appendChild(clipHint);
       upBtn.onclick = function () {
         if (MODE === 'gh') { toast('线上版请把视频放到 media/ 目录后用 gh_push.py 推送'); return; }
         pickFile(false, function (files) {
           var f = files[0];
-          if (f.size > 80 * 1024 * 1024 && !confirm('视频超过 80MB，确认直接上传吗？')) return;
+          if (f.size > 200 * 1024 * 1024 && !confirm('视频超过 200MB，确认上传吗？')) return;
           toast('上传中…' + f.name);
           readFileAsDataURL(f).then(function (du) {
+            var body = { path: v.src || '', filename: f.name, data: du, overwrite: true };
+            if (clipChk.checked) {
+              body.cap30 = true;
+              var s = parseFloat(sIn.value); if (!isNaN(s) && s > 0) body.start = s;
+              var d = parseFloat(dIn.value); if (!isNaN(d) && d > 0) body.duration = Math.min(d, 30);
+            }
             return fetch(BASE + '/api/upload-media', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'x-admin-token': TOKEN },
-              body: JSON.stringify({ path: v.src || '', filename: f.name, data: du, overwrite: true })
+              body: JSON.stringify(body)
             });
           }).then(function (r) { return r.json(); }).then(function (r) {
-            if (r.ok) { v.src = r.path; srcIn.value = r.path; toast('已覆盖：' + r.path); }
+            if (r.ok) { v.src = r.path; srcIn.value = r.path; toast('已覆盖：' + r.path + (r.size ? '（' + Math.round(r.size / 1024) + ' KB）' : '')); }
             else { toast('上传失败：' + (r.error || '未知错误')); }
           }).catch(function (e) { toast('上传出错：' + e.message); });
         }, 'video/*');
       };
       srcRow.appendChild(upBtn);
       item.appendChild(srcRow);
+      item.appendChild(clipRow);
       var descRow = el('div', 'field-row');
       descRow.appendChild(el('label', '', '说明（空行分段）'));
       var ta = document.createElement('textarea');
