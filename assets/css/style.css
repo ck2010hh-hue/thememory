@@ -191,6 +191,8 @@ a{ color:inherit; text-decoration:none; }
 
 /* ---------- Moments：首页入口大图 ---------- */
 .moments-hero{ width:100%; padding:0 8vw 20px; box-sizing:border-box; }
+/* 当 Moments 入口放在 .chapter 容器内时，抵消 chapter 的水平内边距，保持大图撑满视口 */
+#moments .moments-hero{ margin-left:-8vw; margin-right:-8vw; }
 .moments-hero .mh-link{
   position:relative; display:block; width:100%; height:62vh; min-height:420px; max-height:720px;
   overflow:hidden; border-radius:6px; color:#fff;
