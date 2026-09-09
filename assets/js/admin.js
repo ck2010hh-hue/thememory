@@ -331,6 +331,26 @@
       var srcIn = inp('text', v.src || '', function (val) { v.src = val; });
       srcIn.style.flex = '1'; srcIn.placeholder = '如 media/hero-web2.mp4';
       srcRow.appendChild(srcIn);
+      var upBtn = el('button', 'btn-mini', '上传并覆盖');
+      upBtn.onclick = function () {
+        if (MODE === 'gh') { toast('线上版请把视频放到 media/ 目录后用 gh_push.py 推送'); return; }
+        pickFile(false, function (files) {
+          var f = files[0];
+          if (f.size > 80 * 1024 * 1024 && !confirm('视频超过 80MB，确认直接上传吗？')) return;
+          toast('上传中…' + f.name);
+          readFileAsDataURL(f).then(function (du) {
+            return fetch(BASE + '/api/upload-media', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'x-admin-token': TOKEN },
+              body: JSON.stringify({ path: v.src || '', filename: f.name, data: du, overwrite: true })
+            });
+          }).then(function (r) { return r.json(); }).then(function (r) {
+            if (r.ok) { v.src = r.path; srcIn.value = r.path; toast('已覆盖：' + r.path); }
+            else { toast('上传失败：' + (r.error || '未知错误')); }
+          }).catch(function (e) { toast('上传出错：' + e.message); });
+        }, 'video/*');
+      };
+      srcRow.appendChild(upBtn);
       item.appendChild(srcRow);
       var descRow = el('div', 'field-row');
       descRow.appendChild(el('label', '', '说明（空行分段）'));
