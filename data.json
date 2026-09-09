@@ -5,6 +5,7 @@
     "introAudio": "media/bgm.wav",
     "heroVideo": "media/hero-web2.mp4",
     "cdnBase": "https://cdn.jsdelivr.net/gh/ck2010hh-hue/thememory@main/",
+    "mediaBase": "",
     "videos": [
       {
         "src": "media/hero-web2.mp4",
