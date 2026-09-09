@@ -8,6 +8,7 @@
      多余的收藏不会丢，仍按后台顺序保留，只是首页不渲染；
      想改数量改这个数字即可（想全部显示改成 999）。 */
   var MAX_FAV = 3;
+  var CDN_BASE = '';   // 媒体 CDN 前缀（data.json.cdnBase），用于失败回退
 
   function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function getJSON(url){ return fetch(url + '?t=' + Date.now(), {headers:{'x-admin-token':TOKEN}}).then(function(r){ return r.json(); }); }
@@ -300,7 +301,15 @@
       var mhBg = document.getElementById('moments-hero-bg');
       var mhTitle = document.getElementById('moments-hero-title');
       var mhSub = document.getElementById('moments-hero-sub');
-      if(mhBg && d.moments.hero) mhBg.style.backgroundImage = 'url("'+esc(d.moments.hero)+'")';
+      if(mhBg && d.moments.hero){
+        var heroUrl = d.moments.hero;
+        mhBg.style.backgroundImage = 'url("'+esc(heroUrl)+'")';
+        if(CDN_BASE && heroUrl.indexOf(CDN_BASE)===0){
+          var probe = new Image();
+          probe.onerror = function(){ mhBg.style.backgroundImage = 'url("'+esc(heroUrl.slice(CDN_BASE.length))+'")'; };
+          probe.src = heroUrl;
+        }
+      }
       if(mhTitle) mhTitle.innerHTML = esc(d.moments.title || '').replace(/\n/g, '<br>');
       if(mhSub) mhSub.innerHTML = esc(d.moments.subtitle || '').replace(/\n/g, '<br>');
     }
@@ -974,6 +983,22 @@
     getJSON('data.json').then(function(d){
       DATA = applyCdn(d);
       d = DATA;
+      // 媒体容错：CDN（jsDelivr 国内可达）加载失败时，回退到同站相对路径（GitHub Pages 同源）。
+      // 这样电脑端（GitHub Pages 直连可用）和国内手机端（jsDelivr 国内节点）都能正常显示媒体。
+      CDN_BASE = (d.site && d.site.cdnBase) || '';
+      if(CDN_BASE){
+        document.addEventListener('error', function(e){
+          var el = e.target; if(!el || !el.tagName) return;
+          var src = el.src || (el.currentSrc) || '';
+          if((el.tagName==='IMG' || el.tagName==='VIDEO' || el.tagName==='SOURCE') && src.indexOf(CDN_BASE)===0 && !el.dataset.fb){
+            el.dataset.fb = '1';
+            var local = src.slice(CDN_BASE.length);
+            if(el.tagName==='IMG'){ el.src = local; }
+            else if(el.tagName==='VIDEO'){ el.src = local; try{ el.load(); }catch(_){} }
+            else if(el.tagName==='SOURCE'){ el.src = local; var v=el.parentNode; if(v&&v.tagName==='VIDEO'){ try{ v.load(); }catch(_){} } }
+          }
+        }, true);
+      }
       initBgm(d.site.bgmList);   // 曲库在 data.json，等数据就绪再起音乐
       var p = location.pathname;
       if(p.indexOf('album.html')>-1){
