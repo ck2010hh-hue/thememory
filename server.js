@@ -83,9 +83,16 @@ const MIME = {
   '.wav': 'audio/wav', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.m4a': 'audio/mp4'
 };
 
+function noCacheHeaders(base) {
+  return Object.assign({
+    'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  }, base || {});
+}
 function sendJSON(res, code, obj) {
   const body = JSON.stringify(obj);
-  res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8' });
+  res.writeHead(code, noCacheHeaders({ 'Content-Type': 'application/json; charset=utf-8' }));
   res.end(body);
 }
 function readBody(req, limit) {
@@ -169,7 +176,7 @@ function serveStatic(req, res, urlPath) {
       res.writeHead(404); res.end('not found'); return;
     }
     const ext = path.extname(filePath).toLowerCase();
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
+    res.writeHead(200, noCacheHeaders({ 'Content-Type': MIME[ext] || 'application/octet-stream' }));
     fs.createReadStream(filePath).pipe(res);
   });
 }
@@ -334,11 +341,7 @@ const server = http.createServer(async (req, res) => {
 
     // ---- 部署状态（供前端轮询）----
     if (url === '/api/deploy-status' && method === 'GET') {
-      res.writeHead(200, {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-        'Pragma': 'no-cache'
-      });
+      res.writeHead(200, noCacheHeaders({ 'Content-Type': 'application/json; charset=utf-8' }));
       res.end(JSON.stringify({
         running: DEPLOY.running,
         pending: DEPLOY.pending,
