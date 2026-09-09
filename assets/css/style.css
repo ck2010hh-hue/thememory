@@ -13,6 +13,9 @@
   --accent:    #8A7B5E;   /* 低饱和金棕，点缀 */
   --serif: "Songti SC","STSong","Noto Serif SC",Georgia,"Times New Roman",serif;
   --sans:  "PingFang SC","Microsoft YaHei","Helvetica Neue",Helvetica,Arial,sans-serif;
+  /* 图片统一阴影：右下斜偏移，柔和不抢戏 */
+  --img-shadow:       8px 12px 28px rgba(43, 38, 34, 0.12);
+  --img-shadow-hover: 10px 16px 34px rgba(43, 38, 34, 0.15);
 }
 
 *{ box-sizing:border-box; margin:0; padding:0; }
@@ -81,6 +84,41 @@ a{ color:inherit; text-decoration:none; }
 }
 @media (max-width:900px){
   .section-divider{ margin:0 5vw; }
+}
+
+/* ---------- 统一图片阴影（右下斜偏移） ----------
+   应用于所有以图片显示的区域：首页 Moments 入口、Favorites 封面、Gallery 卡片、
+   Places 精选/海外卡片、城市卡片、相册详情 Hero、相册网格、Moments 图片、
+   Gallery 列表图等。不应用于：地图 SVG、首页/视频页视频、灯箱大图。
+*/
+.media-shadow,
+.moments-hero .mh-link,
+.cover-slider,
+.gcard,
+.pf-card,
+.city-card,
+.glist-row,
+.detail-hero,
+.grid .cell,
+.moment-media.image-only {
+  box-shadow: var(--img-shadow);
+  transition: box-shadow .35s ease, transform .35s ease;
+}
+.gcard:hover,
+.pf-card:hover,
+.city-card:hover,
+.glist-row:hover,
+.grid .cell:hover {
+  box-shadow: var(--img-shadow-hover);
+}
+/* 视频、地图、灯箱明确不加阴影 */
+.hero video,
+.vpage .vplayer video,
+.album-video video,
+.mapwrap svg,
+.prov-map-wrap svg,
+.lightbox img {
+  box-shadow: none !important;
 }
 
 /* ---------- 首页 Hero ---------- */
@@ -358,7 +396,7 @@ a{ color:inherit; text-decoration:none; }
 .pf-head .serif-title{ font-size:30px; }
 .pf-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:24px; }
 .pf-card{ background:var(--bg-soft); overflow:hidden; transition:transform .3s, box-shadow .3s; }
-.pf-card:hover{ transform:translateY(-5px); box-shadow:0 16px 30px rgba(120,100,70,.14); }
+.pf-card:hover{ transform:translateY(-5px); box-shadow:var(--img-shadow-hover); }
 .pf-img{ aspect-ratio:4/3; overflow:hidden; background:var(--line); display:flex; align-items:center; justify-content:center; }
 .pf-img img{ width:100%; height:100%; object-fit:cover; transition:transform .6s; }
 .pf-card:hover .pf-img img{ transform:scale(1.04); }
@@ -429,9 +467,9 @@ a{ color:inherit; text-decoration:none; }
 .glist-row{
   display:grid; grid-template-columns:1fr 1fr; gap:0; align-items:stretch;
   background:var(--bg-soft); overflow:hidden; min-height:260px;
-  transition:box-shadow .3s;
+  transition:box-shadow .3s, transform .3s;
 }
-.glist-row:hover{ box-shadow:0 12px 40px rgba(0,0,0,.05); }
+.glist-row:hover{ transform:translateY(-3px); box-shadow:var(--img-shadow-hover); }
 .glist-row.reverse{ direction:rtl; }
 .glist-row.reverse > *{ direction:ltr; }
 .glist-img{ overflow:hidden; }
@@ -502,8 +540,8 @@ body.province-page .breadcrumb{ position:static; margin:96px auto 0; max-width:1
 body.province-page .breadcrumb a{ color:var(--ink); }
 
 .city-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:22px; max-width:1180px; margin:0 auto; }
-.city-card{ background:var(--bg-soft); overflow:hidden; transition:transform .3s; }
-.city-card:hover{ transform:translateY(-4px); }
+.city-card{ background:var(--bg-soft); overflow:hidden; transition:transform .3s, box-shadow .3s; }
+.city-card:hover{ transform:translateY(-4px); box-shadow:var(--img-shadow-hover); }
 .city-card .city-img{ aspect-ratio:4/3; overflow:hidden; background:var(--line); display:flex; align-items:center; justify-content:center; }
 .city-card .city-img img{ width:100%; height:100%; object-fit:cover; transition:transform .6s; }
 .city-card:hover .city-img img{ transform:scale(1.04); }
