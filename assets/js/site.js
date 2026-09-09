@@ -54,6 +54,30 @@
     return a.hero || '';
   }
 
+  /* ---------- 图片亮度检测（用于 Hero 文字深浅自适应） ---------- */
+  function detectImageBrightness(url, cb){
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function(){
+      var cv = document.createElement('canvas');
+      var w = 64, h = Math.round(img.naturalHeight / img.naturalWidth * 64) || 64;
+      cv.width = w; cv.height = h;
+      var ctx = cv.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      try {
+        var data = ctx.getImageData(0, 0, w, h).data;
+        var sum = 0, n = 0;
+        for(var i=0;i<data.length;i+=4){
+          var l = 0.299*data[i] + 0.587*data[i+1] + 0.114*data[i+2];
+          sum += l; n++;
+        }
+        cb(null, n ? (sum/n) : 128);
+      } catch(e){ cb(null, 128); }
+    };
+    img.onerror = function(){ cb(null, 128); };
+    img.src = url;
+  }
+
   /* ---------- 中国地图：简化轮廓（可替换为精确 GeoJSON/SVG） ---------- */
   function chinaOutlinePath(){
     // 风格化简化轮廓，含台湾、海南、香港、澳门示意；未来可替换为标准省界 SVG
@@ -420,12 +444,24 @@
     grid.innerHTML = html;
   }
 
+  /* ---------- 省份是否有相册 ---------- */
+  function provinceHasAlbums(p){
+    return Object.keys(p.cities||{}).some(function(ck){ return ((p.cities[ck].albums||[]).length > 0); });
+  }
+
   /* ---------- Places：统计 / 精选 / 海外 通用渲染 ---------- */
   function getPlaceStatsHTML(d){
     var provinces = d.places.provinces || {};
-    var pCount = Object.keys(provinces).length;
+    var pCount = 0;
+    Object.keys(provinces).forEach(function(k){ if(provinceHasAlbums(provinces[k])) pCount++; });
     var cityCount = 0;
-    Object.keys(provinces).forEach(function(k){ cityCount += Object.keys(provinces[k].cities||{}).length; });
+    Object.keys(provinces).forEach(function(k){
+      if(provinceHasAlbums(provinces[k])){
+        cityCount += Object.keys(provinces[k].cities||{}).filter(function(ck){
+          return (provinces[k].cities[ck].albums||[]).length > 0;
+        }).length;
+      }
+    });
     var photoCount = 0;
     Object.keys(d.albums||{}).forEach(function(k){ photoCount += (d.albums[k].photos||[]).length; });
     return '<div class="stat"><b>'+pCount+'</b><span>省份</span></div>'
@@ -589,8 +625,9 @@
 
     function bindZoom(svgEl){
       layer = svgEl.querySelector('#prov-zoom-layer');
-      // 滚轮缩放
+      // 滚轮缩放：仅在 Ctrl/Cmd 按下（双指捏合/按住缩放）时触发；普通上下滚动放行页面
       svgEl.addEventListener('wheel', function(e){
+        if(!(e.ctrlKey || e.metaKey)) return;
         e.preventDefault();
         var delta = e.deltaY > 0 ? 0.9 : 1.1;
         var rect = svgEl.getBoundingClientRect();
@@ -675,6 +712,7 @@
     if(!p){ document.body.innerHTML = '<p style="padding:120px;text-align:center;">省份不存在</p>'; return; }
 
     document.title = p.name + ' · Places · The Memory';
+    var heroEl = document.querySelector('.province-hero');
     var h1 = document.querySelector('.province-hero h1');
     if(h1) h1.textContent = p.name;
     var sub = document.querySelector('.province-hero .ph-sub');
@@ -685,14 +723,33 @@
       else { intro.textContent = ''; intro.style.display = 'none'; }
     }
 
+    // Hero 背景图：按图片亮度自动切换深浅文字
+    if(heroEl){
+      if(p.hero){
+        heroEl.classList.add('has-hero');
+        heroEl.style.backgroundImage = 'url(\''+esc(p.hero)+'\')';
+        detectImageBrightness(p.hero, function(err, brightness){
+          heroEl.classList.remove('text-dark','text-light');
+          heroEl.classList.add(brightness > 128 ? 'text-dark' : 'text-light');
+        });
+      } else {
+        heroEl.classList.remove('has-hero','text-dark','text-light');
+        heroEl.style.backgroundImage = '';
+      }
+    }
+
     // 省份真实轮廓地图（阿里 DataV 省界，免配额）
     drawProvinceSVG(d, pk, p);
 
-    // 城市卡片
+    // 城市卡片：有相册的城市优先置顶
     var grid = document.getElementById('city-grid');
     if(grid){
       var cities = p.cities || {};
-      var keys = Object.keys(cities);
+      var keys = Object.keys(cities).sort(function(a,b){
+        var ha = ((cities[a].albums||[]).length > 0) ? 1 : 0;
+        var hb = ((cities[b].albums||[]).length > 0) ? 1 : 0;
+        return hb - ha;
+      });
       var html = '';
       keys.forEach(function(ck){
         var c = cities[ck];
