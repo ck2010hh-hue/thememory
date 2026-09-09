@@ -210,6 +210,45 @@ a{ color:inherit; text-decoration:none; }
 }
 .album-info .more:hover{ color:var(--accent); border-color:var(--accent); }
 
+/* FAVORITES 横向轮播：标题左右切换箭头 */
+.favorites-header{
+  position:relative;
+  display:flex; align-items:center; justify-content:center;
+  max-width:1180px; margin:0 auto 80px;
+}
+.favorites-header .chapter-head{ margin:0; }
+.fav-nav{
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:46px; height:46px; border-radius:50%;
+  border:1px solid var(--line); background:transparent; color:var(--ink); font-size:18px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background .3s,border-color .3s,color .3s;
+}
+.fav-nav:hover{ background:var(--bg-soft); border-color:var(--ink-soft); color:var(--ink); }
+.fav-prev{ right:calc(100% + 18px); }
+.fav-next{ left:calc(100% + 18px); }
+.fav-slider-wrap{ max-width:1180px; margin:0 auto; }
+.fav-track{ position:relative; overflow:hidden; }
+.fav-slide{
+  position:absolute; top:0; left:0; width:100%;
+  opacity:0; visibility:hidden;
+  transition:opacity .7s ease, visibility .7s;
+}
+.fav-slide.active{ position:relative; opacity:1; visibility:visible; }
+.fav-slide .album-row{ margin-bottom:0; }
+
+@media (max-width:900px){
+  .favorites-header{ margin-bottom:50px; }
+  .fav-nav{ width:38px; height:38px; font-size:15px; }
+  .fav-prev{ right:calc(100% + 10px); }
+  .fav-next{ left:calc(100% + 10px); }
+}
+@media (max-width:640px){
+  .favorites-header{ margin-bottom:60px; }
+  .fav-prev{ right:auto; left:20px; top:calc(100% + 14px); }
+  .fav-next{ left:auto; right:20px; top:calc(100% + 14px); }
+}
+
 /* ---------- 影片轮播页：左 2/3 视频，右 1/3 文字 ---------- */
 .vpage{ position:relative; height:100vh; background:var(--bg); overflow:hidden; }
 .vpage .vwrap{ display:flex; width:100%; height:100vh; }
