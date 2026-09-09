@@ -449,8 +449,18 @@ a{ color:inherit; text-decoration:none; }
 /* ---------- Province 省地图页 ---------- */
 .province-hero{ position:relative; height:88vh; min-height:560px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:var(--bg); }
 .province-hero.has-hero{ background-size:cover; background-position:center; background-repeat:no-repeat; }
-.province-hero.has-hero::before{ content:''; position:absolute; inset:0; z-index:1; background:rgba(0,0,0,.22); }
-.province-hero .ph-text{ position:relative; z-index:2; text-align:center; padding:0 28px; }
+/* 全图遮罩：根据文字深浅反向调整，保证文字可读同时尽量保留背景完整性 */
+.province-hero.has-hero::before{ content:''; position:absolute; inset:0; z-index:1; transition:background .5s ease; }
+.province-hero.has-hero.text-light::before{ background:rgba(0,0,0,.34); }
+.province-hero.has-hero.text-dark::before{ background:rgba(251,247,239,.42); }
+.province-hero .ph-text{ position:relative; z-index:2; text-align:center; padding:24px 34px; }
+/* 文字背后局部柔焦衬底：只覆盖文字区域，不遮挡整张背景图 */
+.province-hero .ph-text::before{
+  content:''; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:118%; height:140%; border-radius:50%; filter:blur(38px); opacity:.55; z-index:-1; pointer-events:none;
+}
+.province-hero.has-hero.text-light .ph-text::before{ background:rgba(0,0,0,.42); }
+.province-hero.has-hero.text-dark .ph-text::before{ background:rgba(251,247,239,.55); }
 .province-hero .ph-sub{ font-size:12px; letter-spacing:.4em; text-transform:uppercase; color:var(--accent); margin-bottom:18px; }
 .province-hero h1{ font-family:var(--serif); font-weight:400; font-size:clamp(48px,8vw,92px); letter-spacing:.04em; }
 .province-hero .ph-intro{ max-width:620px; margin:20px auto 0; font-size:15px; line-height:2; letter-spacing:.05em; }
@@ -461,14 +471,14 @@ a{ color:inherit; text-decoration:none; }
 .province-hero:not(.has-hero) .ph-intro{ color:#8a7d6f; }
 
 /* 有背景 + 亮色图片 → 深色字 */
-.province-hero.has-hero.text-dark h1{ color:#2B2622; text-shadow:0 1px 0 rgba(251,247,239,.55); }
-.province-hero.has-hero.text-dark .ph-sub{ color:#5C5346; }
-.province-hero.has-hero.text-dark .ph-intro{ color:#4A4238; text-shadow:0 1px 0 rgba(251,247,239,.45); }
+.province-hero.has-hero.text-dark h1{ color:#2B2622; text-shadow:0 1px 0 rgba(255,255,255,.8), 0 2px 20px rgba(255,255,255,.5); }
+.province-hero.has-hero.text-dark .ph-sub{ color:#4A4238; text-shadow:0 1px 0 rgba(255,255,255,.7); }
+.province-hero.has-hero.text-dark .ph-intro{ color:#3A332B; text-shadow:0 1px 0 rgba(255,255,255,.7), 0 2px 16px rgba(255,255,255,.4); }
 
 /* 有背景 + 暗色图片 → 浅色字 */
-.province-hero.has-hero.text-light h1{ color:#FBF7EF; text-shadow:0 2px 8px rgba(0,0,0,.35); }
-.province-hero.has-hero.text-light .ph-sub{ color:#E6DDC6; }
-.province-hero.has-hero.text-light .ph-intro{ color:#FBF7EF; text-shadow:0 2px 6px rgba(0,0,0,.32); }
+.province-hero.has-hero.text-light h1{ color:#FBF7EF; text-shadow:0 2px 14px rgba(0,0,0,.55), 0 1px 3px rgba(0,0,0,.35); }
+.province-hero.has-hero.text-light .ph-sub{ color:#E8DFC9; text-shadow:0 1px 4px rgba(0,0,0,.45); }
+.province-hero.has-hero.text-light .ph-intro{ color:#FBF7EF; text-shadow:0 2px 12px rgba(0,0,0,.45), 0 1px 3px rgba(0,0,0,.3); }
 /* ---------- 面包屑：逐级返回 ---------- */
 .breadcrumb{ position:absolute; top:84px; left:40px; right:40px; z-index:60; display:flex; flex-wrap:wrap; align-items:center; gap:10px; font-size:13px; letter-spacing:.08em; color:#fff; }
 .breadcrumb a{ color:#fff; text-decoration:none; opacity:.82; }
