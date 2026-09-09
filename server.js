@@ -8,6 +8,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { execFile } = require('child_process');
 
 const ROOT = __dirname;                       // site-preview 目录
 const DATA_FILE = path.join(ROOT, 'data.json');
@@ -15,9 +16,15 @@ const MEDIA_DIR = path.join(ROOT, 'media');
 const PORT = process.env.PORT || 8787;
 
 // ---- 云端同步（腾讯云 COS）：本地保存后自动上传/删除云端副本 ----
+// 站点现已迁移到 GitHub Pages + jsDelivr，不再依赖 COS 作为线上资源来源；
+// 且 COS 账号已欠费（451）。默认关闭云同步，避免上传/保存被卡住。
+// 若日后需要，可设 TM_SYNC_CLOUD=1 重新开启。
 const PYTHON = process.env.TM_PYTHON || 'C:\\Users\\m1333\\.workbuddy\\binaries\\python\\versions\\3.13.12\\python.exe';
-const SYNC_CLOUD = process.env.TM_SYNC_CLOUD !== '0';   // 设为 0 可关闭云同步
+const SYNC_CLOUD = process.env.TM_SYNC_CLOUD === '1';   // 默认关闭，仅显式开启时同步
 const TOOLS_DIR = path.join(ROOT, 'tools');
+// 本地 ffmpeg（用于上传视频时裁剪/压缩）。放在 tools/ 下，gh_push 不会把它推到仓库。
+const FFMPEG = process.env.TM_FFMPEG || path.join(TOOLS_DIR, 'ffmpeg.exe');
+const MAX_CLIP = 30; // 单次上传裁剪最长秒数
 function syncCloud(script, rel) {
   return new Promise(resolve => {
     if (!SYNC_CLOUD) return resolve({ ok: false, skipped: true });
@@ -76,6 +83,43 @@ function safeMediaPath(rel) {
 }
 function sanitizeName(name) {
   return path.basename(name).replace(/[\/\\]/g, '').replace(/\.\./g, '').replace(/^\.+/, '').slice(0, 120) || ('file_' + Date.now());
+}
+
+// ---- 视频裁剪/压缩（ffmpeg）----
+// 将任意来源视频转码为网页友好 mp4：H.264+AAC+faststart，自动按旋转方向转正，宽度≤1080，CRF 压缩。
+// opts: { start(秒), duration(秒) }；返回转码后的 Buffer。
+function transcodeVideo(inputPath, opts) {
+  return new Promise((resolve, reject) => {
+    if (!fs.existsSync(FFMPEG)) {
+      return reject(new Error('ffmpeg 未找到（tools/ffmpeg.exe），无法裁剪/压缩'));
+    }
+    opts = opts || {};
+    const start = Number(opts.start) >= 0 ? Number(opts.start) : 0;
+    let dur = Number(opts.duration) > 0 ? Number(opts.duration) : 0;
+    if (dur > MAX_CLIP) dur = MAX_CLIP;            // 封顶 30 秒
+    // 探测是否有音轨（ffmpeg 7.x 会自动按旋转元数据转正，无需手动 transpose）
+    execFile(FFMPEG, ['-hide_banner', '-i', inputPath], { maxBuffer: 10 * 1024 * 1024 }, (e, _out, stderr) => {
+      const info = String(stderr || '');
+      const hasAudio = /Stream.*Audio:/.test(info);
+      const vf = "scale='min(1080,iw)':-2,format=yuv420p";
+      const out = inputPath + '.web.mp4';
+      const args = ['-y', '-ss', String(start)];
+      if (dur > 0) args.push('-t', String(dur));
+      args.push('-i', inputPath, '-vf', vf, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '26', '-pix_fmt', 'yuv420p', '-movflags', '+faststart');
+      if (hasAudio) { args.push('-c:a', 'aac', '-b:a', '128k'); }
+      else { args.push('-an'); }
+      args.push(out);
+      execFile(FFMPEG, args, { maxBuffer: 50 * 1024 * 1024 }, (e2, _o2, se2) => {
+        if (e2) return reject(new Error('ffmpeg 转码失败：' + String(se2 || e2.message).slice(0, 300)));
+        fs.readFile(out, (err, buf) => {
+          try { fs.unlinkSync(inputPath); } catch (_) {}
+          try { fs.unlinkSync(out); } catch (_) {}
+          if (err) return reject(err);
+          resolve(buf);
+        });
+      });
+    });
+  });
 }
 
 function serveStatic(req, res, urlPath) {
@@ -152,12 +196,26 @@ const server = http.createServer(async (req, res) => {
       try { buf = Buffer.from(b64, 'base64'); } catch (e) { sendJSON(res, 400, { error: 'base64 解码失败' }); return; }
       if (!buf.length) { sendJSON(res, 400, { error: '文件内容为空' }); return; }
 
+      // 上传时裁剪/压缩：有 start / duration / cap30 任一参数即触发 ffmpeg 转码
+      const doClip = body.start != null || body.duration != null || body.cap30;
+      if (doClip) {
+        const tmpIn = path.join(ROOT, '.tm_up_' + Date.now() + '.mp4');
+        try { fs.writeFileSync(tmpIn, buf); } catch (e) { sendJSON(res, 500, { error: '临时文件写入失败' }); return; }
+        try {
+          const dur = (body.cap30 && !body.duration) ? MAX_CLIP : body.duration;
+          buf = await transcodeVideo(tmpIn, { start: body.start, duration: dur });
+        } catch (e) {
+          sendJSON(res, 500, { error: e.message || '转码失败' });
+          return;
+        }
+      }
+
       let rel = String(body.path || '').replace(/\\/g, '/').replace(/^\/+/, '').replace(/^media\//, '');
       let filename;
       if (rel && body.overwrite) {
         filename = sanitizeName(path.basename(rel));
-        rel = path.dirname(rel).replace(/\\/g, '/') + '/' + filename;
-        if (rel.startsWith('/') || rel === '.') rel = filename;
+        let dir = path.dirname(rel).replace(/\\/g, '/');
+        rel = (!dir || dir === '.' || dir === '/') ? filename : dir + '/' + filename;
       } else {
         filename = sanitizeName(body.filename || ('media_' + Date.now() + '.mp4'));
         rel = 'videos/' + filename;
@@ -167,11 +225,17 @@ const server = http.createServer(async (req, res) => {
 
       fs.mkdir(path.dirname(target), { recursive: true }, err => {
         if (err) { sendJSON(res, 500, { error: 'mkdir fail' }); return; }
-        fs.writeFile(target, buf, async e => {
+        fs.writeFile(target, buf, e => {
           if (e) { sendJSON(res, 500, { error: 'write fail' }); return; }
           const retRel = 'media/' + rel.replace(/\\/g, '/');
-          const up = await syncCloud('upload_one.py', retRel);
-          sendJSON(res, 200, { ok: true, path: retRel, size: buf.length, cloud: up });
+          // 本地文件写入成功即返回，避免大文件 cloud 同步阻塞响应；
+          // 云同步在后台异步进行，失败只落日志，不影响本地上传结果。
+          sendJSON(res, 200, { ok: true, path: retRel, size: buf.length, cloud: { pending: true } });
+          syncCloud('upload_one.py', retRel).then(function (up) {
+            console.log('[cloud sync]', retRel, up);
+          }).catch(function (err) {
+            console.error('[cloud sync error]', retRel, err);
+          });
         });
       });
       return;
