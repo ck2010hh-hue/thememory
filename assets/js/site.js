@@ -8,7 +8,6 @@
      多余的收藏不会丢，仍按后台顺序保留，只是首页不渲染；
      想改数量改这个数字即可（想全部显示改成 999）。 */
   var MAX_FAV = 3;
-  var CDN_BASE = '';   // 媒体 CDN 前缀（data.json.cdnBase），用于失败回退
 
   function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function getJSON(url){ return fetch(url + '?t=' + Date.now(), {headers:{'x-admin-token':TOKEN}}).then(function(r){ return r.json(); }); }
@@ -21,11 +20,13 @@
   function abs(p){
     if(!p) return p;
     if(/^https?:\/\//i.test(p) || p.indexOf('//')===0) return p;
-    return (isMediaFile(p) ? MEDIA_BASE : CDN_BASE) + p;
+    // 国内优先走 COS(mediaBase)；COS 不可用时 fallback 到 CDN_BASE(jsDelivr/GitHub)
+    var base = MEDIA_BASE || CDN_BASE;
+    return base + p;
   }
   function applyCdn(d){
     CDN_BASE = (d.site && d.site.cdnBase) || '';
-    MEDIA_BASE = (d.site && d.site.mediaBase) || CDN_BASE;
+    MEDIA_BASE = (d.site && d.site.mediaBase) || '';
     if(!CDN_BASE && !MEDIA_BASE) return d;
     if(d.site){
       if(d.site.heroVideo) d.site.heroVideo = abs(d.site.heroVideo);
@@ -51,6 +52,32 @@
     });
     return d;
   }
+
+  /* ---------- 资源加载失败自动回退：COS 失败时切 jsDelivr，jsDelivr 失败时切 COS ---------- */
+  document.addEventListener('error', function(e){
+    var el = e.target;
+    if(!el || (el.tagName !== 'IMG' && el.tagName !== 'VIDEO' && el.tagName !== 'SOURCE' && el.tagName !== 'AUDIO')) return;
+    var src = el.src || el.currentSrc || el.getAttribute('src');
+    if(!src) return;
+    // 避免无限回退
+    if(el.dataset._tmFb === '1') return;
+    var fb = '';
+    if(MEDIA_BASE && CDN_BASE && src.indexOf(MEDIA_BASE) === 0){
+      fb = src.replace(MEDIA_BASE, CDN_BASE);
+    } else if(MEDIA_BASE && CDN_BASE && src.indexOf(CDN_BASE) === 0){
+      fb = src.replace(CDN_BASE, MEDIA_BASE);
+    }
+    if(fb){
+      el.dataset._tmFb = '1';
+      console.log('[TM fallback]', src, '->', fb);
+      if(el.tagName === 'SOURCE') el.src = fb; else el.src = fb;
+      // video 需要重新加载
+      if(el.tagName === 'VIDEO' || el.tagName === 'SOURCE'){
+        var v = el.tagName === 'SOURCE' ? el.parentNode : el;
+        if(v && v.load) try { v.load(); } catch(err){}
+      }
+    }
+  }, true);
 
   /* 卡片/列表封面统一用缩略图，灯箱与详情页大图才用原尺寸 */
   function coverThumb(a){
