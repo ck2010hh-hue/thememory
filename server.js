@@ -143,6 +143,40 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // ---- 通用媒体上传/覆盖（需登录，base64）：支持视频、音乐等大文件 ----
+    if (url === '/api/upload-media' && method === 'POST') {
+      if (!authOK(req)) { sendJSON(res, 401, { error: 'unauthorized' }); return; }
+      const body = JSON.parse(await readBody(req, 500 * 1024 * 1024));
+      const b64 = (body.data || '').replace(/^data:.*,/, '');
+      let buf;
+      try { buf = Buffer.from(b64, 'base64'); } catch (e) { sendJSON(res, 400, { error: 'base64 解码失败' }); return; }
+      if (!buf.length) { sendJSON(res, 400, { error: '文件内容为空' }); return; }
+
+      let rel = String(body.path || '').replace(/\\/g, '/').replace(/^\/+/, '').replace(/^media\//, '');
+      let filename;
+      if (rel && body.overwrite) {
+        filename = sanitizeName(path.basename(rel));
+        rel = path.dirname(rel).replace(/\\/g, '/') + '/' + filename;
+        if (rel.startsWith('/') || rel === '.') rel = filename;
+      } else {
+        filename = sanitizeName(body.filename || ('media_' + Date.now() + '.mp4'));
+        rel = 'videos/' + filename;
+      }
+      const target = safeMediaPath(rel);
+      if (!target) { sendJSON(res, 400, { error: '非法路径' }); return; }
+
+      fs.mkdir(path.dirname(target), { recursive: true }, err => {
+        if (err) { sendJSON(res, 500, { error: 'mkdir fail' }); return; }
+        fs.writeFile(target, buf, async e => {
+          if (e) { sendJSON(res, 500, { error: 'write fail' }); return; }
+          const retRel = 'media/' + rel.replace(/\\/g, '/');
+          const up = await syncCloud('upload_one.py', retRel);
+          sendJSON(res, 200, { ok: true, path: retRel, size: buf.length, cloud: up });
+        });
+      });
+      return;
+    }
+
     // ---- 上传媒体（需登录，base64）----
     if (url === '/api/upload' && method === 'POST') {
       if (!authOK(req)) { sendJSON(res, 401, { error: 'unauthorized' }); return; }
