@@ -47,7 +47,7 @@
       return r.json();
     });
   }
-  function getJSON() { return fetch(BASE + '/api/data').then(function (r) { return r.json(); }); }
+  function getJSON() { return fetch(BASE + '/api/data?_=' + Date.now()).then(function (r) { return r.json(); }); }
 
   // 静态站模式：登录框改成 GitHub Token 入口
   /* ---------- 匿名直传 COS（手机可用，无需密钥） ----------
@@ -200,7 +200,7 @@
     var max = 40, i = 0;
     function check() {
       if (i++ > max) { toast('推送时间较长，请稍后刷新网站查看'); return; }
-      fetch(BASE + '/api/deploy-status', { headers: { 'x-admin-token': TOKEN } })
+      fetch(BASE + '/api/deploy-status?_=' + Date.now(), { headers: { 'x-admin-token': TOKEN } })
         .then(function (r) { return r.json(); })
         .then(function (s) {
           if (s.last && s.last.time) {
