@@ -421,15 +421,9 @@
   }
 
   /* ---------- Places：统计 / 精选 / 海外 通用渲染 ---------- */
-  function provinceHasAlbums(p){
-    var cities = p.cities || {};
-    return Object.keys(cities).some(function(ck){ return (cities[ck].albums||[]).length > 0; });
-  }
   function getPlaceStatsHTML(d){
     var provinces = d.places.provinces || {};
-    // "省份" 统计与地图高亮数一致：只统计有相册的省份
-    var pCount = 0;
-    Object.keys(provinces).forEach(function(k){ if(provinceHasAlbums(provinces[k])) pCount++; });
+    var pCount = Object.keys(provinces).length;
     var cityCount = 0;
     Object.keys(provinces).forEach(function(k){ cityCount += Object.keys(provinces[k].cities||{}).length; });
     var photoCount = 0;
@@ -597,9 +591,6 @@
       layer = svgEl.querySelector('#prov-zoom-layer');
       // 滚轮缩放
       svgEl.addEventListener('wheel', function(e){
-        // 普通滚轮 / 双指上下滑动：不阻止，交给页面自然滚动。
-        // 双指捏合（触控板通常带 ctrlKey）或 Ctrl/Cmd + 滚轮：才缩放地图。
-        if (!(e.ctrlKey || e.metaKey)) return;
         e.preventDefault();
         var delta = e.deltaY > 0 ? 0.9 : 1.1;
         var rect = svgEl.getBoundingClientRect();
@@ -675,28 +666,6 @@
       .catch(function(){ fallback(); });
   }
 
-  /* 根据图片 URL 判断整体亮度（canvas 采样），回调返回 isDark */
-  function detectImageBrightness(url, cb){
-    var img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = function(){
-      var canvas = document.createElement('canvas');
-      var w = canvas.width = 64, h = canvas.height = 64;
-      var ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, w, h);
-      var data;
-      try { data = ctx.getImageData(0, 0, w, h).data; } catch(e){ cb(false); return; }
-      var sum = 0, n = data.length / 4;
-      for(var i = 0; i < data.length; i += 4){
-        // 相对亮度
-        sum += 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
-      }
-      cb((sum / n) < 115); // 0-255，低于 115 视为暗背景
-    };
-    img.onerror = function(){ cb(false); };
-    img.src = url;
-  }
-
   /* ---------- 渲染：Province 省地图页 ---------- */
   function renderProvince(d){
     var params = new URLSearchParams(location.search);
@@ -716,35 +685,14 @@
       else { intro.textContent = ''; intro.style.display = 'none'; }
     }
 
-    // Hero 背景图（数据驱动；无则不显示）+ 根据图片亮度自动切换深浅文字
-    var heroEl = document.querySelector('.province-hero');
-    if(heroEl){
-      heroEl.classList.remove('hero-light','hero-dark');
-      if(p.hero){
-        heroEl.classList.add('has-hero');
-        heroEl.style.backgroundImage = 'url(\''+esc(p.hero)+'\')';
-        detectImageBrightness(p.hero, function(isDark){
-          heroEl.classList.add(isDark ? 'hero-dark' : 'hero-light');
-        });
-      } else {
-        heroEl.classList.remove('has-hero');
-        heroEl.style.backgroundImage = '';
-        heroEl.classList.add('hero-light');
-      }
-    }
-
     // 省份真实轮廓地图（阿里 DataV 省界，免配额）
     drawProvinceSVG(d, pk, p);
 
-    // 城市卡片：有相册的城市优先置顶，按原顺序排列
+    // 城市卡片
     var grid = document.getElementById('city-grid');
     if(grid){
       var cities = p.cities || {};
-      var keys = Object.keys(cities).sort(function(a,b){
-        var ha = ((cities[a].albums||[]).length > 0) ? 1 : 0;
-        var hb = ((cities[b].albums||[]).length > 0) ? 1 : 0;
-        return hb - ha; // 有相册的排在前面
-      });
+      var keys = Object.keys(cities);
       var html = '';
       keys.forEach(function(ck){
         var c = cities[ck];
