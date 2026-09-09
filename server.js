@@ -39,7 +39,8 @@ function syncCloud(script, rel) {
 }
 
 const ADMIN_PASS = process.env.TM_ADMIN_PASS || 'thememory2026';
-const SECRET = crypto.randomBytes(16).toString('hex');
+// SECRET 保持固定，避免每次重启 server.js 后浏览器 localStorage 里的 token 失效导致 unauthorized
+const SECRET = process.env.TM_ADMIN_SECRET || 'thememory-local-secret-2026';
 const VALID_TOKEN = crypto.createHash('sha256').update(ADMIN_PASS + ':' + SECRET).digest('hex');
 
 if (ADMIN_PASS === 'thememory2026') {
