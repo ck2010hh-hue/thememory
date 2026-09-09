@@ -859,8 +859,23 @@
       if(au.paused){ start(); }
       else { stop(); }
     });
-    // 进入页面直接尝试播放；若浏览器拦截自动播放，用户点击按钮即可继续
+    // 进入页面直接尝试自动播放（静音视频可被允许；带声音常被浏览器拦截）
     start();
+    // 兜底：若自动播放被拦截（仍处于 paused），在用户首次交互时补播
+    function tryAutoOnGesture(){
+      if(!au.paused){ removeGestureHooks(); return; }
+      start();
+      if(!au.paused) removeGestureHooks();
+    }
+    function removeGestureHooks(){
+      ['pointerdown','keydown','scroll','touchstart'].forEach(function(ev){
+        window.removeEventListener(ev, tryAutoOnGesture);
+      });
+    }
+    ['pointerdown','keydown','scroll','touchstart'].forEach(function(ev){
+      window.addEventListener(ev, tryAutoOnGesture, {passive:true});
+    });
+    au.addEventListener('playing', removeGestureHooks, {once:true});
   }
   function initCoverSliders(){
     document.querySelectorAll('.cover-slider').forEach(function(slider){
