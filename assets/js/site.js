@@ -483,6 +483,7 @@
         var t = p.thumb || p.src;
           return '<div class="cell"><img data-full="'+esc(p.src)+'" data-cap="'+esc(p.cap||'')+'" src="'+esc(t)+'" alt=""></div>';
       }).join('');
+      grid.classList.add('in');
     }
     var order = d.galleryOrder && d.galleryOrder.length ? d.galleryOrder : Object.keys(d.albums);
     var idx = order.indexOf(id);
