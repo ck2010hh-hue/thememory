@@ -519,6 +519,8 @@
     });
     if(!html) html = '<p class="center-note">后台「新建相册」并加入图集后，会显示在这里。</p>';
     grid.innerHTML = html;
+    // Gallery 列表进入页面即显示，不依赖滚动淡入
+    Array.from(grid.querySelectorAll('.glist-row')).forEach(function(row){ row.classList.add('in'); });
   }
 
   /* ---------- 省份是否有相册 ---------- */
