@@ -678,7 +678,7 @@
     }
   }
 
-  /* ---------- 渲染：Gallery ---------- */
+  /* ---------- 渲染：Gallery 瀑布流卡片 ---------- */
   function renderGallery(d){
     var grid = document.querySelector('.gallery-list');
     if(!grid) return;
@@ -686,21 +686,20 @@
     (d.galleryOrder||[]).forEach(function(id, i){
       var a = d.albums[id]; if(!a) return;
       var cover = coverThumb(a);
-      var rev = (i % 2 === 1) ? ' reverse' : '';
-      html += '<a class="glist-row reveal'+rev+'" href="album.html?id='+esc(id)+'&from=gallery">'
-        + '<div class="glist-img"><img src="'+esc(cover)+'" alt="'+esc(a.title)+'"></div>'
-        + '<div class="glist-info">'
-        + '<div class="glist-no">'+esc(a.date ? ('No.'+('0'+(i+1)).slice(-2)) : '')+'</div>'
+      html += '<a class="gl-masonry-card reveal" href="album.html?id='+esc(id)+'&from=gallery">'
+        + '<div class="gl-photo"><img src="'+esc(cover)+'" alt="'+esc(a.title)+'"></div>'
+        + '<div class="gl-text">'
+        + '<div class="gl-no">'+esc(a.date ? ('No.'+('0'+(i+1)).slice(-2)) : '')+'</div>'
         + '<h4>'+esc(a.title)+'</h4>'
-        + '<div class="glist-meta">'+esc(a.place)+' / '+esc(a.date)+'</div>'
-        + '<p class="glist-desc">'+esc(a.desc)+'</p>'
-        + '<span class="glist-more">看完整游记 →</span>'
+        + '<div class="gl-meta">'+esc(a.place)+' / '+esc(a.date)+'</div>'
+        + '<p class="gl-desc">'+esc(a.desc)+'</p>'
+        + '<span class="gl-more">看完整游记 →</span>'
         + '</div></a>';
     });
     if(!html) html = '<p class="center-note">后台「新建相册」并加入图集后，会显示在这里。</p>';
     grid.innerHTML = html;
     // Gallery 列表进入页面即显示，不依赖滚动淡入
-    Array.from(grid.querySelectorAll('.glist-row')).forEach(function(row){ row.classList.add('in'); });
+    Array.from(grid.querySelectorAll('.gl-masonry-card')).forEach(function(card){ card.classList.add('in'); });
   }
 
   /* ---------- 相册 ↔ 省市自动联动 ----------
