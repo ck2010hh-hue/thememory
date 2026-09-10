@@ -1066,7 +1066,11 @@
   /* ---------- 启动 ---------- */
   function boot(){
     initNav(); initReveal();
-    getJSON('data.json').then(function(d){
+    /* 线上走 COS 的 data.json，避免 GitHub Pages 10 分钟缓存导致更新延迟；本地后台仍走相对路径 */
+    var dataUrl = (location.hostname === '127.0.0.1' || location.hostname === 'localhost' || !location.hostname)
+      ? 'data.json'
+      : 'https://thememory-1482718043.cos.ap-shanghai.myqcloud.com/data.json';
+    getJSON(dataUrl).then(function(d){
       DATA = applyCdn(d);
       d = DATA;
       // 媒体容错：CDN（jsDelivr 国内可达）加载失败时，回退到同站相对路径（GitHub Pages 同源）。
