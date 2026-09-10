@@ -213,9 +213,21 @@ const server = http.createServer(async (req, res) => {
       if (!authOK(req)) { sendJSON(res, 401, { error: 'unauthorized' }); return; }
       const txt = await readBody(req, 20 * 1024 * 1024);
       try {
-        JSON.parse(txt); // 校验
+        const incoming = JSON.parse(txt); // 校验并解析
+        // 防覆盖：读取本地当前 data.json，对追加型顺序数组做合并
+        let current = {};
+        try { current = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); } catch (e) { current = {}; }
+        ['galleryOrder', 'favoritesOrder'].forEach(function (key) {
+          const inc = incoming[key] || [];
+          const cur = current[key] || [];
+          // 以客户端顺序为准，再补服务端有但客户端没有的 ID
+          const set = new Set(inc);
+          cur.forEach(function (id) { if (!set.has(id)) inc.push(id); });
+          incoming[key] = inc;
+        });
+        const out = JSON.stringify(incoming, null, 2);
         const tmp = DATA_FILE + '.tmp';
-        fs.writeFile(tmp, txt, 'utf8', () => {
+        fs.writeFile(tmp, out, 'utf8', () => {
           fs.rename(tmp, DATA_FILE, async e => {
             if (e) { sendJSON(res, 500, { error: 'save fail' }); return; }
             // 本地保存成功后立即响应；GitHub 推送在后台异步进行
