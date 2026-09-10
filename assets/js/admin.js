@@ -965,6 +965,8 @@
       var title = prompt('新相册标题：', '新相册'); if (!title) return;
       var id = 'album-' + Date.now();
       DATA.albums[id] = { id: id, title: title, place: '', date: '', desc: '', hero: '', story: [], photos: [] };
+      DATA.galleryOrder = DATA.galleryOrder || [];
+      DATA.galleryOrder.push(id);
       renderAlbums();
     };
     // 网站设置里的上传（hero / audio）
