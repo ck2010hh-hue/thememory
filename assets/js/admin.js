@@ -405,8 +405,48 @@
     }).catch(function (e) { toast('读取数据失败：' + e.message); });
   }
 
+  /* ---------- 相册 ↔ 省市自动联动（与 site.js 同逻辑） ----------
+     依据相册 place 字段中的省名/城市名，把相册 ID 补进对应城市的 albums（去重，只增不删）。
+     让 Places 统计、省份点亮、城市圆点随相册自动更新，后台无需手工维护。 */
+  function normalizePlaceLinks(d) {
+    try {
+      var provs = d.places && d.places.provinces || {};
+      var provByName = {};
+      var cityIndex = {};
+      Object.keys(provs).forEach(function (pk) {
+        var p = provs[pk];
+        if (p.name) provByName[p.name] = pk;
+        Object.keys(p.cities || {}).forEach(function (ck) {
+          var c = p.cities[ck];
+          if (c && c.name) (cityIndex[c.name] = cityIndex[c.name] || []).push({ pk: pk, ck: ck });
+        });
+      });
+      Object.keys(d.albums || {}).forEach(function (id) {
+        var a = d.albums[id];
+        if (!a || !a.place) return;
+        var parts = String(a.place).split('·').map(function (s) { return s.trim(); }).filter(Boolean);
+        var pk = null, ck = null;
+        parts.forEach(function (seg) {
+          if (provByName[seg]) pk = provByName[seg];
+          var hits = cityIndex[seg];
+          if (hits) {
+            var h = pk ? hits.filter(function (x) { return x.pk === pk; })[0] : (hits.length === 1 ? hits[0] : null);
+            if (!h && hits.length === 1) h = hits[0];
+            if (h) { ck = h.ck; pk = pk || h.pk; }
+          }
+        });
+        if (pk && ck && provs[pk].cities[ck]) {
+          var c = provs[pk].cities[ck];
+          c.albums = c.albums || [];
+          if (c.albums.indexOf(id) === -1) c.albums.push(id);
+        }
+      });
+    } catch (e) { /* 联动失败不阻塞后台 */ }
+  }
+
   /* ---------- 渲染 ---------- */
   function renderAll() {
+    normalizePlaceLinks(DATA);
     var fns = [
       ['网站设置', renderSite],
       ['影片管理', renderVideos],
