@@ -401,10 +401,10 @@
       initFavoritesSlider();
     }
 
-    // CHAPTER 02 PLACES：完整中国地图 + 统计 + 精选 + 海外
+    // CHAPTER 01 PLACES：完整中国地图 + 统计 + 精选 + 海外
     if(d.places) renderHomePlaces(d);
 
-    // CHAPTER 03 GALLERY 预览段
+    // CHAPTER 02 GALLERY 预览段
     var gt = document.getElementById('gallery-teaser');
     if(gt){
       var gids = (d.galleryOrder||[]).slice(0,6);
