@@ -425,14 +425,17 @@
     if(title) title.textContent = m.title || '';
     if(sub) sub.textContent = m.subtitle || '';
 
-    // 年份目录固定「最新年份在最上，往前倒推」，即使存储顺序被旧数据覆盖也能纠正
+    // 年份相册卡片：最新年份排在最上（2026 → 2016 倒序），不受存储顺序影响
     var order = (m.yearOrder || []).slice().sort(function(a, b){
       return (parseInt(b.replace('year-',''), 10) || 0) - (parseInt(a.replace('year-',''), 10) || 0);
     });
-    var years = order.map(function(id){ return id.replace('year-',''); });
+    // 顶部年份标签：保持原顺序（2016 → 2026）不动
+    var years = (m.yearOrder || []).slice().sort(function(a, b){
+      return (parseInt(a.replace('year-',''), 10) || 0) - (parseInt(b.replace('year-',''), 10) || 0);
+    }).map(function(id){ return id.replace('year-',''); });
     var nav = document.getElementById('year-nav');
     if(nav){
-      if(!order.length){
+      if(!years.length){
         nav.innerHTML = '';
       } else {
         nav.innerHTML = years.map(function(y){
