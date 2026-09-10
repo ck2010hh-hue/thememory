@@ -469,7 +469,7 @@
     var videos = (DATA.site && DATA.site.videos) || (DATA.site = DATA.site || {}, DATA.site.videos = []);
     if (!videos.length) { wrap.appendChild(el('p', 'hint', '还没有影片，点右上角「添加影片」。')); return; }
     videos.forEach(function (v, i) {
-      var item = el('div', 'order-item');
+      var item = el('div', 'order-item sortable-item');
       item.appendChild(el('div', 'oi-title', esc(v.title || '未命名')));
       var row = el('div', 'field-row');
       row.appendChild(el('label', '', '编号'));
@@ -524,15 +524,11 @@
       item.appendChild(srcRow);
       item.appendChild(clipRow);
       item.appendChild(descEditor(v));
-      var acts = el('div', 'field-row');
-      var up = el('button', 'btn-mini', '↑'); up.onclick = function () { swap(videos, i, i - 1); renderVideos(); };
-      var dn = el('button', 'btn-mini', '↓'); dn.onclick = function () { swap(videos, i, i + 1); renderVideos(); };
-      var rm = el('button', 'btn-danger', '删');
-      rm.onclick = function () { if (confirm('删除影片「' + (v.title || '') + '」？')) { videos.splice(i, 1); renderVideos(); } };
-      acts.appendChild(up); acts.appendChild(dn); acts.appendChild(rm);
+      var acts = sortActions(videos, i, renderVideos, '删除影片「' + (v.title || '') + '」？', function () { videos.splice(i, 1); });
       item.appendChild(acts);
       wrap.appendChild(item);
     });
+    makeSortable(wrap, videos, renderVideos);
   }
 
   function renderFilms() {
@@ -549,7 +545,7 @@
     var items = f.items || (f.items = []);
     if (!items.length) { wrap.appendChild(el('p', 'hint', '还没有归档影片，点右上角「添加归档影片」。')); return; }
     items.forEach(function (v, i) {
-      var item = el('div', 'order-item');
+      var item = el('div', 'order-item sortable-item');
       item.appendChild(el('div', 'oi-title', esc(v.title || '未命名')));
       var row = el('div', 'field-row');
       row.appendChild(el('label', '', '标题'));
@@ -601,15 +597,11 @@
       item.appendChild(srcRow);
       item.appendChild(clipRow);
       item.appendChild(descEditor(v));
-      var acts = el('div', 'field-row');
-      var up = el('button', 'btn-mini', '↑'); up.onclick = function () { swap(items, i, i - 1); renderFilms(); };
-      var dn = el('button', 'btn-mini', '↓'); dn.onclick = function () { swap(items, i, i + 1); renderFilms(); };
-      var rm = el('button', 'btn-danger', '删');
-      rm.onclick = function () { if (confirm('删除归档影片「' + (v.title || '') + '」？')) { items.splice(i, 1); renderFilms(); } };
-      acts.appendChild(up); acts.appendChild(dn); acts.appendChild(rm);
+      var acts = sortActions(items, i, renderFilms, '删除归档影片「' + (v.title || '') + '」？', function () { items.splice(i, 1); });
       item.appendChild(acts);
       wrap.appendChild(item);
     });
+    makeSortable(wrap, items, renderFilms);
   }
 
   function renderMoments() {
@@ -742,15 +734,11 @@
         }, (it.type === 'video') ? 'video/*' : ((it.type === 'image') ? 'image/*' : 'image/*,video/*'));
       };
       mr.appendChild(mb); mediaRow.appendChild(mr); card.appendChild(mediaRow);
-      var acts = el('div', 'field-row');
-      var up = el('button', 'btn-mini', '↑'); up.onclick = function () { swap(items, i, i - 1); renderMoments(); };
-      var dn = el('button', 'btn-mini', '↓'); dn.onclick = function () { swap(items, i, i + 1); renderMoments(); };
-      var rm = el('button', 'btn-danger', '删');
-      rm.onclick = function () { if (confirm('删除这条瞬间记录？')) { items.splice(i, 1); renderMoments(); } };
-      acts.appendChild(up); acts.appendChild(dn); acts.appendChild(rm);
+      var acts = sortActions(items, i, renderMoments, '删除这条瞬间记录？', function () { items.splice(i, 1); });
       card.appendChild(acts);
       wrap.appendChild(card);
     });
+    makeSortable(wrap, items, renderMoments);
   }
 
   function renderSite() {
@@ -814,13 +802,14 @@
       var ta = document.createElement('textarea'); ta.rows = 2; ta.value = p; ta.style.marginBottom = '6px';
       ta.style.width = '100%'; ta.style.boxSizing = 'border-box';
       ta.oninput = function () { a.story[i] = ta.value; };
-      var rr = el('div', 'row'); rr.style.marginBottom = '8px';
-      var up = el('button', 'btn-mini', '↑'); up.onclick = function () { swap(a.story, i, i - 1); renderAlbums(); };
-      var dn = el('button', 'btn-mini', '↓'); dn.onclick = function () { swap(a.story, i, i + 1); renderAlbums(); };
-      var rm = el('button', 'btn-danger', '删'); rm.onclick = function () { a.story.splice(i, 1); renderAlbums(); };
-      rr.appendChild(up); rr.appendChild(dn); rr.appendChild(rm); rr.appendChild(ta);
+      var rr = el('div', 'row sortable-item story-row'); rr.style.marginBottom = '8px';
+      var dh = el('span', 'drag-handle', '\u22EF');
+      rr.appendChild(dh);
+      var rm = el('button', 'btn-danger btn-mini', '删'); rm.onclick = function () { a.story.splice(i, 1); renderAlbums(); };
+      rr.appendChild(rm); rr.appendChild(ta);
       story.appendChild(rr);
     });
+    makeSortable(story, a.story, renderAlbums);
     var addS = el('button', 'btn-mini', '+ 加一段');
     addS.onclick = function () { a.story = a.story || []; a.story.push(''); renderAlbums(); };
     story.appendChild(addS);
@@ -850,7 +839,7 @@
 
     var grid = el('div', 'photo-grid');
     (a.photos || []).forEach(function (p, i) {
-      var cell = el('div', 'photo-cell' + (a.hero === p.src ? ' is-hero' : ''));
+      var cell = el('div', 'photo-cell sortable-item' + (a.hero === p.src ? ' is-hero' : ''));
       if (a.hero === p.src) cell.appendChild(el('div', 'hero-badge', '主图'));
       cell.appendChild(el('img', null, '').cloneNode(false)); // placeholder
       var im = cell.querySelector('img') || document.createElement('img');
@@ -858,17 +847,16 @@
       cell.appendChild(el('div', 'pc-cap', esc(p.cap || '')));
       var acts = el('div', 'pc-actions');
       var shero = el('button', null, '设主图'); shero.onclick = function () { a.hero = p.src; renderAlbums(); };
-      var sup = el('button', null, '↑'); sup.onclick = function () { swap(a.photos, i, i - 1); renderAlbums(); };
-      var sdn = el('button', null, '↓'); sdn.onclick = function () { swap(a.photos, i, i + 1); renderAlbums(); };
       var srm = el('button', null, '删'); srm.onclick = function () {
         if (!confirm('删除这张照片？')) return;
         delMedia(p.src.replace(/^media\//, 'media/'));
         a.photos.splice(i, 1); renderAlbums();
       };
-      acts.appendChild(sup); acts.appendChild(sdn); acts.appendChild(shero); acts.appendChild(srm);
+      acts.appendChild(shero); acts.appendChild(srm);
       cell.appendChild(acts);
       grid.appendChild(cell);
     });
+    makeSortable(grid, a.photos, renderAlbums);
     pm.appendChild(grid);
     card.appendChild(pm);
 
@@ -884,6 +872,64 @@
   }
   function swap(arr, i, j) { if (!arr || i < 0 || j < 0 || i >= arr.length || j >= arr.length) return; var t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
 
+  /* ---------- 通用拖拽排序（替代所有 ↑↓ 按钮） ----------
+     用法：在渲染完列表后调用 makeSortable(container, array, rerender)
+     container 是包裹所有 .sortable-item 的父元素；
+     array 是对应的数据数组引用；rerender 是变化后回调（一般为重新渲染该板块）。
+     每个 .sortable-item 左侧会自动插入拖拽手柄，拖拽松手后自动 splice 重排。 */
+  var _dragSrcEl = null, _dragOverEl = null;
+  function makeSortable(container, arr, rerender) {
+    if (!container) return;
+    var items = container.querySelectorAll('.sortable-item');
+    items.forEach(function (item, idx) {
+      item.setAttribute('draggable', 'true');
+      item.setAttribute('data-sidx', idx);
+      // 插入拖拽手柄（如果还没有）
+      if (!item.querySelector('.drag-handle')) {
+        var dh = el('span', 'drag-handle', '\u22EF'); /* ≡ */
+        item.insertBefore(dh, item.firstChild);
+      }
+      item.ondragstart = function (e) {
+        _dragSrcEl = item;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', idx);
+        setTimeout(function () { item.classList.add('dragging'); }, 0);
+      };
+      item.ondragend = function () {
+        item.classList.remove('dragging');
+        _dragSrcEl = null;
+        _dragOverEl = null;
+        container.querySelectorAll('.sortable-item').forEach(function (el) { el.classList.remove('drag-over'); });
+      };
+      item.ondragover = function (e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (_dragOverEl && _dragOverEl !== item) _dragOverEl.classList.remove('drag-over');
+        if (item !== _dragSrcEl) { item.classList.add('drag-over'); _dragOverEl = item; }
+      };
+      item.ondragleave = function () { if (item !== _dragSrcEl) item.classList.remove('drag-over'); };
+      item.ondrop = function (e) {
+        e.preventDefault();
+        if (!_dragSrcEl || _dragSrcEl === item) return;
+        var fromIdx = parseInt(_dragSrcEl.getAttribute('data-sidx'), 10);
+        var toIdx = parseInt(item.getAttribute('data-sidx'), 10);
+        if (isNaN(fromIdx) || isNaN(toIdx)) return;
+        // splice 重排
+        var moved = arr.splice(fromIdx, 1)[0];
+        arr.splice(toIdx, 0, moved);
+        if (rerender) rerender();
+      };
+    });
+  }
+  /* 辅助：生成带删除按钮的操作行（替代原来 up+dn+rm 三按钮） */
+  function sortActions(arr, i, rerender, confirmMsg, onDel) {
+    var wrap = el('div', 'field-row sort-actions');
+    var rm = el('button', 'btn-danger btn-mini', '删');
+    rm.onclick = function () { if (confirmMsg ? confirm(confirmMsg) : true) { if (onDel) onDel(); else arr.splice(i, 1); if (rerender) rerender(); } };
+    wrap.appendChild(rm);
+    return wrap;
+  }
+
   function renderOrder(sel, key, label) {
     var wrap = $(sel); wrap.innerHTML = '';
     var order = DATA[key] || (DATA[key] = []);
@@ -895,15 +941,14 @@
     }
     order.forEach(function (id, i) {
       var a = DATA.albums[id]; if (!a) return;
-      var item = el('div', 'order-item');
+      var item = el('div', 'order-item sortable-item');
       var pre = (key === 'favoritesOrder') ? ((i < 3 ? '首页 ' : '隐藏 ') + (i + 1) + '. ') : '';
       item.appendChild(el('div', 'oi-title', pre + esc(a.title || id)));
-      var up = el('button', 'btn-mini', '↑'); up.onclick = function () { swap(order, i, i - 1); renderOrder(sel, key, label); };
-      var dn = el('button', 'btn-mini', '↓'); dn.onclick = function () { swap(order, i, i + 1); renderOrder(sel, key, label); };
       var rm = el('button', 'btn-danger', '移出'); rm.onclick = function () { order.splice(i, 1); renderOrder(sel, key, label); };
-      item.appendChild(up); item.appendChild(dn); item.appendChild(rm);
+      item.appendChild(rm);
       wrap.appendChild(item);
     });
+    makeSortable(wrap, order, function () { renderOrder(sel, key, label); });
     // 添加
     var opts = Object.keys(DATA.albums).filter(function (id) { return order.indexOf(id) < 0; })
       .map(function (id) { return '<option value="' + esc(id) + '">' + esc(DATA.albums[id].title || id) + '</option>'; }).join('');
@@ -933,6 +978,71 @@
 
   function renderProvinces() {
     var wrap = $('#placeLit'); wrap.innerHTML = '';
+
+    /* ===== 精选足迹管理（首页 Featured 卡片） ===== */
+    var fHead = el('div', 'tab-head');
+    fHead.appendChild(el('h3', 'sub-h', '精选足迹（首页 Featured 卡片）'));
+    wrap.appendChild(fHead);
+    wrap.appendChild(el('p', 'hint', '拖拽调整顺序；选择省份和对应相册。留空则自动 fallback 到有相册的省份。'));
+    var fWrap = el('div', 'order-list');
+    var featured = DATA.places.featured || (DATA.places.featured = []);
+    featured.forEach(function (f, i) {
+      var prov = DATA.places.provinces[f.province];
+      var item = el('div', 'order-item sortable-item');
+      // 省份选择
+      var pSel = document.createElement('select');
+      pSel.style.flex = '1';
+      pSel.innerHTML = Object.keys(DATA.places.provinces).map(function (pk) {
+        return '<option value="' + pk + '"' + (pk === f.province ? ' selected' : '') + '>' + esc((DATA.places.provinces[pk].name || pk)) + '</option>';
+      }).join('');
+      pSel.onchange = function () { f.province = pSel.value; };
+      item.appendChild(pSel);
+      // 相册选择（根据选中省份动态更新）
+      function buildAlbumOpts() {
+        var provData = DATA.places.provinces[pSel.value];
+        var albumIds = [];
+        if (provData && provData.cities) {
+          Object.keys(provData.cities).forEach(function (ck) {
+            var al = provData.cities[ck].albums || [];
+            al.forEach(function (aid) { if (albumIds.indexOf(aid) < 0) albumIds.push(aid); });
+          });
+        }
+        aSel.innerHTML = '<option value="">默认首个</option>' + albumIds.map(function (aid) {
+          var aa = DATA.albums[aid];
+          return '<option value="' + aid + '"' + (aid === f.albumId ? ' selected' : '') + '>' + esc(aa ? aa.title : aid) + '</option>';
+        }).join('');
+      }
+      var aSel = document.createElement('select');
+      aSel.style.flex = '2'; aSel.style.minWidth = '140px';
+      buildAlbumOpts();
+      aSel.onchange = function () { f.albumId = aSel.value || null; };
+      pSel.onchange = function () { f.province = pSel.value; buildAlbumOpts(); f.albumId = null; };
+      item.appendChild(aSel);
+      // 删除
+      var rm = el('button', 'btn-danger btn-mini', '移'); rm.style.marginLeft = '8px';
+      rm.onclick = function () { featured.splice(i, 1); renderProvinces(); };
+      item.appendChild(rm);
+      fWrap.appendChild(item);
+    });
+    // 添加新精选
+    var addFRow = el('div', 'order-item');
+    var addPSel = document.createElement('select');
+    addPSel.innerHTML = '<option value="">选择省份…</option>' + Object.keys(DATA.places.provinces).map(function (pk) {
+      return '<option value="' + pk + '">' + esc(DATA.places.provinces[pk].name || pk) + '</option>';
+    }).join('');
+    addFRow.appendChild(addPSel);
+    var addBtn = el('button', 'btn-mini', '+ 添加到精选');
+    addBtn.onclick = function () {
+      if (!addPSel.value) { toast('请先选择省份'); return; }
+      featured.push({ province: addPSel.value, albumId: null });
+      renderProvinces();
+    };
+    addFRow.appendChild(addBtn);
+    fWrap.appendChild(addFRow);
+    wrap.appendChild(fWrap);
+    makeSortable(fWrap, featured, renderProvinces);
+
+    /* ===== 省份详情编辑 ===== */
     Object.keys(DATA.places.provinces).forEach(function (k) {
       var p = DATA.places.provinces[k];
       var item = el('div', 'place-item province-item');
