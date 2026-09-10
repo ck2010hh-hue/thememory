@@ -600,6 +600,48 @@
     Array.from(grid.querySelectorAll('.glist-row')).forEach(function(row){ row.classList.add('in'); });
   }
 
+  /* ---------- 相册 ↔ 省市自动联动 ----------
+     依据：相册的 place 字段（如「宁波 · 浙江」）中出现的省名/城市名。
+     匹配成功就把相册 ID 补进 places.provinces.<省>.cities.<市>.albums（去重，只增不删）。
+     统计数字、省份点亮、城市圆点、城市卡片全部由该数组驱动，因此无需后台手工维护。 */
+  function normalizePlaceLinks(d){
+    try{
+      var provs = d.places && d.places.provinces || {};
+      var provByName = {};
+      var cityIndex = {}; /* 城市名 -> [{pk,ck}] */
+      Object.keys(provs).forEach(function(pk){
+        var p = provs[pk];
+        if(p.name) provByName[p.name] = pk;
+        Object.keys(p.cities||{}).forEach(function(ck){
+          var c = p.cities[ck];
+          if(c && c.name){
+            (cityIndex[c.name] = cityIndex[c.name] || []).push({ pk:pk, ck:ck });
+          }
+        });
+      });
+      Object.keys(d.albums||{}).forEach(function(id){
+        var a = d.albums[id];
+        if(!a || !a.place) return;
+        var parts = String(a.place).split('·').map(function(s){ return s.trim(); }).filter(Boolean);
+        var pk = null, ck = null;
+        parts.forEach(function(seg){
+          if(provByName[seg]) pk = provByName[seg];
+          var hits = cityIndex[seg];
+          if(hits){
+            var h = pk ? hits.filter(function(x){ return x.pk === pk; })[0] : (hits.length === 1 ? hits[0] : null);
+            if(!h && hits.length === 1) h = hits[0];
+            if(h){ ck = h.ck; pk = pk || h.pk; }
+          }
+        });
+        if(pk && ck && provs[pk].cities[ck]){
+          var c = provs[pk].cities[ck];
+          c.albums = c.albums || [];
+          if(c.albums.indexOf(id) === -1) c.albums.push(id);
+        }
+      });
+    }catch(e){ /* 联动失败不影响页面渲染 */ }
+  }
+
   /* ---------- 省份是否有相册 ---------- */
   function provinceHasAlbums(p){
     return Object.keys(p.cities||{}).some(function(ck){ return ((p.cities[ck].albums||[]).length > 0); });
@@ -1163,6 +1205,7 @@
     var dataUrl = isLocal ? 'api/data' : 'data.json';
     getJSON(dataUrl).then(function(d){
       DATA = applyCdn(d);
+      normalizePlaceLinks(DATA);
       d = DATA;
       // 媒体容错：CDN（jsDelivr 国内可达）加载失败时，回退到同站相对路径（GitHub Pages 同源）。
       // 这样电脑端（GitHub Pages 直连可用）和国内手机端（jsDelivr 国内节点）都能正常显示媒体。
