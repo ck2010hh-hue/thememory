@@ -1066,10 +1066,13 @@
   /* ---------- 启动 ---------- */
   function boot(){
     initNav(); initReveal();
-    /* 线上走 COS 的 data.json，避免 GitHub Pages 10 分钟缓存导致更新延迟；本地后台仍走相对路径 */
-    var dataUrl = (location.hostname === '127.0.0.1' || location.hostname === 'localhost' || !location.hostname)
-      ? 'data.json'
-      : 'https://thememory-1482718043.cos.ap-shanghai.myqcloud.com/data.json';
+    /* 数据始终同源加载：线上走 GitHub Pages 同源 data.json，本地后台走 /api/data。
+       不再跨域 fetch COS 的 data.json —— COS 未配 CORS（且无 ACAO 头、自定义头触发预检 403），
+       会导致 fetch 被浏览器拦截、boot() 永不执行、整页白屏崩溃。
+       媒体（视频/图片）仍通过 data.json 里的 cdnBase/mediaBase 走 COS 提速，
+       即使 COS 异常也只影响媒体，页面照常渲染（优雅降级）。 */
+    var isLocal = (location.hostname === '127.0.0.1' || location.hostname === 'localhost' || !location.hostname);
+    var dataUrl = isLocal ? 'api/data' : 'data.json';
     getJSON(dataUrl).then(function(d){
       DATA = applyCdn(d);
       d = DATA;
@@ -1104,7 +1107,11 @@
       initVideoCarousel();
       renderFilms(d);
       initReveal();
-    }).catch(function(e){ console.error('load data fail', e); });
+    }).catch(function(e){
+      console.error('load data fail', e);
+      var tip = document.querySelector('.hero-center');
+      if(tip){ var n=document.createElement('div'); n.style.cssText='color:#fff;margin-top:14px;font-size:13px;opacity:.85;letter-spacing:.05em'; n.textContent='内容加载失败，请刷新重试'; tip.appendChild(n); }
+    });
   }
   if(document.readyState!=='loading') boot();
   else document.addEventListener('DOMContentLoaded', boot);
