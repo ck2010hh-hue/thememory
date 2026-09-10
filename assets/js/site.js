@@ -10,7 +10,7 @@
   var MAX_FAV = 3;
 
   function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-  function getJSON(url){ return fetch(url + '?t=' + Date.now(), {headers:{'x-admin-token':TOKEN}}).then(function(r){ return r.json(); }); }
+  function getJSON(url){ return fetch(url + '?t=' + Date.now(), {cache:'no-store', headers:{'x-admin-token':TOKEN}}).then(function(r){ return r.json(); }); }
 
   /* ---------- CDN 前缀：data.json 只存相对路径，换域名只改 cdnBase ---------- */
   var CDN_BASE = '', MEDIA_BASE = '';
@@ -325,14 +325,15 @@
   function renderHome(d){
     var vid = document.querySelector('.hero video');
     if(vid && d.site.heroVideo){
+      vid.muted = true;
+      vid.setAttribute('muted', '');
+      vid.setAttribute('playsinline', '');
       vid.src = d.site.heroVideo;
-      vid.innerHTML = '';
-      var srcEl = document.createElement('source');
-      srcEl.src = d.site.heroVideo;
-      srcEl.type = 'video/mp4';
-      vid.appendChild(srcEl);
       try { vid.load(); } catch(e){}
       try { var pp = vid.play(); if(pp && pp.catch) pp.catch(function(){}); } catch(e){}
+      vid.addEventListener('error', function(){
+        console.error('[TM] hero video load error', vid.error && vid.error.code, vid.src);
+      }, {once:true});
     }
     var poem = document.querySelector('.intro .poem');
     if(poem) poem.innerHTML = (d.site.intro||'').replace(/\n/g,'<br>');
