@@ -82,6 +82,15 @@
         "media": "media/albums/moments/IMG_20251025_081259.jpg",
         "type": "image",
         "align": "center"
+      },
+      {
+        "id": "moment-1789081871463",
+        "date": "2025.05.09",
+        "place": "东京 · 日本",
+        "text": "感觉那是我整个25年，状态最好的时候吧\n对很多事都充满了期待，也干劲满满\n人的心情和状态，真的是会溢于言表的",
+        "media": "media/albums/moments/mmexport1746764739424.jpg",
+        "type": "image",
+        "align": "center"
       }
     ],
     "yearOrder": [
@@ -200,6 +209,10 @@
           {
             "src": "media/albums/moments/IMG_20251025_081259.jpg",
             "cap": "江苏 · 南京 · 2025.10.25"
+          },
+          {
+            "src": "media/albums/moments/mmexport1746764739424.jpg",
+            "cap": "东京 · 日本 · 2025.05.09"
           }
         ]
       },
