@@ -33,6 +33,19 @@
   THE MEMORY · 个人旅行日志<br>© 2026 · Built with light &amp; patience.
 </footer>
 
-<script src="https://thememory-1482718043.cos.ap-shanghai.myqcloud.com/assets/js/site.js?v=18"></script>
+<script>
+/* 核心 JS 主用国内 COS（提速），失败回退 GitHub Pages 同源；两者均为 <script> 标签，不受 CORS 限制。
+   数据 data.json 由 site.js 同源加载，彻底避开 COS 的 CORS 问题（这是之前整页崩溃的唯一原因）。 */
+(function(){
+  var s = document.createElement('script');
+  s.src = 'https://thememory-1482718043.cos.ap-shanghai.myqcloud.com/assets/js/site.js?_=' + Date.now();
+  s.onerror = function(){
+    var f = document.createElement('script');
+    f.src = 'assets/js/site.js?v=21';
+    document.head.appendChild(f);
+  };
+  document.head.appendChild(s);
+})();
+</script>
 </body>
 </html>
