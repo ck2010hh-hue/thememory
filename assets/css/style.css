@@ -1,5 +1,5 @@
 /* ============================================================
-   The Memory — 预览框架样式
+   The Memory — 预览框架样式 v25
    风格：米白/奶油底 + 深色衬线标题 + 细无衬线正文
    借鉴参考站：留白、诗意、轻视频/音频
    ============================================================ */
@@ -575,26 +575,39 @@ body.city-hero-dark .site-nav.on-hero{ color:#2B2622; }
 .gcard .gc-info h4{ font-family:var(--serif); font-weight:400; font-size:24px; margin:8px 0 4px; }
 .gcard .gc-info .gc-meta{ font-size:12px; letter-spacing:.15em; color:var(--ink-soft); text-transform:uppercase; }
 
-/* Gallery 完整图集：左图右文、紧凑卡片 */
-.gallery-list{ display:flex; flex-direction:column; gap:34px; max-width:1180px; margin:0 auto; }
-.glist-row{
-  display:grid; grid-template-columns:1fr 1fr; gap:0; align-items:stretch;
-  background:var(--bg-soft); overflow:hidden; min-height:260px;
-  transition:box-shadow .3s, transform .3s;
+/* Gallery 完整图集：瀑布流卡片（2列，图上文下） */
+.gallery-list{
+  column-count:2; column-gap:28px;
+  max-width:1180px; margin:0 auto;
 }
-.glist-row:hover{ transform:translateY(-3px); box-shadow:var(--img-shadow-hover); }
-.glist-row.reverse{ direction:rtl; }
-.glist-row.reverse > *{ direction:ltr; }
-.glist-img{ overflow:hidden; }
-.glist-img img{ width:100%; height:100%; object-fit:cover; transition:transform .7s; }
-.glist-row:hover .glist-img img{ transform:scale(1.04); }
-.glist-info{ padding:32px 38px; display:flex; flex-direction:column; justify-content:center; background:var(--bg); }
-.glist-no{ font-size:12px; letter-spacing:.35em; color:var(--accent); margin-bottom:10px; }
-.glist-info h4{ font-family:var(--serif); font-weight:400; font-size:clamp(24px,3vw,34px); line-height:1.2; margin:0 0 6px; }
-.glist-meta{ font-size:12px; letter-spacing:.15em; color:var(--ink-soft); margin-bottom:14px; text-transform:uppercase; }
-.glist-desc{ color:var(--ink-soft); font-size:14px; line-height:1.9; margin-bottom:18px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-.glist-more{ align-self:flex-start; font-size:12px; letter-spacing:.2em; border-bottom:1px solid var(--ink); padding-bottom:3px; transition:color .3s,border-color .3s; }
-.glist-row:hover .glist-more{ color:var(--accent); border-color:var(--accent); }
+.gl-masonry-card{
+  break-inside:avoid; margin-bottom:32px;
+  background:var(--bg-soft); border-radius:6px;
+  overflow:hidden; box-shadow:var(--img-shadow);
+  transition:transform .3s, box-shadow .3s;
+  display:inline-block; width:100%;
+}
+.gl-masonry-card:hover{
+  transform:translateY(-3px); box-shadow:var(--img-shadow-hover);
+}
+.gl-masonry-card .gl-photo{
+  overflow:hidden; background:var(--line);
+}
+.gl-masonry-card .gl-photo img{
+  width:100%; height:auto; display:block;
+  transition:transform .5s ease;
+}
+.gl-masonry-card:hover .gl-photo img{ transform:scale(1.03); }
+.gl-masonry-card .gl-text{ padding:20px 24px 26px; }
+.gl-no{ font-size:12px; letter-spacing:.35em; color:var(--accent); margin-bottom:10px; }
+.gl-masonry-card .gl-text h4{
+  font-family:var(--serif); font-weight:400;
+  font-size:clamp(20px,2.8vw,30px); line-height:1.2; margin:0 0 6px;
+}
+.gl-meta{ font-size:12px; letter-spacing:.15em; color:var(--ink-soft); margin-bottom:14px; text-transform:uppercase; }
+.gl-desc{ color:var(--ink-soft); font-size:14px; line-height:1.9; margin-bottom:18px; display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
+.gl-more{ align-self:flex-start; font-size:12px; letter-spacing:.2em; border-bottom:1px solid var(--ink); padding-bottom:3px; transition:color .3s,border-color .3s; }
+.gl-masonry-card:hover .gl-more{ color:var(--accent); border-color:var(--accent); }
 
 .center-note{ text-align:center; color:var(--ink-soft); font-size:14px; max-width:640px; margin:60px auto 0; line-height:2; }
 .stub-list{ max-width:680px; margin:50px auto 0; }
@@ -896,9 +909,15 @@ body.is-year-view .moments-page-content{ display:none; }
   .year-masonry-card{ margin-bottom:24px; }
   .year-masonry-card .ymc-text{ padding:16px 18px 20px; }
   .year-masonry-card .ymc-body{ font-size:14px; line-height:1.9; }
+  .gallery-list{ column-count:2; column-gap:22px; }
+  .gl-masonry-card{ margin-bottom:24px; }
+  .gl-masonry-card .gl-text{ padding:16px 18px 22px; }
 }
 @media (max-width:560px){
   .year-masonry-grid{ column-count:1; column-gap:0; }
   .year-masonry-card{ margin-bottom:20px; border-radius:4px; }
   .year-masonry-card .ymc-text{ padding:14px 16px 18px; }
+  .gallery-list{ column-count:1; column-gap:0; }
+  .gl-masonry-card{ margin-bottom:20px; border-radius:4px; }
+  .gl-masonry-card .gl-text{ padding:14px 16px 18px; }
 }
