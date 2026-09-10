@@ -54,6 +54,16 @@
       });
       if(a.heroThumb) a.heroThumb = abs(a.heroThumb);
     });
+    if(d.places && d.places.provinces){
+      Object.keys(d.places.provinces).forEach(function(pk){
+        var p = d.places.provinces[pk];
+        if(p.hero) p.hero = abs(p.hero);
+        Object.keys(p.cities||{}).forEach(function(ck){
+          var c = p.cities[ck];
+          if(c.hero) c.hero = abs(c.hero);
+        });
+      });
+    }
     return d;
   }
 
@@ -608,9 +618,22 @@
     document.title = city.name + ' · The Memory';
 
     var heroEl = document.querySelector('.detail-hero img');
-    if(heroEl && ids.length){
+    var heroContainer = document.querySelector('.detail-hero');
+    var heroUrl = city.hero;
+    if(!heroUrl && ids.length){
       var h0 = d.albums[ids[0]];
-      heroEl.src = h0.hero || ((h0.photos||[])[0] && h0.photos[0].src) || '';
+      heroUrl = h0.hero || ((h0.photos||[])[0] && h0.photos[0].src) || '';
+    }
+    if(heroEl && heroUrl) heroEl.src = heroUrl;
+    if(heroContainer && heroUrl){
+      heroContainer.classList.add('has-hero');
+      detectImageBrightness(heroUrl, function(err, brightness){
+        heroContainer.classList.remove('text-dark','text-light');
+        document.body.classList.remove('city-hero-dark','city-hero-light');
+        var isDark = brightness > 150;
+        heroContainer.classList.add(isDark ? 'text-dark' : 'text-light');
+        document.body.classList.add(isDark ? 'city-hero-dark' : 'city-hero-light');
+      });
     }
     var ht = document.querySelector('.detail-hero .dh-text');
     if(ht){
