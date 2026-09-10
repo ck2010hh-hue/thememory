@@ -563,6 +563,14 @@
     } else {
       order = d.galleryOrder && d.galleryOrder.length ? d.galleryOrder : Object.keys(d.albums);
     }
+    // 从市详情页进来时，在同城的相册之间切换，保持「省 → 市 → 相册」的递进
+    var cityIds = null;
+    if(params.get('from')==='city'){
+      var _p = d.places && d.places.provinces && d.places.provinces[params.get('province')];
+      var _c = _p && _p.cities && _p.cities[params.get('city')];
+      if(_c) cityIds = (_c.albums||[]).filter(function(x){ return d.albums[x]; });
+    }
+    if(cityIds && cityIds.length) order = cityIds;
     var idx = order.indexOf(id);
     var nextId = order[(idx+1) % order.length];
     var next = document.querySelector('.detail-foot a:last-child');
@@ -571,7 +579,78 @@
       np.set('id', nextId);
       if(params.get('from')) np.set('from', params.get('from'));
       if(params.get('province')) np.set('province', params.get('province'));
+      if(params.get('city')) np.set('city', params.get('city'));
       next.href = 'album.html?'+np.toString();
+    }
+    // 返回链接：回到所属城市页，而不是主页
+    var back = document.querySelector('.detail-foot a:first-child');
+    if(back && params.get('from')==='city' && params.get('province') && params.get('city')){
+      var bp = d.places && d.places.provinces && d.places.provinces[params.get('province')];
+      var bc = bp && bp.cities && bp.cities[params.get('city')];
+      if(bc){
+        back.href = 'city.html?province='+encodeURIComponent(params.get('province'))+'&city='+encodeURIComponent(params.get('city'));
+        back.textContent = '← 返回'+bc.name;
+      }
+    }
+  }
+
+  /* ---------- 渲染：市详情页（中国地图 → 省地图 → 市 → 相册 的第三层） ---------- */
+  function renderCity(d){
+    var params = new URLSearchParams(location.search);
+    var pk = params.get('province');
+    var ck = params.get('city');
+    var prov = d.places && d.places.provinces && d.places.provinces[pk];
+    var city = prov && prov.cities && prov.cities[ck];
+    if(!city){ document.body.innerHTML = '<p style="padding:120px;text-align:center;">城市不存在</p>'; return; }
+
+    var ids = (city.albums||[]).filter(function(id){ return d.albums[id]; });
+    var photoCount = ids.reduce(function(n, id){ return n + ((d.albums[id].photos||[]).length); }, 0);
+    document.title = city.name + ' · The Memory';
+
+    var heroEl = document.querySelector('.detail-hero img');
+    if(heroEl && ids.length){
+      var h0 = d.albums[ids[0]];
+      heroEl.src = h0.hero || ((h0.photos||[])[0] && h0.photos[0].src) || '';
+    }
+    var ht = document.querySelector('.detail-hero .dh-text');
+    if(ht){
+      ht.innerHTML = '<div class="dh-sub">'+esc(prov.name)+'</div>'
+        + '<h1>'+esc(city.name)+'</h1>'
+        + '<div class="dh-meta">'+ids.length+' 个相册 &nbsp;/&nbsp; '+photoCount+' 张照片</div>';
+    }
+    var body = document.querySelector('.detail-body');
+    if(body){
+      var s = '<div class="eyebrow">The City</div>';
+      var intro = city.intro || '';
+      s += intro ? '<p class="first-letter">'+esc(intro)+'</p>' : '';
+      body.innerHTML = s;
+    }
+    var grid = document.getElementById('city-albums');
+    if(grid){
+      grid.innerHTML = ids.length ? ids.map(function(id, i){
+        var a = d.albums[id];
+        var cover = coverThumb(a);
+        return '<a class="city-card reveal" href="album.html?id='+esc(id)+'&from=city&province='+esc(pk)+'&city='+esc(ck)+'">'
+          + '<div class="city-img'+(cover?'':' empty')+'">'
+          + (cover ? '<img src="'+esc(cover)+'" alt="'+esc(a.title)+'">' : '<span>'+esc(a.title)+'</span>')
+          + '</div>'
+          + '<div class="city-info">'
+          +   '<div class="city-no">No.'+('0'+(i+1)).slice(-2)+'</div>'
+          +   '<h4>'+esc(a.title)+'</h4>'
+          +   '<div class="city-meta">'+esc(a.place||'')+' / '+esc(a.date||'')+' · '+((a.photos||[]).length)+' 张</div>'
+          +   (a.desc ? '<p class="glist-desc">'+esc(a.desc)+'</p>' : '')
+          + '</div></a>';
+      }).join('') : '<p class="center-note">这座城市还没有相册，去后台新建相册并把地点填成「'+esc(city.name)+'」即可自动出现。</p>';
+      // 卡片首屏即显示，不依赖滚动淡入
+      Array.from(grid.querySelectorAll('.city-card')).forEach(function(c){ c.classList.add('in'); });
+    }
+    // 本页所有滚动淡入元素直接显示（市详情页内容少，不值得滚动触发）
+    Array.from(document.querySelectorAll('.city-page .reveal')).forEach(function(e){ e.classList.add('in'); });
+    // 底部导航：返回所属省份
+    var foot = document.querySelector('.detail-foot');
+    if(foot){
+      var back = foot.querySelector('a:first-child');
+      if(back){ back.href = 'province.html?province='+encodeURIComponent(pk); back.textContent = '← 返回'+prov.name+'地图'; }
     }
   }
 
@@ -867,18 +946,21 @@
       Object.keys(dataCities).forEach(function(ck){
         var c = dataCities[ck];
         var key = (c.name||ck).replace(/市$/,'');
-        cityByName[key] = c;
+        cityByName[key] = { c: c, ck: ck };
       });
       var cityDots = '';
       (geo.features||[]).forEach(function(f){
         if(!f.properties || !f.properties.name) return;
         var nameRaw = f.properties.name;
         var nameKey = nameRaw.replace(/市$/,'');
-        var c = cityByName[nameKey];
+        var hit = cityByName[nameKey];
+        var c = hit ? hit.c : null;
+        var ck = hit ? hit.ck : null;
         var ctr = featureCenter(f, pr);
         var albums = c ? (c.albums||[]) : [];
         var has = albums.length > 0;
-        var href = has ? ('album.html?id='+esc(albums[0])+'&from=province&province='+esc(pk)) : '#';
+        // 递进：省地图上的城市点 → 市详情页（可含多个相册）
+        var href = has ? ('city.html?province='+esc(pk)+'&city='+esc(ck)) : '#';
         var cls = 'city-dot' + (has ? ' lit' : '');
         var displayName = c ? (c.name || nameRaw) : nameRaw;
         cityDots += '<a href="'+href+'" class="'+cls+'" '+(has?'':'onclick="return false"')+'>'
@@ -953,7 +1035,8 @@
         var c = cities[ck];
         var albums = c.albums || [];
         var firstAlbum = albums[0];
-        var href = firstAlbum ? ('album.html?id='+esc(firstAlbum)+'&from=province&province='+esc(pk)) : '#';
+        // 递进：城市卡片 → 市详情页（可含多个相册）
+        var href = (c.albums||[]).length ? ('city.html?province='+esc(pk)+'&city='+esc(ck)) : '#';
         var cover = '';
         if(firstAlbum && d.albums[firstAlbum]){
           var a = d.albums[firstAlbum];
@@ -985,6 +1068,13 @@
       var prov = d.places && d.places.provinces && d.places.provinces[pk];
       crumbs.push({label:'Places', href:'place.html'});
       if(prov) crumbs.push({label:prov.name, href:null});
+    } else if(p.indexOf('city.html')>-1){
+      var cpk = params.get('province'), cck = params.get('city');
+      var cprov = d.places && d.places.provinces && d.places.provinces[cpk];
+      var ccity = cprov && cprov.cities && cprov.cities[cck];
+      crumbs.push({label:'Places', href:'place.html'});
+      if(cprov) crumbs.push({label:cprov.name, href:'province.html?province='+encodeURIComponent(cpk)});
+      if(ccity) crumbs.push({label:ccity.name, href:null});
     } else if(p.indexOf('album.html')>-1){
       var id = params.get('id');
       var a = d.albums[id];
@@ -997,6 +1087,14 @@
         crumbs.push({label:'Places', href:'place.html'});
         if(prov2) crumbs.push({label:prov2.name, href:'province.html?province='+encodeURIComponent(p2)});
       } else if(from==='place'){ crumbs.push({label:'Places', href:'place.html'}); }
+      else if(from==='city'){
+        var p3 = params.get('province'), c3 = params.get('city');
+        var prov3 = d.places && d.places.provinces && d.places.provinces[p3];
+        var city3 = prov3 && prov3.cities && prov3.cities[c3];
+        crumbs.push({label:'Places', href:'place.html'});
+        if(prov3) crumbs.push({label:prov3.name, href:'province.html?province='+encodeURIComponent(p3)});
+        if(city3) crumbs.push({label:city3.name, href:'city.html?province='+encodeURIComponent(p3)+'&city='+encodeURIComponent(c3)});
+      }
       else if(from==='moments'){ crumbs.push({label:'Moments', href:'moments.html'}); }
       if(a) crumbs.push({label:a.title, href:null});
     }
@@ -1229,6 +1327,7 @@
         var id = new URLSearchParams(location.search).get('id') || (d.galleryOrder&&d.galleryOrder[0]) || Object.keys(d.albums)[0];
         renderAlbum(d, id);
       } else if(p.indexOf('province.html')>-1){ renderProvince(d); }
+      else if(p.indexOf('city.html')>-1){ renderCity(d); }
       else if(p.indexOf('gallery.html')>-1){ renderGallery(d); }
       else if(p.indexOf('place.html')>-1){ renderPlaces(d); }
       else if(p.indexOf('moments.html')>-1){ renderMomentsPage(d); }
