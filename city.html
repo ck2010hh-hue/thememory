@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>City · The Memory</title>
+<link rel="stylesheet" href="https://thememory-1482718043.cos.ap-shanghai.myqcloud.com/assets/css/style.css?v=22">
+</head>
+<body class="city-page">
+
+<nav class="site-nav">
+  <a class="brand" href="index.html">The Memory</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="index.html#favorites">Favorites</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="place.html" class="active">Places</a>
+    <a href="index.html#join">Join</a>
+  </div>
+</nav>
+
+<header class="detail-hero">
+  <img src="" alt="">
+  <nav class="breadcrumb" id="breadcrumb"></nav>
+  <div class="dh-text">
+    <div class="dh-sub"></div>
+    <h1></h1>
+    <div class="dh-meta"></div>
+  </div>
+</header>
+
+<section class="detail-body reveal"></section>
+
+<section class="chapter">
+  <div class="chapter-head reveal">
+    <div class="eyebrow">Albums</div>
+    <h2 class="serif-title">城市相册</h2>
+    <p class="chapter-sub">同一座城市下的多个相册，点开可看完整图文。</p>
+  </div>
+  <div id="city-albums" class="city-grid"></div>
+</section>
+
+<div class="detail-foot reveal">
+  <a href="place.html">← 返回地点地图</a>
+  <a href="gallery.html">查看全部图集 →</a>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <span class="lb-close">关闭 ✕</span>
+  <span class="lb-nav lb-prev">‹</span>
+  <img class="lb-img" src="" alt="">
+  <span class="lb-nav lb-next">›</span>
+  <div class="lb-cap"></div>
+  <div class="lb-count" style="position:absolute;bottom:26px;right:34px;color:#fff;font-size:12px;letter-spacing:.2em;"></div>
+</div>
+
+<script>
+/* 核心 JS 主用国内 COS（提速），失败回退 GitHub Pages 同源；两者均为 <script> 标签，不受 CORS 限制。
+   数据 data.json 由 site.js 同源加载，彻底避开 COS 的 CORS 问题（这是之前整页崩溃的唯一原因）。 */
+(function(){
+  var s = document.createElement('script');
+  s.src = 'https://thememory-1482718043.cos.ap-shanghai.myqcloud.com/assets/js/site.js?_=' + Date.now();
+  s.onerror = function(){
+    var f = document.createElement('script');
+    f.src = 'assets/js/site.js?v=29';
+    document.head.appendChild(f);
+  };
+  document.head.appendChild(s);
+})();
+</script>
+</body>
+</html>
