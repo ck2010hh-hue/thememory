@@ -77,6 +77,18 @@
 .order-item .oi-actions button{ margin-left:4px; }
 .order-item select{ padding:6px 8px; border-radius:6px; border:1px solid #d8cfbe; font-size:13px; }
 
+/* 拖拽排序 */
+.sortable-item{ position:relative; cursor:default; }
+.sortable-item .drag-handle{ display:inline-flex; align-items:center; justify-content:center; width:28px; min-height:28px; font-size:18px; color:#b0a690; cursor:grab; flex-shrink:0; user-select:none; margin-right:4px; border-radius:5px; transition:background .15s,color .15s; line-height:1; }
+.sortable-item .drag-handle:hover{ background:#efe9dc; color:#8A7B5E; }
+.sortable-item .drag-handle:active{ cursor:grabbing; color:#5a4a32; }
+.sortable-item.dragging{ opacity:.35; box-shadow:none; transform:scale(.98); }
+.sortable-item.drag-over{ outline:2px solid #8A7B5E; outline-offset:-2px; background:#faf7f0; }
+.sort-actions{ justify-content:flex-end; }
+.photo-cell.sortable-item{ cursor:grab; }
+.photo-cell.sortable-item .drag-handle{ position:absolute; top:4px; left:4px; z-index:3; background:rgba(255,255,255,.85); border-radius:4px; width:22px; height:22px; font-size:14px; margin:0; }
+.photo-cell.sortable-item:hover .drag-handle{ background:rgba(255,255,255,.95); }
+
 /* 地点 */
 .place-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
 .place-item{ display:flex; gap:10px; align-items:center; background:#fffdf8; border:1px solid #e3dccd; border-radius:9px; padding:10px 14px; }
