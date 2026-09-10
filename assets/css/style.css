@@ -855,3 +855,50 @@ body.is-year-view .moments-page-content{ display:none; }
   .year-detail-top{ margin-bottom:32px; }
   .year-cover{ margin-bottom:56px; }
 }
+
+/* ---------- 年份详情页：瀑布流卡片网格 ---------- */
+.year-masonry-grid{
+  column-count:3; column-gap:28px;
+  max-width:1180px; margin:0 auto;
+}
+.year-masonry-card{
+  break-inside:avoid; margin-bottom:32px;
+  background:var(--bg-soft); border-radius:6px;
+  overflow:hidden; box-shadow:var(--img-shadow);
+  transition:transform .3s, box-shadow .3s;
+}
+.year-masonry-card:hover{
+  transform:translateY(-3px); box-shadow:var(--img-shadow-hover);
+}
+.year-masonry-card .ymc-photo{
+  overflow:hidden; background:var(--line);
+}
+.year-masonry-card .ymc-photo img{
+  width:100%; height:auto; display:block;
+  transition:transform .5s ease;
+}
+.year-masonry-card:hover .ymc-photo img{ transform:scale(1.03); }
+.year-masonry-card .ymc-photo video{
+  width:100%; height:auto; display:block;
+}
+.year-masonry-card .ymc-text{ padding:20px 22px 24px; }
+.year-masonry-card .ymc-meta{
+  display:flex; flex-wrap:wrap; gap:8px 14px;
+  margin-bottom:12px; font-size:11px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--accent);
+}
+.year-masonry-card .ymc-body{
+  font-size:14.5px; line-height:2; color:var(--ink-soft); white-space:pre-wrap;
+}
+
+@media (max-width:1000px){
+  .year-masonry-grid{ column-count:2; column-gap:22px; }
+  .year-masonry-card{ margin-bottom:24px; }
+  .year-masonry-card .ymc-text{ padding:16px 18px 20px; }
+  .year-masonry-card .ymc-body{ font-size:14px; line-height:1.9; }
+}
+@media (max-width:560px){
+  .year-masonry-grid{ column-count:1; column-gap:0; }
+  .year-masonry-card{ margin-bottom:20px; border-radius:4px; }
+  .year-masonry-card .ymc-text{ padding:14px 16px 18px; }
+}
