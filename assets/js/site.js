@@ -506,20 +506,21 @@
     if(!items.length){
       html += '<p class="center-note">这一年还没有图文。后台「瞬间管理」中添加条目并填写 '+esc(y)+' 年日期后，会自动归档到这里。</p>';
     } else {
-      html += items.map(function(it, i){
-        var isEven = (i % 2 === 0);
+      html += '<div class="year-masonry-grid">';
+      html += items.map(function(it){
         var mediaHtml;
         if(it.type === 'video' || (it.media && /\.(mp4|mov|webm)$/i.test(it.media))){
-          mediaHtml = '<div class="moment-media"><video controls playsinline preload="metadata" src="'+esc(it.media)+'"></video></div>';
+          mediaHtml = '<div class="ymc-photo"><video controls playsinline preload="metadata" src="'+esc(it.media)+'"></video></div>';
         } else {
-          mediaHtml = '<div class="moment-media image-only"><img src="'+esc(it.media)+'" alt=""></div>';
+          mediaHtml = '<div class="ymc-photo"><img src="'+esc(it.media)+'" alt="" loading="lazy"></div>';
         }
-        var textHtml = '<div class="moment-text">'
-          + '<div class="moment-meta"><span class="moment-date">'+esc(it.date||'')+'</span><span class="moment-place">'+esc(it.place||'')+'</span></div>'
-          + '<div class="moment-body">'+formatDesc(it.text, it.align)+'</div>'
+        var textHtml = '<div class="ymc-text">'
+          + '<div class="ymc-meta"><span class="ymc-date">'+esc(it.date||'')+'</span>' + (it.place ? '<span class="ymc-place">'+esc(it.place)+'</span>' : '') + '</div>'
+          + '<div class="ymc-body">'+formatDesc(it.text, it.align)+'</div>'
           + '</div>';
-        return '<article class="moment-item reveal'+(isEven?'':' reverse')+'">' + (isEven ? mediaHtml + textHtml : textHtml + mediaHtml) + '</article>';
+        return '<article class="year-masonry-card reveal">' + mediaHtml + textHtml + '</article>';
       }).join('');
+      html += '</div>';
     }
     wrap.innerHTML = html;
     // 首屏条目立即显示，避免 .reveal 未触发导致的空白
