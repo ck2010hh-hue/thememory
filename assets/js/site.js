@@ -425,7 +425,10 @@
     if(title) title.textContent = m.title || '';
     if(sub) sub.textContent = m.subtitle || '';
 
-    var order = m.yearOrder || [];
+    // 年份目录固定「最新年份在最上，往前倒推」，即使存储顺序被旧数据覆盖也能纠正
+    var order = (m.yearOrder || []).slice().sort(function(a, b){
+      return (parseInt(b.replace('year-',''), 10) || 0) - (parseInt(a.replace('year-',''), 10) || 0);
+    });
     var years = order.map(function(id){ return id.replace('year-',''); });
     var nav = document.getElementById('year-nav');
     if(nav){
