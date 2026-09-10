@@ -105,11 +105,16 @@
 .align-row{ display:flex; align-items:center; gap:8px; margin-top:8px; }
 .align-row label{ font-size:12px; color:#5a554b; min-width:auto; }
 .align-row select{ padding:6px 10px; border-radius:6px; border:1px solid #d8cfbe; font-size:13px; background:#fffdf8; }
-.city-wrap{ display:flex; flex-direction:column; gap:8px; padding-left:18px; border-left:2px solid #e3dccd; margin:6px 0; }
-.city-row{ display:flex; align-items:center; gap:8px; background:#f7f3eb; border-radius:7px; padding:8px 10px; }
+.city-wrap{ display:flex; flex-direction:column; gap:10px; padding-left:18px; border-left:2px solid #e3dccd; margin:6px 0; }
+.city-block{ display:flex; flex-direction:column; gap:6px; background:#f7f3eb; border-radius:7px; padding:8px 10px; }
+.city-row{ display:flex; align-items:center; gap:8px; }
 .city-row .city-id{ font-size:11px; color:#8a8478; width:70px; overflow:hidden; text-overflow:ellipsis; }
 .city-row input{ flex:1; padding:7px 9px; border:1px solid #d8cfbe; border-radius:6px; font-size:13px; }
 .city-row select{ flex:1; padding:7px 9px; border:1px solid #d8cfbe; border-radius:6px; font-size:13px; }
+.city-hero-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.city-hero-row label{ font-size:12px; color:#5a554b; min-width:26px; }
+.city-hero-row input{ flex:1; min-width:120px; padding:7px 9px; border:1px solid #d8cfbe; border-radius:6px; font-size:13px; }
+.city-hero-row img{ max-height:60px; max-width:100px; border-radius:4px; object-fit:cover; display:block; }
 
 /* ---------- 移动端适配（手机操作后台） ---------- */
 @media (max-width: 860px){
