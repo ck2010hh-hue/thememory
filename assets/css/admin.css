@@ -155,3 +155,58 @@
   .side{ padding:8px 10px; }
   .side-brand{ font-size:13px; }
 }
+
+/* 后台年份相册管理 */
+.year-album-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:16px;
+  margin-bottom:30px;
+}
+.year-album-card{
+  background:#fffdf8;
+  border:1px solid #e3dccd;
+  border-radius:12px;
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.year-album-card .yac-year{
+  font-family:Georgia,"Songti SC",serif;
+  font-size:22px; text-align:center; color:#2b2b28;
+}
+.year-album-card .yac-img{
+  aspect-ratio:4/3;
+  background:#f3eee3;
+  border-radius:8px;
+  overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  min-height:90px;
+}
+.year-album-card .yac-img img{
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+.year-album-card .yac-img span{
+  font-size:12px; color:#8a8478;
+}
+.year-album-card textarea{
+  width:100%; box-sizing:border-box;
+  padding:8px 10px; border:1px solid #d8cfbe; border-radius:7px;
+  font-size:13px; background:#fffdf8; resize:vertical;
+  min-height:54px;
+}
+.year-album-card .yac-actions{
+  text-align:center;
+  display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+}
+.year-album-card .yac-view{
+  font-size:12px; color:#a98b4f; text-decoration:none; letter-spacing:.05em;
+  border-bottom:1px solid transparent;
+}
+.year-album-card .yac-view:hover{ border-color:#a98b4f; }
+
+@media (max-width: 860px){
+  .year-album-grid{ grid-template-columns:repeat(2,1fr); gap:12px; }
+}
+
