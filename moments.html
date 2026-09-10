@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Memory · Moments</title>
-<link rel="stylesheet" href="https://thememory-1482718043.cos.ap-shanghai.myqcloud.com/assets/css/style.css?v=19">
+<link rel="stylesheet" href="https://thememory-1482718043.cos.ap-shanghai.myqcloud.com/assets/css/style.css?v=21">
 </head>
 <body>
 
@@ -28,7 +28,11 @@
   </div>
 </header>
 
-<main class="moments-list" id="moments-list"></main>
+<nav class="year-nav" id="year-nav" aria-label="年份目录"></nav>
+<main class="moments-page-content" id="moments-page-content">
+  <div class="year-albums" id="year-albums"></div>
+</main>
+<main class="moments-list" id="moments-list" hidden></main>
 
 <footer id="join">
   THE MEMORY · 个人旅行日志 &nbsp;—&nbsp; 由 inaka 记录与整理<br>
@@ -44,7 +48,7 @@
   s.src = 'https://thememory-1482718043.cos.ap-shanghai.myqcloud.com/assets/js/site.js?_=' + Date.now();
   s.onerror = function(){
     var f = document.createElement('script');
-    f.src = 'assets/js/site.js?v=23';
+    f.src = 'assets/js/site.js?v=25';
     document.head.appendChild(f);
   };
   document.head.appendChild(s);
