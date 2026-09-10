@@ -245,6 +245,12 @@
     check();
   }
 
+  function mergeOrderArrays(to, from) {
+    if (!from) return to;
+    var set = new Set(to || []);
+    (from || []).forEach(function (id) { if (!set.has(id)) to.push(id); });
+    return to;
+  }
   function saveAll() {
     if (MODE === 'gh') {
       if (!GH_TOKEN) { toast('请先填入 GitHub Token'); return; }
@@ -253,6 +259,11 @@
       return ghApi('GET', p + '?ref=' + GH.branch).then(function (g) {
         if (!g.ok) throw new Error('读取远端失败 ' + g.status);
         GH_SHA = g.j.sha;
+        // 防覆盖：合并远端已有的 galleryOrder/favoritesOrder
+        var remote = {};
+        try { remote = JSON.parse(atob(g.j.content)); } catch (e) { remote = {}; }
+        mergeOrderArrays(DATA.galleryOrder, remote.galleryOrder);
+        mergeOrderArrays(DATA.favoritesOrder, remote.favoritesOrder);
         return ghApi('PUT', p, {
           message: 'update data.json via admin',
           content: b64(JSON.stringify(DATA, null, 2)),
