@@ -770,7 +770,24 @@
   }
   function getPlaceFeaturedHTML(d){
     var provinces = d.places.provinces || {};
-    var featured = Object.keys(provinces).filter(function(k){
+    var featured = d.places.featured || [];
+    /* 手动指定了精选时用配置；否则 fallback 自动逻辑 */
+    if (featured.length) {
+      return featured.map(function (f) {
+        var p = provinces[f.province];
+        if (!p) return '';
+        var albumId = f.albumId || null;
+        var cover = (albumId && d.albums[albumId]) ? coverThumb(d.albums[albumId]) : (p.hero || '');
+        var href = albumId ? ('album.html?id='+esc(albumId)+'&from=place') : ('province.html?province='+esc(f.province));
+        var sub = (albumId && d.albums[albumId]) ? esc(d.albums[albumId].title) : '查看省份';
+        return '<a class="pf-card reveal" href="'+href+'">'
+          + (cover ? '<div class="pf-img"><img src="'+esc(cover)+'" alt="'+esc(p.name)+'" loading="lazy"></div>' : '<div class="pf-img empty"></div>')
+          + '<div class="pf-meta"><div class="pf-name">'+esc(p.name)+'</div>'
+          + '<div class="pf-sub">'+sub+'</div></div></a>';
+      }).join('');
+    }
+    /* fallback：自动找有相册的省份 */
+    featured = Object.keys(provinces).filter(function(k){
       return Object.keys(provinces[k].cities||{}).some(function(ck){ return (provinces[k].cities[ck].albums||[]).length>0; });
     });
     if(!featured.length) featured = Object.keys(provinces);
