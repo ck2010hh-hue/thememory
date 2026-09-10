@@ -481,7 +481,7 @@
       grid.setAttribute('data-lightbox', id);
       grid.innerHTML = (a.photos||[]).map(function(p){
         var t = p.thumb || p.src;
-          return '<div class="cell"><img data-full="'+esc(p.src)+'" data-cap="'+esc(p.cap||'')+'" src="'+esc(t)+'" alt="" loading="lazy"></div>';
+          return '<div class="cell"><img data-full="'+esc(p.src)+'" data-cap="'+esc(p.cap||'')+'" src="'+esc(t)+'" alt=""></div>';
       }).join('');
     }
     var order = d.galleryOrder && d.galleryOrder.length ? d.galleryOrder : Object.keys(d.albums);
