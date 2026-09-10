@@ -251,7 +251,34 @@
     (from || []).forEach(function (id) { if (!set.has(id)) to.push(id); });
     return to;
   }
+  function parseYearFromDate(dateStr) {
+    var m = String(dateStr || '').match(/\d{4}/);
+    return m ? m[0] : null;
+  }
+  function syncYearAlbums() {
+    var m = DATA.moments = DATA.moments || {};
+    var years = [];
+    for (var y = 2016; y <= 2026; y++) years.push('year-' + y);
+    m.yearOrder = m.yearOrder || years;
+    m.yearAlbums = m.yearAlbums || {};
+    years.forEach(function (id) {
+      if (!m.yearAlbums[id]) {
+        m.yearAlbums[id] = { id: id, title: id.replace('year-', ''), place: '', date: id.replace('year-', ''), desc: '', hero: '', story: [], photos: [] };
+      }
+    });
+    years.forEach(function (id) { m.yearAlbums[id].photos = []; });
+    (m.items || []).forEach(function (it) {
+      var y = parseYearFromDate(it.date);
+      if (!y) return;
+      var id = 'year-' + y;
+      if (!m.yearAlbums[id]) return;
+      m.yearAlbums[id].photos.push({ src: it.media || '', cap: (it.place || '') + (it.date ? ' · ' + it.date : '') });
+    });
+    // 说明：hero 只代表「用户主动上传的封面」，不自动填充首图，
+    // 这样前台年份图文档里不会出现「封面 = 第一条图文」的重复。
+  }
   function saveAll() {
+    syncYearAlbums();
     if (MODE === 'gh') {
       if (!GH_TOKEN) { toast('请先填入 GitHub Token'); return; }
       toast('正在保存…');
@@ -259,11 +286,14 @@
       return ghApi('GET', p + '?ref=' + GH.branch).then(function (g) {
         if (!g.ok) throw new Error('读取远端失败 ' + g.status);
         GH_SHA = g.j.sha;
-        // 防覆盖：合并远端已有的 galleryOrder/favoritesOrder
+        // 防覆盖：合并远端已有的 galleryOrder/favoritesOrder/yearOrder
         var remote = {};
         try { remote = JSON.parse(atob(g.j.content)); } catch (e) { remote = {}; }
         mergeOrderArrays(DATA.galleryOrder, remote.galleryOrder);
         mergeOrderArrays(DATA.favoritesOrder, remote.favoritesOrder);
+        if (DATA.moments && DATA.moments.yearOrder && remote.moments && remote.moments.yearOrder) {
+          mergeOrderArrays(DATA.moments.yearOrder, remote.moments.yearOrder);
+        }
         return ghApi('PUT', p, {
           message: 'update data.json via admin',
           content: b64(JSON.stringify(DATA, null, 2)),
@@ -563,6 +593,58 @@
     hb.onclick = function () { pickFile(false, function (files) { uploadOne('moments', files[0], function (path) { if (path) { m.hero = path; hi.value = path; } }); }, 'image/*'); };
     hr.appendChild(hb); heroRow.appendChild(hr); head.appendChild(heroRow);
     wrap.appendChild(head);
+
+    // 年份相册管理
+    var yearHead = el('div', 'tab-head');
+    yearHead.appendChild(el('h3', 'sub-h', '年份相册（2016-2026）'));
+    wrap.appendChild(yearHead);
+    wrap.appendChild(el('p', 'hint', '保存时系统会根据上方「零散瞬间条目」里的日期，自动把照片归集到对应年份相册。这里可上传/替换封面，或编辑年份说明。'));
+    var yearGrid = el('div', 'year-album-grid');
+    var yOrder = m.yearOrder || [];
+    if (!m.yearAlbums) m.yearAlbums = {};
+    if (!yOrder.length) {
+      for (var yy = 2016; yy <= 2026; yy++) yOrder.push('year-' + yy);
+      m.yearOrder = yOrder;
+    }
+    yOrder.forEach(function (id) {
+      var a = m.yearAlbums[id];
+      if (!a) {
+        a = { id: id, title: id.replace('year-', ''), place: '', date: id.replace('year-', ''), desc: '', hero: '', story: [], photos: [] };
+        m.yearAlbums[id] = a;
+      }
+      var card = el('div', 'year-album-card');
+      card.appendChild(el('div', 'yac-year', a.title));
+      var imgWrap = el('div', 'yac-img');
+      if (a.hero) {
+        var im = document.createElement('img'); im.src = a.hero; im.alt = ''; imgWrap.appendChild(im);
+      } else {
+        imgWrap.appendChild(el('span', '', '暂无封面'));
+      }
+      card.appendChild(imgWrap);
+      var descInp = document.createElement('textarea'); descInp.rows = 2; descInp.value = a.desc || ''; descInp.placeholder = '年份说明';
+      descInp.oninput = function () { a.desc = descInp.value; };
+      card.appendChild(descInp);
+      var btnRow = el('div', 'yac-actions');
+      var upBtn = el('button', 'btn-mini', a.hero ? '替换封面' : '上传封面');
+      upBtn.onclick = function () {
+        pickFile(false, function (files) {
+          uploadOne(id, files[0], function (r) {
+            if (typeof r === 'string') { a.hero = r; }
+            else if (r) { a.hero = r.src; }
+            renderMoments();
+          });
+        }, 'image/*');
+      };
+      btnRow.appendChild(upBtn);
+      var viewLink = el('a', 'yac-view', '前台查看 →');
+      viewLink.href = 'moments.html?year=' + a.title;
+      viewLink.target = '_blank';
+      btnRow.appendChild(viewLink);
+      card.appendChild(btnRow);
+      yearGrid.appendChild(card);
+    });
+    wrap.appendChild(yearGrid);
+
     // 条目列表
     var listHead = el('div', 'tab-head');
     listHead.appendChild(el('h3', 'sub-h', '零散瞬间条目'));
