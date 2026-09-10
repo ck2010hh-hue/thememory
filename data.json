@@ -83,7 +83,142 @@
         "type": "image",
         "align": "center"
       }
-    ]
+    ],
+    "yearOrder": [
+      "year-2016",
+      "year-2017",
+      "year-2018",
+      "year-2019",
+      "year-2020",
+      "year-2021",
+      "year-2022",
+      "year-2023",
+      "year-2024",
+      "year-2025",
+      "year-2026"
+    ],
+    "yearAlbums": {
+      "year-2016": {
+        "id": "year-2016",
+        "title": "2016",
+        "place": "",
+        "date": "2016",
+        "desc": "",
+        "hero": "",
+        "story": [],
+        "photos": []
+      },
+      "year-2017": {
+        "id": "year-2017",
+        "title": "2017",
+        "place": "",
+        "date": "2017",
+        "desc": "",
+        "hero": "",
+        "story": [],
+        "photos": []
+      },
+      "year-2018": {
+        "id": "year-2018",
+        "title": "2018",
+        "place": "",
+        "date": "2018",
+        "desc": "",
+        "hero": "",
+        "story": [],
+        "photos": []
+      },
+      "year-2019": {
+        "id": "year-2019",
+        "title": "2019",
+        "place": "",
+        "date": "2019",
+        "desc": "",
+        "hero": "",
+        "story": [],
+        "photos": []
+      },
+      "year-2020": {
+        "id": "year-2020",
+        "title": "2020",
+        "place": "",
+        "date": "2020",
+        "desc": "",
+        "hero": "",
+        "story": [],
+        "photos": []
+      },
+      "year-2021": {
+        "id": "year-2021",
+        "title": "2021",
+        "place": "",
+        "date": "2021",
+        "desc": "",
+        "hero": "",
+        "story": [],
+        "photos": []
+      },
+      "year-2022": {
+        "id": "year-2022",
+        "title": "2022",
+        "place": "",
+        "date": "2022",
+        "desc": "",
+        "hero": "",
+        "story": [],
+        "photos": []
+      },
+      "year-2023": {
+        "id": "year-2023",
+        "title": "2023",
+        "place": "",
+        "date": "2023",
+        "desc": "",
+        "hero": "",
+        "story": [],
+        "photos": []
+      },
+      "year-2024": {
+        "id": "year-2024",
+        "title": "2024",
+        "place": "",
+        "date": "2024",
+        "desc": "",
+        "hero": "",
+        "story": [],
+        "photos": []
+      },
+      "year-2025": {
+        "id": "year-2025",
+        "title": "2025",
+        "place": "",
+        "date": "2025",
+        "desc": "",
+        "hero": "",
+        "story": [],
+        "photos": [
+          {
+            "src": "media/albums/moments/IMG_20251025_081259.jpg",
+            "cap": "江苏 · 南京 · 2025.10.25"
+          }
+        ]
+      },
+      "year-2026": {
+        "id": "year-2026",
+        "title": "2026",
+        "place": "",
+        "date": "2026",
+        "desc": "",
+        "hero": "",
+        "story": [],
+        "photos": [
+          {
+            "src": "media/albums/huangshan/IMG_20260218_082134.jpg",
+            "cap": "黄山 · 安徽 · 2026.02.18"
+          }
+        ]
+      }
+    }
   },
   "places": {
     "provinces": {
