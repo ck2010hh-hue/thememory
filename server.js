@@ -225,6 +225,13 @@ const server = http.createServer(async (req, res) => {
           cur.forEach(function (id) { if (!set.has(id)) inc.push(id); });
           incoming[key] = inc;
         });
+        // Moments 年份顺序同样合并，防止旧客户端覆盖新加的年份相册
+        if (incoming.moments && incoming.moments.yearOrder && current.moments && current.moments.yearOrder) {
+          const incY = incoming.moments.yearOrder;
+          const curY = current.moments.yearOrder || [];
+          const setY = new Set(incY);
+          curY.forEach(function (id) { if (!setY.has(id)) incY.push(id); });
+        }
         const out = JSON.stringify(incoming, null, 2);
         const tmp = DATA_FILE + '.tmp';
         fs.writeFile(tmp, out, 'utf8', () => {
