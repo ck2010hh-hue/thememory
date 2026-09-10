@@ -313,14 +313,11 @@ a{ color:inherit; text-decoration:none; }
 /* 当 Moments 入口放在 .chapter 容器内时，抵消 chapter 的水平内边距，保持大图撑满视口 */
 #moments .moments-hero{ margin-left:-8vw; margin-right:-8vw; }
 .moments-hero .mh-link{
-  position:relative; display:block; width:100%;
-  /* 默认 16:9，JS 读取图片真实比例后覆盖为 --mh-ratio，让竖图也能完整展示 */
-  aspect-ratio: var(--mh-ratio, 16/9); height:auto; min-height:auto; max-height:none;
+  position:relative; display:block; width:100%; height:62vh; min-height:420px; max-height:720px;
   overflow:hidden; border-radius:6px; color:#fff;
-  background:var(--bg-soft);
 }
 .moments-hero .mh-bg{
-  position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
+  position:absolute; inset:0; background:center/cover no-repeat;
   transition:transform 1.2s ease;
 }
 .moments-hero .mh-link:hover .mh-bg{ transform:scale(1.03); }
@@ -337,27 +334,20 @@ a{ color:inherit; text-decoration:none; }
 .moments-hero .mh-dots{ display:flex; gap:10px; }
 .moments-hero .mh-dots span{ width:5px; height:5px; border-radius:50%; background:#fff; opacity:.7; }
 .moments-hero .mh-enter{
-  position:absolute; left:6vw; bottom:40px; z-index:2;
-  display:inline-flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
-  min-width:90px; min-height:90px; padding:14px 18px; border-radius:50%;
-  border:1px solid rgba(255,255,255,.7); background:rgba(20,18,16,.35); color:#fff;
-  font-size:12px; letter-spacing:.15em; text-transform:lowercase;
-  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
-  cursor:pointer; transition:background .3s, border-color .3s, transform .3s;
-  box-shadow:0 8px 24px rgba(0,0,0,.18);
+  position:absolute; right:6vw; top:50%; transform:translateY(-50%); z-index:2;
+  font-size:14px; letter-spacing:.15em; text-transform:lowercase;
+  border-bottom:1px solid rgba(255,255,255,.7); padding-bottom:4px; opacity:.9;
+  transition:opacity .3s, border-color .3s, right .3s;
 }
-.moments-hero .mh-enter .mhe-main{ font-size:12px; letter-spacing:.18em; font-weight:500; }
-.moments-hero .mh-enter .mhe-sub{ display:block; font-size:11px; letter-spacing:.06em; opacity:.85; margin-top:5px; }
-.moments-hero .mh-link:hover .mh-enter{ background:rgba(20,18,16,.6); border-color:#fff; transform:translateY(-3px); }
+.moments-hero .mh-link:hover .mh-enter{ opacity:1; border-color:#fff; right:5.6vw; }
 @media (max-width:900px){
   .moments-hero{ padding:0 5vw 16px; }
-  .moments-hero .mh-link{ aspect-ratio: var(--mh-ratio, 16/9); height:auto; min-height:auto; max-height:none; }
+  .moments-hero .mh-link{ height:68vh; min-height:360px; }
   .moments-hero .mh-veil{ background:linear-gradient(180deg, rgba(30,26,22,.38) 0%, rgba(30,26,22,.48) 100%); }
   .moments-hero .mh-text{ width:100%; padding:40px 28px; text-align:center; align-items:center; }
   .moments-hero .mh-title{ font-size:26px; }
-  .moments-hero .mh-enter{ left:28px; bottom:28px; min-width:78px; min-height:78px; padding:12px 14px; }
-  .moments-hero .mh-enter .mhe-main{ font-size:11px; }
-  .moments-hero .mh-enter .mhe-sub{ font-size:10px; margin-top:4px; }
+  .moments-hero .mh-enter{ right:auto; left:50%; top:auto; bottom:40px; transform:translateX(-50%); }
+  .moments-hero .mh-link:hover .mh-enter{ right:auto; left:50%; }
 }
 
 /* ---------- Moments：二级页 ---------- */
@@ -415,25 +405,10 @@ a{ color:inherit; text-decoration:none; }
 .detail-body p{ font-size:16px; color:var(--ink-soft); margin-bottom:22px; line-height:2.1; }
 .detail-body .first-letter::first-letter{ font-family:var(--serif); font-size:3.4em; float:left; line-height:.8; padding:6px 12px 0 0; color:var(--ink); }
 
-.grid{
-  column-count:3; column-gap:14px; padding:0 8vw 130px;
-}
-.grid .cell{
-  break-inside:avoid; margin-bottom:14px; cursor:zoom-in;
-  background:var(--bg-soft); overflow:hidden; border-radius:4px;
-}
-.grid .cell img{
-  display:block; width:100%; height:auto;
-  transition:transform .6s ease;
-}
-.grid .cell:hover img{ transform:scale(1.03); }
-
-@media (max-width:900px){
-  .grid{ column-count:2; padding:0 5vw 100px; }
-}
-@media (max-width:560px){
-  .grid{ column-count:1; padding:0 5vw 80px; }
-}
+.grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; padding:0 8vw 130px; }
+.grid .cell{ overflow:hidden; cursor:zoom-in; aspect-ratio:1/1; background:var(--bg-soft); }
+.grid .cell img{ width:100%; height:100%; object-fit:cover; transition:transform .6s ease; }
+.grid .cell:hover img{ transform:scale(1.05); }
 
 /* 灯箱 */
 .lightbox{ position:fixed; inset:0; background:rgba(15,13,11,.94); z-index:100; display:none; align-items:center; justify-content:center; }
@@ -735,3 +710,107 @@ footer{ text-align:center; padding:60px 20px; color:var(--ink-soft); font-size:1
 @media (max-width:780px){
   .film-list{ padding:0 22px; }
 }
+
+/* ---------- Moments 年份目录 ---------- */
+.year-nav{
+  display:flex; justify-content:center; flex-wrap:wrap; gap:14px;
+  padding:0 8vw 50px; max-width:1180px; margin:0 auto;
+}
+.year-btn{
+  min-width:78px; padding:10px 22px;
+  border:1px solid var(--line); border-radius:999px;
+  background:var(--bg); color:var(--ink-soft);
+  font-family:var(--serif); font-size:15px; letter-spacing:.06em;
+  cursor:pointer; transition:background .3s, color .3s, border-color .3s, transform .25s;
+  box-shadow:0 4px 14px rgba(43,38,34,.06);
+}
+.year-btn:hover{
+  background:var(--bg-soft); color:var(--ink); border-color:var(--accent);
+  transform:translateY(-2px);
+}
+.year-btn.active{
+  background:var(--accent); color:#fff; border-color:var(--accent);
+}
+
+/* 年份相册网格 */
+.moments-page-content{
+  max-width:1180px; margin:0 auto; padding:0 8vw 140px;
+}
+.year-albums{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:30px;
+}
+.year-card{
+  display:block; background:var(--bg-soft); overflow:hidden;
+  border-radius:6px; position:relative;
+  transition:transform .35s, box-shadow .35s;
+  box-shadow:var(--img-shadow);
+}
+.year-card:hover{
+  transform:translateY(-5px); box-shadow:var(--img-shadow-hover);
+}
+.year-card .yc-img{
+  aspect-ratio:4/3; overflow:hidden; background:var(--line);
+  display:flex; align-items:center; justify-content:center;
+}
+.year-card .yc-img img{
+  width:100%; height:100%; object-fit:cover;
+  transition:transform .6s ease;
+}
+.year-card:hover .yc-img img{ transform:scale(1.04); }
+.year-card .yc-img.empty{
+  background:repeating-linear-gradient(45deg,#efe8da,#efe8da 12px,#e9e0cf 12px,#e9e0cf 24px);
+}
+.year-card .yc-img.empty span{
+  font-family:var(--serif); font-size:32px; color:var(--ink-soft); opacity:.6;
+}
+.year-card .yc-info{
+  padding:22px 24px; text-align:center;
+}
+.year-card .yc-year{
+  font-family:var(--serif); font-size:28px; font-weight:400; letter-spacing:.04em;
+}
+.year-card .yc-count{
+  margin-top:6px; font-size:12px; letter-spacing:.15em; color:var(--ink-soft); text-transform:uppercase;
+}
+
+@media (max-width:900px){
+  .year-nav{ padding:0 5vw 40px; gap:10px; }
+  .year-btn{ min-width:68px; padding:9px 18px; font-size:14px; }
+  .moments-page-content{ padding:0 5vw 100px; }
+  .year-albums{ grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:22px; }
+}
+@media (max-width:560px){
+  .year-nav{ gap:8px; }
+  .year-btn{ min-width:60px; padding:8px 14px; font-size:13px; }
+  .year-albums{ grid-template-columns:repeat(2,1fr); gap:16px; }
+  .year-card .yc-info{ padding:16px; }
+  .year-card .yc-year{ font-size:22px; }
+}
+
+/* ---------- 年份图文档（点年份进入，沿用图文竖排模式） ---------- */
+body.is-year-view .year-nav,
+body.is-year-view .moments-page-content{ display:none; }
+.moments-list[hidden]{ display:none !important; }
+.year-detail-top{
+  display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+  margin-bottom:46px;
+}
+.year-back{
+  font-size:12px; letter-spacing:.2em; color:var(--ink-soft);
+  border-bottom:1px solid transparent; transition:color .3s, border-color .3s;
+}
+.year-back:hover{ color:var(--accent); border-color:var(--accent); }
+.year-detail-count{
+  font-size:11px; letter-spacing:.2em; color:var(--ink-soft); text-transform:uppercase;
+}
+.year-cover{
+  margin:0 auto 84px; box-shadow:var(--img-shadow); border-radius:4px; overflow:hidden;
+}
+.year-cover img{ width:100%; height:auto; display:block; }
+@media (max-width:780px){
+  .year-detail-top{ margin-bottom:32px; }
+  .year-cover{ margin-bottom:56px; }
+}
+
