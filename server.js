@@ -16,11 +16,10 @@ const MEDIA_DIR = path.join(ROOT, 'media');
 const PORT = process.env.PORT || 8787;
 
 // ---- 云端同步（腾讯云 COS）：本地保存后自动上传/删除云端副本 ----
-// 站点现已迁移到 GitHub Pages + jsDelivr，不再依赖 COS 作为线上资源来源；
-// 且 COS 账号已欠费（451）。默认关闭云同步，避免上传/保存被卡住。
-// 若日后需要，可设 TM_SYNC_CLOUD=1 重新开启。
+// 站点资源（html/css/js/json/媒体）现在统一走国内 COS，保存/上传后自动同步到 COS。
+// 如 COS 不可用，可设 TM_SYNC_CLOUD=0 临时关闭。
 const PYTHON = process.env.TM_PYTHON || 'C:\\Users\\m1333\\.workbuddy\\binaries\\python\\versions\\3.13.12\\python.exe';
-const SYNC_CLOUD = process.env.TM_SYNC_CLOUD === '1';   // 默认关闭，仅显式开启时同步
+const SYNC_CLOUD = process.env.TM_SYNC_CLOUD !== '0';   // 默认开启
 const TOOLS_DIR = path.join(ROOT, 'tools');
 // 本地 ffmpeg（用于上传视频时裁剪/压缩）。放在 tools/ 下，gh_push 不会把它推到仓库。
 const FFMPEG = process.env.TM_FFMPEG || path.join(TOOLS_DIR, 'ffmpeg.exe');
