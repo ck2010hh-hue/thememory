@@ -347,10 +347,15 @@
       var mhSub = document.getElementById('moments-hero-sub');
       if(mhBg && d.moments.hero){
         var heroUrl = d.moments.hero;
-        mhBg.style.backgroundImage = 'url("'+esc(heroUrl)+'")';
+        var mhLink = document.querySelector('.moments-hero .mh-link');
+        mhBg.src = heroUrl;
+        mhBg.onload = function(){
+          var w = mhBg.naturalWidth || 16, h = mhBg.naturalHeight || 9;
+          if(mhLink) mhLink.style.setProperty('--mh-ratio', w + '/' + h);
+        };
         if(CDN_BASE && heroUrl.indexOf(CDN_BASE)===0){
           var probe = new Image();
-          probe.onerror = function(){ mhBg.style.backgroundImage = 'url("'+esc(heroUrl.slice(CDN_BASE.length))+'")'; };
+          probe.onerror = function(){ mhBg.src = heroUrl.slice(CDN_BASE.length); };
           probe.src = heroUrl;
         }
       }
