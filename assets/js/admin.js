@@ -966,11 +966,35 @@
       iTa.oninput = function(){ p.intro = iTa.value; };
       iRow.appendChild(iTa);
       item.appendChild(iRow);
+      // 省份页背景图
+      var hRow = el('div', 'field-row');
+      hRow.appendChild(el('label', '', '背景图'));
+      var hIn = inp('text', p.hero || '', function(v){ p.hero = v; });
+      hIn.style.flex = '1'; hIn.placeholder = '如 assets/images/provinces/anhui-hero.jpg，留空则无背景';
+      hRow.appendChild(hIn);
+      if(p.hero){
+        var hImg = document.createElement('img');
+        hImg.src = p.hero; hImg.alt = '';
+        hImg.style.cssText = 'max-height:80px;max-width:140px;border-radius:4px;object-fit:cover;display:block;';
+        hRow.appendChild(hImg);
+      }
+      var hBtn = el('button', 'btn-mini', p.hero ? '替换背景图' : '上传背景图');
+      hBtn.onclick = function(){
+        pickFile(false, function(files){
+          uploadOne('_places/provinces/' + k, files[0], function(r){
+            var path = (typeof r === 'string') ? r : (r && r.src);
+            if(path){ p.hero = path; renderProvinces(); }
+          });
+        }, 'image/*');
+      };
+      hRow.appendChild(hBtn);
+      item.appendChild(hRow);
       // 城市
       var cities = p.cities || (p.cities = {});
       var cityWrap = el('div', 'city-wrap');
       Object.keys(cities).forEach(function (ck) {
         var c = cities[ck];
+        var block = el('div', 'city-block');
         var cRow = el('div', 'city-row');
         cRow.appendChild(el('span', 'city-id', ck));
         var cName = inp('text', c.name || '', function (v) { c.name = v; });
@@ -988,7 +1012,32 @@
         var rm = el('button', 'btn-danger', '删');
         rm.onclick = function () { delete cities[ck]; renderProvinces(); };
         cRow.appendChild(rm);
-        cityWrap.appendChild(cRow);
+        block.appendChild(cRow);
+
+        // 城市页背景图（留空则自动取该城市首个相册的主图）
+        var chRow = el('div', 'city-hero-row');
+        chRow.appendChild(el('label', '', '背景'));
+        var chIn = inp('text', c.hero || '', function(v){ c.hero = v; });
+        chIn.style.flex = '1'; chIn.placeholder = '市页大图，留空则自动取首个相册';
+        chRow.appendChild(chIn);
+        if(c.hero){
+          var chImg = document.createElement('img');
+          chImg.src = c.hero; chImg.alt = '';
+          chImg.style.cssText = 'max-height:60px;max-width:100px;border-radius:4px;object-fit:cover;display:block;';
+          chRow.appendChild(chImg);
+        }
+        var chBtn = el('button', 'btn-mini', c.hero ? '替换' : '上传');
+        chBtn.onclick = function(){
+          pickFile(false, function(files){
+            uploadOne('_places/provinces/' + k + '/cities/' + ck, files[0], function(r){
+              var path = (typeof r === 'string') ? r : (r && r.src);
+              if(path){ c.hero = path; renderProvinces(); }
+            });
+          }, 'image/*');
+        };
+        chRow.appendChild(chBtn);
+        block.appendChild(chRow);
+        cityWrap.appendChild(block);
       });
       item.appendChild(cityWrap);
       // 添加城市
