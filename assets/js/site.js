@@ -433,7 +433,7 @@
       }
       var textHtml = '<div class="moment-text">'
         + '<div class="moment-meta"><span class="moment-date">'+esc(it.date||'')+'</span><span class="moment-place">'+esc(it.place||'')+'</span></div>'
-        + '<div class="moment-body">'+esc(it.text||'').replace(/\n/g,'<br>')+'</div>'
+        + '<div class="moment-body">'+formatDesc(it.text, it.align)+'</div>'
         + '</div>';
       return '<article class="moment-item reveal'+(isEven?'':' reverse')+'">' + (isEven ? mediaHtml + textHtml : textHtml + mediaHtml) + '</article>';
     }).join('');
@@ -1009,6 +1009,14 @@
       function close(){ lb.classList.remove('open'); if(lb._keyEv) document.removeEventListener('keydown',lb._keyEv); }
     });
   }
+  /* 通用：把带空行分段的文本渲染成 <p>，支持 align=center */
+  function formatDesc(text, align){
+    var s = (text || '').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+    var style = (align === 'center') ? ' style="text-align:center;"' : '';
+    var ps = s.split(/\n\s*\n/).filter(function(p){ return p.trim(); }).map(function(p){ return '<p'+style+'>'+esc(p)+'</p>'; }).join('');
+    return ps || '<p style="opacity:.5;">（暂无说明）</p>';
+  }
+
   function initVideoCarousel(){
     var vp=document.querySelector('.vpage'); if(!vp) return;
     var vids=(DATA && DATA.site && DATA.site.videos) ? DATA.site.videos : [];
@@ -1016,12 +1024,6 @@
     var stage=vp.querySelector('.vstage');
     var sub=vp.querySelector('.vside-sub'), main=vp.querySelector('.vside-title'), desc=vp.querySelector('.vside-desc'), count=vp.querySelector('.vcount');
     var cur=0;
-    function renderDesc(text, align){
-      var s = (text || '').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
-      var style = (align === 'center') ? ' style="text-align:center;"' : '';
-      var ps = s.split(/\n\s*\n/).filter(function(p){ return p.trim(); }).map(function(p){ return '<p'+style+'>'+esc(p)+'</p>'; }).join('');
-      if(desc) desc.innerHTML = ps || '<p style="opacity:.5;">（暂无说明）</p>';
-    }
     function load(i){
       cur=(i+vids.length)%vids.length; var v=vids[cur];
       stage.innerHTML='<video playsinline muted preload="auto"><source src="'+v.src+'" type="video/mp4"></video>';
@@ -1029,7 +1031,7 @@
       video.play().catch(function(){});
       if(sub) sub.textContent=v.sub||'';
       if(main) main.textContent=v.title||'';
-      if(desc) renderDesc(v.desc, v.align);
+      if(desc) desc.innerHTML = formatDesc(v.desc, v.align);
       if(count) count.textContent=(cur+1)+' / '+vids.length;
     }
     vp.querySelector('.vprev').addEventListener('click',function(){load(cur-1);});
