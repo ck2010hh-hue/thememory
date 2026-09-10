@@ -258,8 +258,12 @@
   function syncYearAlbums() {
     var m = DATA.moments = DATA.moments || {};
     var years = [];
-    for (var y = 2016; y <= 2026; y++) years.push('year-' + y);
+    for (var y = 2026; y >= 2016; y--) years.push('year-' + y);
     m.yearOrder = m.yearOrder || years;
+    // 顺序固定为最新年份在最上（防止旧内存顺序覆盖后回退）
+    m.yearOrder.sort(function (a, b) {
+      return (parseInt(b.replace('year-', ''), 10) || 0) - (parseInt(a.replace('year-', ''), 10) || 0);
+    });
     m.yearAlbums = m.yearAlbums || {};
     years.forEach(function (id) {
       if (!m.yearAlbums[id]) {
@@ -603,9 +607,13 @@
     var yOrder = m.yearOrder || [];
     if (!m.yearAlbums) m.yearAlbums = {};
     if (!yOrder.length) {
-      for (var yy = 2016; yy <= 2026; yy++) yOrder.push('year-' + yy);
+      for (var yy = 2026; yy >= 2016; yy--) yOrder.push('year-' + yy);
       m.yearOrder = yOrder;
     }
+    // 与前台一致：最新年份在最上
+    yOrder.sort(function (a, b) {
+      return (parseInt(b.replace('year-', ''), 10) || 0) - (parseInt(a.replace('year-', ''), 10) || 0);
+    });
     yOrder.forEach(function (id) {
       var a = m.yearAlbums[id];
       if (!a) {
