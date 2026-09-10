@@ -412,36 +412,102 @@
     }
   }
 
-  /* ---------- 渲染：Moments 零散瞬间页 ---------- */
+  /* ---------- 渲染：Moments 年份目录 + 年份相册 ---------- */
   function renderMomentsPage(d){
     var m = d.moments;
     if(!m){ document.body.innerHTML = '<p style="padding:120px;text-align:center;">暂无 Moments 数据</p>'; return; }
+    // 年份图文档：?year=2026 —— 延续原有图文竖排展示模式
+    var yearParam = new URLSearchParams(location.search).get('year');
+    if(yearParam){ renderYearDetail(m, yearParam); return; }
     document.title = (m.navLabel || 'Moments') + ' · The Memory';
     var title = document.getElementById('moments-page-title');
     var sub = document.getElementById('moments-page-sub');
     if(title) title.textContent = m.title || '';
     if(sub) sub.textContent = m.subtitle || '';
-    var wrap = document.getElementById('moments-list');
+
+    var order = m.yearOrder || [];
+    var years = order.map(function(id){ return id.replace('year-',''); });
+    var nav = document.getElementById('year-nav');
+    if(nav){
+      if(!order.length){
+        nav.innerHTML = '';
+      } else {
+        nav.innerHTML = years.map(function(y){
+          return '<button class="year-btn" data-year="'+esc(y)+'">'+esc(y)+'</button>';
+        }).join('');
+        nav.querySelectorAll('.year-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var y = this.getAttribute('data-year');
+            var target = document.getElementById('year-anchor-'+y);
+            if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+          });
+        });
+      }
+    }
+
+    var wrap = document.getElementById('year-albums');
     if(!wrap) return;
-    var items = m.items || [];
-    if(!items.length){
-      wrap.innerHTML = '<p class="center-note">后台「瞬间管理」中添加第一条记录后，会显示在这里。</p>';
+    if(!order.length){
+      wrap.innerHTML = '<p class="center-note">后台「瞬间管理」中配置年份后，会显示在这里。</p>';
       return;
     }
-    wrap.innerHTML = items.map(function(it, i){
-      var isEven = (i % 2 === 0);
-      var mediaHtml = '';
-      if(it.type === 'video' || (it.media && /\.(mp4|mov|webm)$/i.test(it.media))){
-        mediaHtml = '<div class="moment-media"><video controls playsinline preload="metadata" src="'+esc(it.media)+'"></video></div>';
-      } else {
-        mediaHtml = '<div class="moment-media image-only"><img src="'+esc(it.media)+'" alt="" loading="lazy"></div>';
-      }
-      var textHtml = '<div class="moment-text">'
-        + '<div class="moment-meta"><span class="moment-date">'+esc(it.date||'')+'</span><span class="moment-place">'+esc(it.place||'')+'</span></div>'
-        + '<div class="moment-body">'+formatDesc(it.text, it.align)+'</div>'
-        + '</div>';
-      return '<article class="moment-item reveal'+(isEven?'':' reverse')+'">' + (isEven ? mediaHtml + textHtml : textHtml + mediaHtml) + '</article>';
+    wrap.innerHTML = order.map(function(id){
+      var a = m.yearAlbums && m.yearAlbums[id]; if(!a) return '';
+      var y = id.replace('year-','');
+      var cover = a.hero || (a.photos && a.photos[0] && a.photos[0].src) || '';
+      var count = (a.photos || []).length;
+      return '<a class="year-card reveal" id="year-anchor-'+esc(y)+'" href="moments.html?year='+esc(y)+'">'
+        + (cover ? '<div class="yc-img"><img src="'+esc(cover)+'" alt="'+esc(y)+'"></div>' : '<div class="yc-img empty"></div>')
+        + '<div class="yc-info"><div class="yc-year">'+esc(y)+'</div><div class="yc-count">'+count+' 个瞬间</div></div>'
+        + '</a>';
     }).join('');
+    // 年份相册卡片首屏即显示，不依赖滚动淡入
+    Array.from(wrap.querySelectorAll('.year-card')).forEach(function(card){ card.classList.add('in'); });
+  }
+
+  /* ---------- 渲染：某一年份的图文档（沿用原 Moments 图文竖排模式） ---------- */
+  function renderYearDetail(m, y){
+    document.body.classList.add('is-year-view');
+    document.title = y + ' · Moments · The Memory';
+    var label = document.querySelector('.mh-header-label');
+    if(label) label.textContent = 'Year';
+    var title = document.getElementById('moments-page-title');
+    if(title) title.textContent = y;
+    var a = (m.yearAlbums && m.yearAlbums['year-'+y]) || {};
+    var items = (m.items || []).filter(function(it){
+      return String(it.date || '').indexOf(y) > -1;
+    });
+    var sub = document.getElementById('moments-page-sub');
+    if(sub) sub.textContent = a.desc || (items.length + ' 个瞬间');
+    var nav = document.getElementById('year-nav'); if(nav) nav.innerHTML = '';
+    var wrap = document.getElementById('moments-list');
+    if(!wrap) return;
+    wrap.hidden = false;
+    var html = '<div class="year-detail-top reveal"><a class="year-back" href="moments.html">← 全部年份</a>'
+      + '<span class="year-detail-count">'+items.length+' 个瞬间</span></div>';
+    var cover = a.hero || '';
+    if(cover) html += '<figure class="year-cover reveal"><img src="'+esc(cover)+'" alt="'+esc(y)+'"></figure>';
+    if(!items.length){
+      html += '<p class="center-note">这一年还没有图文。后台「瞬间管理」中添加条目并填写 '+esc(y)+' 年日期后，会自动归档到这里。</p>';
+    } else {
+      html += items.map(function(it, i){
+        var isEven = (i % 2 === 0);
+        var mediaHtml;
+        if(it.type === 'video' || (it.media && /\.(mp4|mov|webm)$/i.test(it.media))){
+          mediaHtml = '<div class="moment-media"><video controls playsinline preload="metadata" src="'+esc(it.media)+'"></video></div>';
+        } else {
+          mediaHtml = '<div class="moment-media image-only"><img src="'+esc(it.media)+'" alt=""></div>';
+        }
+        var textHtml = '<div class="moment-text">'
+          + '<div class="moment-meta"><span class="moment-date">'+esc(it.date||'')+'</span><span class="moment-place">'+esc(it.place||'')+'</span></div>'
+          + '<div class="moment-body">'+formatDesc(it.text, it.align)+'</div>'
+          + '</div>';
+        return '<article class="moment-item reveal'+(isEven?'':' reverse')+'">' + (isEven ? mediaHtml + textHtml : textHtml + mediaHtml) + '</article>';
+      }).join('');
+    }
+    wrap.innerHTML = html;
+    // 首屏条目立即显示，避免 .reveal 未触发导致的空白
+    Array.from(wrap.querySelectorAll('.reveal')).slice(0, 3).forEach(function(el){ el.classList.add('in'); });
   }
 
   /* ---------- 渲染：相册详情 ---------- */
@@ -485,7 +551,12 @@
       }).join('');
       grid.classList.add('in');
     }
-    var order = d.galleryOrder && d.galleryOrder.length ? d.galleryOrder : Object.keys(d.albums);
+    var order;
+    if(id.indexOf('year-') === 0 && d.moments && d.moments.yearOrder && d.moments.yearOrder.length){
+      order = d.moments.yearOrder;
+    } else {
+      order = d.galleryOrder && d.galleryOrder.length ? d.galleryOrder : Object.keys(d.albums);
+    }
     var idx = order.indexOf(id);
     var nextId = order[(idx+1) % order.length];
     var next = document.querySelector('.detail-foot a:last-child');
@@ -878,6 +949,7 @@
         crumbs.push({label:'Places', href:'place.html'});
         if(prov2) crumbs.push({label:prov2.name, href:'province.html?province='+encodeURIComponent(p2)});
       } else if(from==='place'){ crumbs.push({label:'Places', href:'place.html'}); }
+      else if(from==='moments'){ crumbs.push({label:'Moments', href:'moments.html'}); }
       if(a) crumbs.push({label:a.title, href:null});
     }
     bc.innerHTML = crumbs.map(function(c,i){
