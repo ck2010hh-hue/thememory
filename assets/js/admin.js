@@ -32,16 +32,18 @@
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
   function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
-  /* 可复用的「说明」编辑器：大文本框 + 回车换行 + 对齐选择 */
-  function descEditor(v) {
+  /* 可复用的「说明/文案」编辑器：大文本框 + 回车换行 + 对齐选择 */
+  function descEditor(v, key, label) {
+    key = key || 'desc';
+    label = label || '说明（回车换行，空行分段）';
     var wrap = el('div', 'desc-editor');
-    wrap.appendChild(el('div', 'de-label', '说明（回车换行，空行分段）'));
+    wrap.appendChild(el('div', 'de-label', label));
     var ta = document.createElement('textarea');
     ta.className = 'desc-area';
     ta.rows = 6;
-    ta.value = (v.desc || '').replace(/<br>/g, '\n');
-    ta.placeholder = '输入说明文字，回车换行，两段之间空一行...';
-    ta.oninput = function () { v.desc = ta.value; };
+    ta.value = (v[key] || '').replace(/<br>/g, '\n');
+    ta.placeholder = '输入文字，回车换行，两段之间空一行...';
+    ta.oninput = function () { v[key] = ta.value; };
     wrap.appendChild(ta);
     var alignRow = el('div', 'align-row');
     alignRow.appendChild(el('label', '', '对齐'));
@@ -582,10 +584,8 @@
       typeRow.appendChild(sel);
       card.appendChild(typeRow);
       var textRow = el('div', 'field');
-      textRow.appendChild(el('label', null, '文案'));
-      var ta = document.createElement('textarea'); ta.rows = 4; ta.value = it.text || '';
-      ta.oninput = function () { it.text = ta.value; };
-      textRow.appendChild(ta); card.appendChild(textRow);
+      textRow.appendChild(descEditor(it, 'text', '文案（回车换行，空行分段）'));
+      card.appendChild(textRow);
       var mediaRow = el('div', 'field');
       mediaRow.appendChild(el('label', null, '照片 / 视频文件'));
       var mr = el('div', 'row');
